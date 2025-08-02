@@ -1,7 +1,13 @@
 import Foundation
 import ScreenCaptureKit
+#if MOCKING
+import Mockable
+#endif
 
 @MainActor
+#if MOCKING
+@Mockable
+#endif
 protocol MeetingDetectorType: ObservableObject {
     var isMeetingActive: Bool { get }
     var meetingTitle: String? { get }

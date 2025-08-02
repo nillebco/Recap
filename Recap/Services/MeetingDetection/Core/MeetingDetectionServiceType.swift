@@ -1,7 +1,13 @@
 import Foundation
 import Combine
+#if MOCKING
+import Mockable
+#endif
 
 @MainActor
+#if MOCKING
+@Mockable
+#endif
 protocol MeetingDetectionServiceType: ObservableObject {
     var isMeetingActive: Bool { get }
     var activeMeetingInfo: ActiveMeetingInfo? { get }
