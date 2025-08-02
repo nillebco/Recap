@@ -228,3 +228,18 @@ I really need help finishing Recap! Any contribution is greatly welcomed.
 
 All skill levels welcome - from fixing typos to architecting new features. Let's build something great together. I really mean it!
 
+## License
+
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License**.
+
+**What this means:**
+- ✅ **Free personal use** - Use, modify, and share for personal projects
+- ✅ **Open source contributions** - Fork, improve, and contribute back
+- ✅ **Educational use** - Perfect for learning and teaching
+- ❌ **Commercial redistribution** - Cannot resell or distribute commercially without permission
+- ❌ **App Store uploads** - Cannot publish to app stores for profit
+
+If you want to use Recap commercially or have questions about licensing, please reach out to discuss options.
+
+See the [LICENSE](LICENSE) file for full details.
+
