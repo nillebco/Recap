@@ -30,14 +30,18 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-deriveddata-
     
+    - name: Install xcbeautify
+      run: brew install xcbeautify
+    
     - name: Build and Test
       run: |
-        cd Recap
+        set -o pipefail
         xcodebuild test \
-          -project Recap.xcodeproj \
+          -project Recap/Recap.xcodeproj \
           -scheme Recap \
           -destination 'platform=macOS' \
-          -resultBundlePath TestResults \
+          -resultBundlePath TestResults.xcresult \
+          -only-testing:RecapTests \
           | xcbeautify
     
     - name: Comment PR on Failure

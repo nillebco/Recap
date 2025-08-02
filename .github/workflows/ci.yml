@@ -45,11 +45,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-deriveddata-
     
+    - name: Install xcbeautify
+      run: brew install xcbeautify
+    
     - name: Build Debug
       run: |
-        cd Recap
+        set -o pipefail
         xcodebuild build \
-          -project Recap.xcodeproj \
+          -project Recap/Recap.xcodeproj \
           -scheme Recap \
           -configuration Debug \
           -destination 'platform=macOS' \
@@ -57,9 +60,9 @@ jobs:
     
     - name: Build Release
       run: |
-        cd Recap
+        set -o pipefail
         xcodebuild build \
-          -project Recap.xcodeproj \
+          -project Recap/Recap.xcodeproj \
           -scheme Recap \
           -configuration Release \
           -destination 'platform=macOS' \
@@ -87,20 +90,23 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-deriveddata-
     
+    - name: Install xcbeautify
+      run: brew install xcbeautify
+    
     - name: Run Tests with Coverage
       run: |
-        cd Recap
+        set -o pipefail
         xcodebuild test \
-          -project Recap.xcodeproj \
+          -project Recap/Recap.xcodeproj \
           -scheme Recap \
           -destination 'platform=macOS' \
-          -resultBundlePath TestResults \
+          -resultBundlePath TestResults.xcresult \
           -enableCodeCoverage YES \
+          -only-testing:RecapTests \
           | xcbeautify
     
     - name: Generate Coverage Report
       run: |
-        cd Recap
         xcrun xccov view --report --json TestResults.xcresult > coverage.json
     
     - name: Upload Test Results
@@ -108,12 +114,12 @@ jobs:
       if: always()
       with:
         name: test-results
-        path: Recap/TestResults.xcresult
+        path: TestResults.xcresult
     
     - name: Upload Coverage Reports
       uses: codecov/codecov-action@v5
       with:
-        file: Recap/coverage.json
+        file: coverage.json
         flags: unittests
         name: recap-coverage
         fail_ci_if_error: false
