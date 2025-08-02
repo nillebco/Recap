@@ -23,7 +23,17 @@
 
 </details>
 
-## Why I Built This
+## Jump to:
+
+- [Why Recap?](#why-recap)
+- [Features](#features)
+- [System Requirements](#system-requirements)
+- [How It Works](#how-it-works)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+
+## Why Recap?
 
 Ever been in a meeting where you wanted to focus on your work but still catch the important bits? That's exactly why I created Recap.
 
@@ -31,7 +41,7 @@ I found myself constantly torn between paying attention to meetings and getting 
 
 But here's the thing - I didn't want my private conversations floating around on some company's servers. When you're discussing sensitive business matters, product roadmaps, or personal topics, that data should stay on YOUR machine. That's why Recap processes everything locally on your Mac using Apple's own technologies.
 
-Now, Recap is broken. But it is a project that I am always working on in my free time so it meets my needs. I hope it can help you too.
+Recap is broken in its current state, but since I use it daily myself, you can absolutely expect new features soon!
 
 ---
 
@@ -42,13 +52,15 @@ Now, Recap is broken. But it is a project that I am always working on in my free
 
 Recap is an open-source, privacy-focused, macOS-native project to help you summarize your meetings. You could summarize audio of any app, not just meetings.
 
-## Stack
+## Features
+- **Meeting Detection**: Automatically detects meetings in Microsoft Teams, Zoom, Google Meet, and more using macOS ScreenCaptureKit (Coming Soon!)
+- **Audio Recording**: Records system audio and optionally microphone input
+- **Local Processing**: Uses WhisperKit for transcription and Ollama/OpenRouter for summarization, all on your Mac
+- **Privacy First**: No data leaves your device unless you choose to share it
+- **Open Source**: Fully transparent codebase for community contributions
 
-#### Linter
-Not using any linter right now, but I am planning to use SwiftLint/SwiftFormat in the future (PRs greatly welcomed).
 
-Built using native macOS technologies - no drivers or kernel extensions required.
-
+#### Under the hood
 -  Native Core Audio taps, AVAudioEngine, driver-free system audio capture  
 -  WhisperKit (MLX) (local transcription), Ollama/OpenRouter (summarization)  
 -  Swift + SwiftUI
@@ -231,6 +243,9 @@ I really need help finishing Recap! Any contribution is greatly welcomed.
 5. **Submit a pull request** with clear description of changes
 
 All skill levels welcome - from fixing typos to architecting new features. I really mean it!
+
+#### Linter
+Not using any linter right now, but I am planning to use SwiftLint/SwiftFormat in the future (PRs greatly welcomed).
 
 ## License
 
