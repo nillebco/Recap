@@ -93,12 +93,14 @@ Right now, Recap is more of a POC of what I am trying to make. It records system
 
 <details>
     <summary>OpenRouter (Cloud Processing)</summary>
+
 | Component | Minimum | Recommended |
 |-----------|---------|-------------|
 | **macOS** | 15.0 or later | 15.0 or later |
 | **Processor** | Apple M1 | Apple M2 or newer |
 | **RAM** | 8 GB | 16 GB or more |
 | **Storage** | 2 GB free space | 5 GB free space |
+
 </details>
 
 
