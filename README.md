@@ -5,7 +5,30 @@
 
 # Recap
 
-Recap is an open-source, privacy-focused, macOS-native project to help you summarize your meetings. You could summarize audio of any app, not just meetings. 
+## Why I Built This
+
+Ever been in a meeting where you wanted to focus on your work but still catch the important bits? That's exactly why I created Recap. 
+
+I found myself constantly torn between paying attention to meetings and getting actual work done. Sometimes I'd miss crucial decisions while coding, or I'd lose my flow state trying to take notes. I needed something that could listen for me and give me the highlights afterward.
+
+But here's the thing - I didn't want my private conversations floating around on some company's servers. When you're discussing sensitive business matters, product roadmaps, or personal topics, that data should stay on YOUR machine. That's why Recap processes everything locally on your Mac using Apple's own technologies.
+
+Now, Recap is broken. But it is a project that I am always working on on my free time so it meets my needs. I hope it can help you too.
+
+---
+
+Recap is an open-source, privacy-focused, macOS-native project to help you summarize your meetings. You could summarize audio of any app, not just meetings.
+
+## Tech Stack
+
+#### Linter
+Not using any linter right now, but I am planning to use SwiftLint/SwiftFormat in the future (PRs greatly welcomed).
+
+Built using native macOS technologies - no drivers or kernel extensions required.
+
+**Core Audio**: Native Core Audio taps, AVAudioEngine, driver-free system audio capture  
+**ML**: WhisperKit (local transcription), Ollama/OpenRouter (summarization)  
+**Platform**: Swift + SwiftUI, Apple Silicon optimized, sandboxed execution 
 
 > [!IMPORTANT]
 > Recap is not complete yet, it is broken, and not recommended for production usage. 
@@ -148,4 +171,66 @@ Before using Recap, you need to set up the following environment variables:
    - Click the record button to start capturing
    - Optionally enable microphone for dual-audio recording
    - Click stop when finished - processing will begin automatically
+
+## Tech Stack
+
+Recap is built using native macOS technologies, avoiding third-party drivers and kernel extensions for maximum system stability and security.
+
+### Core Audio Implementation
+- **Native Core Audio**: Direct integration with macOS audio subsystem
+- **Audio Unit Taps**: System-level audio interception without drivers
+- **AVAudioEngine**: Modern Swift audio processing pipeline
+- **No Kernel Extensions**: Driver-free audio capture using Apple's official APIs
+- **Process-Specific Capture**: Target individual applications without affecting system audio
+
+### Technologies Used
+- **Language**: Swift 5.9+
+- **UI Framework**: SwiftUI + AppKit (menu bar integration)
+- **Audio Processing**: Core Audio, AVAudioEngine, Audio Toolbox
+- **Machine Learning**: 
+  - WhisperKit (local speech-to-text)
+  - MLX/CoreML optimization for Apple Silicon
+- **LLM Integration**: 
+  - Ollama (local inference)
+  - OpenRouter (cloud API)
+- **Data Storage**: Core Data + local file system
+- **Concurrency**: Swift async/await, structured concurrency
+- **Architecture**: MVVM, Coordinator pattern, Dependency injection
+
+### Security & Privacy Benefits
+- **Sandboxed Execution**: Runs within macOS security boundaries
+- **No System Modifications**: Zero kernel-level changes required
+- **Permission-Based**: Uses standard macOS audio permissions
+- **Local Processing**: WhisperKit keeps transcription on-device
+- **Secure Audio Taps**: Apple's blessed method for audio interception
+
+## Contributing
+
+I really need help finishing Recap! Any contribution is greatly welcomed.
+
+### Priority Areas
+
+**Critical needs:**
+- **Permission Management**: Proper audio/microphone permission handling and user guidance
+- **Alerts & Notifications**: User-friendly error messages and system notifications  
+- **Error Handling**: Robust error recovery and user feedback throughout the app
+- **UI/UX Polish**: Improve the interface and user experience
+- **Testing**: Unit tests and integration tests for core functionality
+
+**Also needed:**
+- Meeting app detection improvements
+- Custom prompt templates via settings
+- Performance optimizations
+- Documentation improvements
+- Bug fixes and stability improvements
+
+### How to Contribute
+
+1. **Fork the repository** and create a feature branch
+2. **Check existing issues** or create new ones for bugs/features
+3. **Follow the coding patterns** established in the codebase
+4. **Test your changes** thoroughly on Apple Silicon Macs
+5. **Submit a pull request** with clear description of changes
+
+All skill levels welcome - from fixing typos to architecting new features. Let's build something great together. I really mean it!
 
