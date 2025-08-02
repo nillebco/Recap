@@ -6,7 +6,7 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     @Published private(set) var availableModels: [LLMModelInfo] = []
     @Published private(set) var selectedModel: LLMModelInfo?
     @Published private(set) var selectedProvider: LLMProvider = .default
-    @Published private(set) var isAutoDetectMeetings: Bool = false
+    @Published private(set) var autoDetectMeetings: Bool = false
     @Published private(set) var isAutoStopRecording: Bool = false
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
@@ -56,11 +56,11 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
         do {
             let preferences = try await llmService.getUserPreferences()
             selectedProvider = preferences.selectedProvider
-            isAutoDetectMeetings = preferences.autoDetectMeetings
+            autoDetectMeetings = preferences.autoDetectMeetings
             isAutoStopRecording = preferences.autoStopRecording
         } catch {
             selectedProvider = .default
-            isAutoDetectMeetings = false
+            autoDetectMeetings = false
             isAutoStopRecording = false
         }
         await loadModels()
@@ -146,13 +146,13 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     
     func toggleAutoDetectMeetings(_ enabled: Bool) async {
         errorMessage = nil
-        isAutoDetectMeetings = enabled
+        autoDetectMeetings = enabled
         
         do {
             try await userPreferencesRepository.updateAutoDetectMeetings(enabled)
         } catch {
             errorMessage = error.localizedDescription
-            isAutoDetectMeetings = !enabled
+            autoDetectMeetings = !enabled
         }
     }
     

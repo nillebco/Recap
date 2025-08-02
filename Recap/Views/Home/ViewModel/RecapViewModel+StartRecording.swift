@@ -3,6 +3,7 @@ import OSLog
 
 extension RecapViewModel {
     func startRecording() async {
+        syncRecordingStateWithCoordinator()
         guard !isRecording else { return }
         guard let selectedApp = selectedApp else { return }
         
@@ -71,5 +72,7 @@ extension RecapViewModel {
         errorMessage = error.localizedDescription
         logger.error("Failed to start recording: \(error)")
         currentRecordingID = nil
+        updateRecordingUIState(started: false)
+        showErrorToast = true
     }
 }

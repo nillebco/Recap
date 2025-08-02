@@ -2,12 +2,15 @@ import SwiftUI
 
 enum SettingsTab: CaseIterable {
     case general
+    case meetingDetection
     case whisperModels
     
     var title: String {
         switch self {
         case .general:
             return "General"
+        case .meetingDetection:
+            return "Meeting Detection"
         case .whisperModels:
             return "Whisper Models"
         }
@@ -18,7 +21,24 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
     @State private var selectedTab: SettingsTab = .general
     @ObservedObject var whisperModelsViewModel: WhisperModelsViewModel
     @ObservedObject var generalSettingsViewModel: GeneralViewModel
+    @StateObject private var meetingDetectionViewModel: MeetingDetectionSettingsViewModel
     let onClose: () -> Void
+    
+    init(
+        whisperModelsViewModel: WhisperModelsViewModel,
+        generalSettingsViewModel: GeneralViewModel,
+        meetingDetectionService: MeetingDetectionServiceType,
+        userPreferencesRepository: UserPreferencesRepositoryType,
+        onClose: @escaping () -> Void
+    ) {
+        self.whisperModelsViewModel = whisperModelsViewModel
+        self.generalSettingsViewModel = generalSettingsViewModel
+        self._meetingDetectionViewModel = StateObject(wrappedValue: MeetingDetectionSettingsViewModel(
+            detectionService: meetingDetectionService,
+            userPreferencesRepository: userPreferencesRepository
+        ))
+        self.onClose = onClose
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -86,7 +106,11 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
                     Group {
                         switch selectedTab {
                         case .general:
-                            GeneralSettingsView<GeneralViewModel>(viewModel: generalSettingsViewModel)
+                            GeneralSettingsView<GeneralViewModel>(
+                                viewModel: generalSettingsViewModel
+                            )
+                        case .meetingDetection:
+                            MeetingDetectionView(viewModel: meetingDetectionViewModel)
                         case .whisperModels:
                             WhisperModelsView(viewModel: whisperModelsViewModel)
                         }
@@ -119,6 +143,8 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
     SettingsView(
         whisperModelsViewModel: whisperModelsViewModel, 
         generalSettingsViewModel: generalSettingsViewModel,
+        meetingDetectionService: MeetingDetectionService(audioProcessController: AudioProcessController()),
+        userPreferencesRepository: UserPreferencesRepository(coreDataManager: coreDataManager),
         onClose: {}
     )
     .frame(width: 550, height: 500)
@@ -133,7 +159,7 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     ]
     @Published var selectedModel: LLMModelInfo?
     @Published var selectedProvider: LLMProvider = .ollama
-    @Published var isAutoDetectMeetings: Bool = true
+    @Published var autoDetectMeetings: Bool = true
     @Published var isAutoStopRecording: Bool = false
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -156,7 +182,7 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
         selectedProvider = provider
     }
     func toggleAutoDetectMeetings(_ enabled: Bool) async {
-        isAutoDetectMeetings = enabled
+        autoDetectMeetings = enabled
     }
     func toggleAutoStopRecording(_ enabled: Bool) async {
         isAutoStopRecording = enabled

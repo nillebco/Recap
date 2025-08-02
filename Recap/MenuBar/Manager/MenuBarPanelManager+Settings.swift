@@ -6,7 +6,9 @@ extension MenuBarPanelManager {
         let generalSettingsViewModel = dependencyContainer.createGeneralSettingsViewModel()
         let contentView = SettingsView<GeneralSettingsViewModel>(
             whisperModelsViewModel: whisperModelsViewModel,
-            generalSettingsViewModel: generalSettingsViewModel
+            generalSettingsViewModel: generalSettingsViewModel,
+            meetingDetectionService: dependencyContainer.meetingDetectionService,
+            userPreferencesRepository: dependencyContainer.userPreferencesRepository
         ) { [weak self] in
             self?.hideSettingsPanel()
         }

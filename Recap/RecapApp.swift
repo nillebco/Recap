@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppKit
+import UserNotifications
 
 @main
 struct RecapApp: App {
@@ -28,6 +29,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             dependencyContainer = DependencyContainer()
             panelManager = dependencyContainer?.createMenuBarPanelManager()
+            
+            UNUserNotificationCenter.current().delegate = self
         }
+    }
+}
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        Task { @MainActor in
+            if response.notification.request.content.userInfo["action"] as? String == "open_app" {
+                panelManager?.showMainPanel()
+            }
+        }
+        completionHandler()
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound])
     }
 }

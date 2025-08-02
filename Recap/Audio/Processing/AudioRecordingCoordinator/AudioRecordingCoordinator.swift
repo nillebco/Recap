@@ -3,7 +3,7 @@ import AudioToolbox
 import OSLog
 
 final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
-    private let logger = Logger(subsystem: "com.recap.audio", category: String(describing: AudioRecordingCoordinator.self))
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: AudioRecordingCoordinator.self))
     
     private let configuration: RecordingConfiguration
     private let microphoneCapture: MicrophoneCapture?

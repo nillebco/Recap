@@ -10,6 +10,8 @@ final class AppSelectionViewModel: AppSelectionViewModelType {
     
     private(set) var audioProcessController: any AudioProcessControllerType
     weak var delegate: AppSelectionDelegate?
+    weak var autoSelectionDelegate: AppAutoSelectionDelegate?
+    private var selectedApp: SelectableApp?
     
     init(audioProcessController: any AudioProcessControllerType) {
         self.audioProcessController = audioProcessController
@@ -20,11 +22,14 @@ final class AppSelectionViewModel: AppSelectionViewModelType {
     
     func toggleDropdown() {
         switch state {
-        case .noSelection, .selected:
+        case .noSelection:
+            state = .showingDropdown
+        case .selected(let app):
+            selectedApp = app
             state = .showingDropdown
         case .showingDropdown:
-            if let selectedApp = state.selectedApp {
-                state = .selected(selectedApp)
+            if let app = selectedApp {
+                state = .selected(app)
             } else {
                 state = .noSelection
             }
@@ -32,13 +37,21 @@ final class AppSelectionViewModel: AppSelectionViewModelType {
     }
     
     func selectApp(_ app: SelectableApp) {
+        selectedApp = app
         state = .selected(app)
         delegate?.didSelectApp(app.audioProcess)
     }
     
     func clearSelection() {
+        selectedApp = nil
         state = .noSelection
         delegate?.didClearAppSelection()
+    }
+    
+    func closeDropdown() {
+        if case .showingDropdown = state {
+            state = .noSelection
+        }
     }
     
     func toggleAudioFilter() {

@@ -7,6 +7,11 @@ protocol AppSelectionDelegate: AnyObject {
 }
 
 @MainActor
+protocol AppAutoSelectionDelegate: AnyObject {
+    func autoSelectApp(_ app: AudioProcess)
+}
+
+@MainActor
 protocol AppSelectionViewModelType: ObservableObject {
     var state: AppSelectionState { get }
     var availableApps: [SelectableApp] { get }

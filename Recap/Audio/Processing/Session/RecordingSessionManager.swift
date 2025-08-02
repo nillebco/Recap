@@ -6,7 +6,7 @@ protocol RecordingSessionManaging {
 }
 
 final class RecordingSessionManager: RecordingSessionManaging {
-    private let logger = Logger(subsystem: "com.recap.audio", category: String(describing: RecordingSessionManager.self))
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: RecordingSessionManager.self))
     private let microphoneCapture: MicrophoneCapture
     
     init(microphoneCapture: MicrophoneCapture) {

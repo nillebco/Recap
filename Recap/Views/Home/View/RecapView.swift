@@ -108,6 +108,14 @@ struct RecapHomeView: View {
                 }
             }
         }
+        .toast(isPresenting: $viewModel.showErrorToast) {
+            AlertToast(
+                displayMode: .banner(.slide),
+                type: .error(.red),
+                title: "Recording Error",
+                subTitle: viewModel.errorMessage
+            )
+        }
     }
 }
 

@@ -17,32 +17,46 @@ final class RecapViewModel: ObservableObject {
     @Published var microphoneLevel: Float = 0.0
     @Published var systemAudioLevel: Float = 0.0
     @Published var errorMessage: String?
-    @Published private(set) var selectedApp: AudioProcess?
     @Published var isMicrophoneEnabled = false
     @Published var currentRecordings: [RecordingInfo] = []
+    @Published var showErrorToast = false
+    
     @Published private(set) var processingState: ProcessingState = .idle
     @Published private(set) var activeWarnings: [WarningItem] = []
-    
+    @Published private(set) var selectedApp: AudioProcess?
+
     let recordingCoordinator: RecordingCoordinator
     let processingCoordinator: ProcessingCoordinator
     let recordingRepository: RecordingRepositoryType
     let appSelectionViewModel: AppSelectionViewModel
     let fileManager: RecordingFileManaging
-    let warningManager: WarningManagerType
+    let warningManager: any WarningManagerType
+    let meetingDetectionService: any MeetingDetectionServiceType
+    let userPreferencesRepository: UserPreferencesRepositoryType
+    let notificationService: any NotificationServiceType
+    var appSelectionCoordinator: any AppSelectionCoordinatorType
+
     var timer: Timer?
     var levelTimer: Timer?
-    let logger = Logger(subsystem: "com.recap.audio", category: String(describing: RecapViewModel.self))
+    let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: RecapViewModel.self))
+
     weak var delegate: RecapViewModelDelegate?
+
     var currentRecordingID: String?
-    private var cancellables = Set<AnyCancellable>()
+    var lastNotifiedMeetingKey: String?
     
+    var cancellables = Set<AnyCancellable>()
     init(
         recordingCoordinator: RecordingCoordinator,
         processingCoordinator: ProcessingCoordinator,
         recordingRepository: RecordingRepositoryType,
         appSelectionViewModel: AppSelectionViewModel,
         fileManager: RecordingFileManaging,
-        warningManager: WarningManagerType
+        warningManager: any WarningManagerType,
+        meetingDetectionService: any MeetingDetectionServiceType,
+        userPreferencesRepository: UserPreferencesRepositoryType,
+        notificationService: any NotificationServiceType,
+        appSelectionCoordinator: any AppSelectionCoordinatorType
     ) {
         self.recordingCoordinator = recordingCoordinator
         self.processingCoordinator = processingCoordinator
@@ -50,11 +64,15 @@ final class RecapViewModel: ObservableObject {
         self.appSelectionViewModel = appSelectionViewModel
         self.fileManager = fileManager
         self.warningManager = warningManager
+        self.meetingDetectionService = meetingDetectionService
+        self.userPreferencesRepository = userPreferencesRepository
+        self.notificationService = notificationService
+        self.appSelectionCoordinator = appSelectionCoordinator
         
         setupBindings()
         setupWarningObserver()
-        appSelectionViewModel.delegate = self
-        processingCoordinator.delegate = self
+        setupMeetingDetection()
+        setupDelegates()
         
         Task {
             await loadRecordings()
@@ -73,17 +91,21 @@ final class RecapViewModel: ObservableObject {
         appSelectionViewModel.refreshAvailableApps()
     }
     
+    private func setupDelegates() {
+        appSelectionCoordinator.delegate = self
+        processingCoordinator.delegate = self
+    }
+    
     var currentRecordingLevel: Float {
         recordingCoordinator.currentAudioLevel
     }
-    
     
     var hasAvailableApps: Bool {
         !appSelectionViewModel.availableApps.isEmpty
     }
     
     var canStartRecording: Bool {
-        selectedApp != nil
+        selectedApp != nil && !recordingCoordinator.isRecording
     }
     
     func toggleMicrophone() {
@@ -135,6 +157,16 @@ final class RecapViewModel: ObservableObject {
         }
     }
     
+    func syncRecordingStateWithCoordinator() {
+        let coordinatorIsRecording = recordingCoordinator.isRecording
+        if isRecording != coordinatorIsRecording {
+            updateRecordingUIState(started: coordinatorIsRecording)
+            if !coordinatorIsRecording {
+                currentRecordingID = nil
+            }
+        }
+    }
+    
     deinit {
         Task.detached { [weak self] in
             await self?.stopTimers()
@@ -142,7 +174,7 @@ final class RecapViewModel: ObservableObject {
     }
 }
 
-extension RecapViewModel: AppSelectionDelegate {
+extension RecapViewModel: AppSelectionCoordinatorDelegate {
     func didSelectApp(_ app: AudioProcess) {
         selectApp(app)
     }

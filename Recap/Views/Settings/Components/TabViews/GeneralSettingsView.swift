@@ -10,7 +10,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
     
     var body: some View {
         GeometryReader { geometry in
-            ScrollView(showsIndicators: false) {
+            ScrollView() {
                 VStack(alignment: .leading, spacing: 16) {
                     ForEach(viewModel.activeWarnings, id: \.id) { warning in
                         WarningCard(warning: warning, containerWidth: geometry.size.width)
@@ -86,35 +86,6 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         }
                     }
                     
-                    SettingsCard(title: "Recording Settings (Coming Soon)") {
-                        VStack(spacing: 16) {
-                            settingsRow(label: "Auto Detect Meetings") {
-                                Toggle("", isOn: Binding(
-                                    get: { viewModel.isAutoDetectMeetings },
-                                    set: { newValue in
-                                        Task {
-                                            await viewModel.toggleAutoDetectMeetings(newValue)
-                                        }
-                                    }
-                                ))
-                                .toggleStyle(CustomToggleStyle())
-                                .labelsHidden()
-                            }
-                            
-                            settingsRow(label: "Auto Stop Recording") {
-                                Toggle("", isOn: Binding(
-                                    get: { viewModel.isAutoStopRecording },
-                                    set: { newValue in
-                                        Task {
-                                            await viewModel.toggleAutoStopRecording(newValue)
-                                        }
-                                    }
-                                ))
-                                .toggleStyle(CustomToggleStyle())
-                                .labelsHidden()
-                            }
-                        }
-                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
@@ -162,7 +133,7 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     ]
     @Published var selectedModel: LLMModelInfo?
     @Published var selectedProvider: LLMProvider = .ollama
-    @Published var isAutoDetectMeetings: Bool = true
+    @Published var autoDetectMeetings: Bool = true
     @Published var isAutoStopRecording: Bool = false
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -194,7 +165,7 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
         selectedProvider = provider
     }
     func toggleAutoDetectMeetings(_ enabled: Bool) async {
-        isAutoDetectMeetings = enabled
+        autoDetectMeetings = enabled
     }
     func toggleAutoStopRecording(_ enabled: Bool) async {
         isAutoStopRecording = enabled

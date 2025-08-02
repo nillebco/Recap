@@ -23,6 +23,12 @@ final class DependencyContainer {
     lazy var transcriptionService: TranscriptionServiceType = makeTranscriptionService()
     lazy var warningManager: any WarningManagerType = makeWarningManager()
     lazy var providerWarningCoordinator: ProviderWarningCoordinator = makeProviderWarningCoordinator()
+    lazy var meetingDetectionService: MeetingDetectionServiceType = makeMeetingDetectionService()
+    lazy var meetingAppDetectionService: MeetingAppDetecting = makeMeetingAppDetectionService()
+    lazy var recordingSessionManager: RecordingSessionManaging = makeRecordingSessionManager()
+    lazy var microphoneCapture: MicrophoneCaptureType = makeMicrophoneCapture()
+    lazy var notificationService: NotificationServiceType = makeNotificationService()
+    lazy var appSelectionCoordinator: AppSelectionCoordinatorType = makeAppSelectionCoordinator()
     
     init(inMemory: Bool = false) {
         self.inMemory = inMemory
@@ -51,7 +57,11 @@ final class DependencyContainer {
             recordingRepository: recordingRepository,
             appSelectionViewModel: appSelectionViewModel,
             fileManager: recordingFileManager,
-            warningManager: warningManager
+            warningManager: warningManager,
+            meetingDetectionService: meetingDetectionService,
+            userPreferencesRepository: userPreferencesRepository,
+            notificationService: notificationService,
+            appSelectionCoordinator: appSelectionCoordinator
         )
     }
     

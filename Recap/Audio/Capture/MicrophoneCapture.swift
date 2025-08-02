@@ -13,7 +13,7 @@ import Combine
 import OSLog
 
 final class MicrophoneCapture: MicrophoneCaptureType {
-    let logger = Logger(subsystem: "com.recap.audio", category: String(describing: MicrophoneCapture.self))
+    let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: MicrophoneCapture.self))
     
     var audioEngine: AVAudioEngine?
     var audioFile: AVAudioFile?

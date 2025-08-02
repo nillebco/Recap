@@ -6,7 +6,7 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var availableModels: [LLMModelInfo] { get }
     var selectedModel: LLMModelInfo? { get }
     var selectedProvider: LLMProvider { get }
-    var isAutoDetectMeetings: Bool { get }
+    var autoDetectMeetings: Bool { get }
     var isAutoStopRecording: Bool { get }
     var isLoading: Bool { get }
     var errorMessage: String? { get }

@@ -22,4 +22,11 @@ extension DependencyContainer {
             warningManager: warningManager
         )
     }
+    
+    func makeMeetingDetectionSettingsViewModel() -> MeetingDetectionSettingsViewModel {
+        MeetingDetectionSettingsViewModel(
+            detectionService: meetingDetectionService,
+            userPreferencesRepository: userPreferencesRepository
+        )
+    }
 }
