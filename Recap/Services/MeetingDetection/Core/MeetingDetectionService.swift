@@ -55,6 +55,7 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
         monitoringTask?.cancel()
         monitoringTask = Task {
             while !Task.isCancelled {
+                if Task.isCancelled { break }
                 await checkForMeetings()
                 try? await Task.sleep(nanoseconds: UInt64(checkInterval * 1_000_000_000))
             }
