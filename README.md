@@ -1,10 +1,6 @@
 
 <img width="900" height="846" alt="github_export" src="https://github.com/user-attachments/assets/df798940-820c-46b6-b149-3a2771c7b5f3" />
 
----
-
-# Recap
-
 ## Why I Built This
 
 Ever been in a meeting where you wanted to focus on your work but still catch the important bits? That's exactly why I created Recap. 
@@ -16,6 +12,8 @@ But here's the thing - I didn't want my private conversations floating around on
 Now, Recap is broken. But it is a project that I am always working on on my free time so it meets my needs. I hope it can help you too.
 
 ---
+
+# Recap
 
 Recap is an open-source, privacy-focused, macOS-native project to help you summarize your meetings. You could summarize audio of any app, not just meetings.
 
@@ -211,11 +209,7 @@ I really need help finishing Recap! Any contribution is greatly welcomed.
 ### Priority Areas
 
 **Critical needs:**
-- **Permission Management**: Proper audio/microphone permission handling and user guidance
-- **Alerts & Notifications**: User-friendly error messages and system notifications  
-- **Error Handling**: Robust error recovery and user feedback throughout the app
-- **UI/UX Polish**: Improve the interface and user experience
-- **Testing**: Unit tests and integration tests for core functionality
+- See Roadmap above for current focus areas
 
 **Also needed:**
 - Meeting app detection improvements
