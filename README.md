@@ -231,11 +231,9 @@ Read [OpenRouter documentation](https://openrouter.ai/docs/api-keys) to get a ke
 
 I really need help finishing Recap! Any contribution is greatly welcomed.
 
-### Priority Areas
+**Focus:**
 
-**Critical needs:**
-
-* See Roadmap above for current focus areas
+* See [Roadmap](#roadmap) above for current focus areas
 
 ### How to Contribute
 
