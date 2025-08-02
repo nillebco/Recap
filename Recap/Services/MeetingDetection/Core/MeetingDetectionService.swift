@@ -87,9 +87,12 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
                     let result = await detector.checkForMeeting(in: relevantWindows)
                     
                     if result.isActive {
-                        if highestConfidenceResult == nil ||
-                           result.confidence.rawValue > highestConfidenceResult!.result.confidence.rawValue {
+                        if highestConfidenceResult == nil {
                             highestConfidenceResult = DetectorResult(detector: detector, result: result)
+                        } else if let currentResult = highestConfidenceResult {
+                            if result.confidence.rawValue > currentResult.result.confidence.rawValue {
+                                highestConfidenceResult = DetectorResult(detector: detector, result: result)
+                            }
                         }
                     }
                 }
