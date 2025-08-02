@@ -158,7 +158,7 @@ Currently, Recap is only available through compilation from source. Pre-built re
 2. **Clone and Build:**
 
    ```bash
-   git clone https://github.com/your-username/recap.git
+   git clone https://github.com/rawandahmad698/recap.git
    cd recap
    open Recap.xcodeproj
    ```
