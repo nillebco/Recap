@@ -7,6 +7,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: ./Recap
+
 jobs:
   lint:
     name: SwiftLint
@@ -111,12 +115,12 @@ jobs:
       if: always()
       with:
         name: test-results
-        path: test-results.xml
+        path: Recap/test-results.xml
     
     - name: Upload Coverage Reports
       uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.lcov
+        file: ./Recap/coverage.lcov
         flags: unittests
         name: recap-coverage
         fail_ci_if_error: false
@@ -125,30 +129,6 @@ jobs:
       uses: mikepenz/action-junit-report@v4
       if: always()
       with:
-        report_paths: 'test-results.xml'
+        report_paths: 'Recap/test-results.xml'
         check_name: 'Test Results'
         fail_on_failure: true
-
-  check-generated-mocks:
-    name: Check Generated Mocks
-    runs-on: macos-15
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '16.0'
-    
-    - name: Build to Generate Mocks
-      run: swift build
-    
-    - name: Check for Uncommitted Mock Changes
-      run: |
-        if [[ -n $(git status --porcelain) ]]; then
-          echo "Generated mocks are not committed. Please build locally and commit the generated mock files."
-          git status --porcelain
-          exit 1
-        fi

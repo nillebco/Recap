@@ -7,6 +7,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: ./Recap
+
 jobs:
   test:
     name: Run Tests
@@ -45,13 +49,13 @@ jobs:
       if: always()
       with:
         name: test-results
-        path: test-results.xml
+        path: Recap/test-results.xml
     
     - name: Publish Test Report
       uses: mikepenz/action-junit-report@v4
       if: always()
       with:
-        report_paths: 'test-results.xml'
+        report_paths: 'Recap/test-results.xml'
         check_name: 'Test Results'
         fail_on_failure: true
 
@@ -83,7 +87,7 @@ jobs:
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.lcov
+        file: ./Recap/coverage.lcov
         flags: unittests
         name: recap-coverage
         fail_ci_if_error: false
