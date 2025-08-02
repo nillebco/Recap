@@ -63,8 +63,8 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
     }
     
     func stopMonitoring() {
-        isMonitoring = false
         monitoringTask?.cancel()
+        isMonitoring = false
         monitoringTask = nil
         isMeetingActive = false
         activeMeetingInfo = nil
