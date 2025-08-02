@@ -45,9 +45,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-deriveddata-
     
-    - name: Install xcbeautify
-      run: brew install xcbeautify
-    
     - name: Resolve Package Dependencies
       run: |
         xcodebuild -resolvePackageDependencies \
@@ -56,23 +53,23 @@ jobs:
     
     - name: Build Debug
       run: |
-        set -o pipefail
         xcodebuild build \
           -project Recap.xcodeproj \
           -scheme Recap \
           -configuration Debug \
           -destination 'platform=macOS' \
-          | xcbeautify
+          -skipMacroValidation \
+          CODE_SIGNING_ALLOWED=NO
     
     - name: Build Release
       run: |
-        set -o pipefail
         xcodebuild build \
           -project Recap.xcodeproj \
           -scheme Recap \
           -configuration Release \
           -destination 'platform=macOS' \
-          | xcbeautify
+          -skipMacroValidation \
+          CODE_SIGNING_ALLOWED=NO
 
   test:
     name: Test
@@ -96,9 +93,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-deriveddata-
     
-    - name: Install xcbeautify
-      run: brew install xcbeautify
-    
     - name: Resolve Package Dependencies
       run: |
         xcodebuild -resolvePackageDependencies \
@@ -107,7 +101,6 @@ jobs:
     
     - name: Run Tests with Coverage
       run: |
-        set -o pipefail
         xcodebuild test \
           -project Recap.xcodeproj \
           -scheme Recap \
@@ -115,7 +108,8 @@ jobs:
           -resultBundlePath TestResults.xcresult \
           -enableCodeCoverage YES \
           -only-testing:RecapTests \
-          | xcbeautify
+          -skipMacroValidation \
+          CODE_SIGNING_ALLOWED=NO
     
     - name: Generate Coverage Report
       run: |

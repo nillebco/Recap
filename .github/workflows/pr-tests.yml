@@ -30,9 +30,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-deriveddata-
     
-    - name: Install xcbeautify
-      run: brew install xcbeautify
-    
     - name: Resolve Package Dependencies
       run: |
         xcodebuild -resolvePackageDependencies \
@@ -41,14 +38,14 @@ jobs:
     
     - name: Build and Test
       run: |
-        set -o pipefail
         xcodebuild test \
           -project Recap.xcodeproj \
           -scheme Recap \
           -destination 'platform=macOS' \
           -resultBundlePath TestResults.xcresult \
           -only-testing:RecapTests \
-          | xcbeautify
+          -skipMacroValidation \
+          CODE_SIGNING_ALLOWED=NO
     
     - name: Comment PR on Failure
       if: failure() && github.event_name == 'pull_request'
