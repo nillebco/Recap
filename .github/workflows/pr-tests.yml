@@ -26,18 +26,24 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/Library/Developer/Xcode/DerivedData
-        key: ${{ runner.os }}-deriveddata-${{ hashFiles('Recap/Recap.xcodeproj/project.pbxproj') }}
+        key: ${{ runner.os }}-deriveddata-${{ hashFiles('Recap.xcodeproj/project.pbxproj') }}
         restore-keys: |
           ${{ runner.os }}-deriveddata-
     
     - name: Install xcbeautify
       run: brew install xcbeautify
     
+    - name: Resolve Package Dependencies
+      run: |
+        xcodebuild -resolvePackageDependencies \
+          -project Recap.xcodeproj \
+          -scheme Recap
+    
     - name: Build and Test
       run: |
         set -o pipefail
         xcodebuild test \
-          -project Recap/Recap.xcodeproj \
+          -project Recap.xcodeproj \
           -scheme Recap \
           -destination 'platform=macOS' \
           -resultBundlePath TestResults.xcresult \

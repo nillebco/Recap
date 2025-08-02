@@ -32,6 +32,12 @@ jobs:
     - name: Install xcbeautify
       run: brew install xcbeautify
     
+    - name: Resolve Package Dependencies
+      run: |
+        xcodebuild -resolvePackageDependencies \
+          -project Recap.xcodeproj \
+          -scheme Recap
+    
     - name: Build and Test
       run: |
         set -o pipefail
