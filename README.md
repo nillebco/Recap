@@ -55,7 +55,7 @@ Recap is an open-source, privacy-focused, macOS-native project to help you summa
 ## Features
 - **Meeting Detection**: Automatically detects meetings in Microsoft Teams, Zoom, Google Meet, and more using macOS ScreenCaptureKit (Coming Soon!)
 - **Audio Recording**: Records system audio and optionally microphone input
-- **Local Processing**: Uses WhisperKit for transcription and Ollama/OpenRouter for summarization, all on your Mac
+- **Local Processing**: Uses WhisperKit for transcription and Ollama/(optionally, OpenRouter) for summarization
 - **Privacy First**: No data leaves your device unless you choose to share it
 - **Open Source**: Fully transparent codebase for community contributions
 
@@ -240,10 +240,7 @@ I really need help finishing Recap! Any contribution is greatly welcomed.
 ### How to Contribute
 
 1. **Fork the repository** and create a feature branch
-2. **Check existing issues** or create new ones for bugs/features
-3. **Follow the coding patterns** established in the codebase
-4. **Test your changes** thoroughly on Apple Silicon Macs
-5. **Submit a pull request** with clear description of changes
+2. **Submit a pull request** with clear description of changes
 
 All skill levels welcome - from fixing typos to architecting new features. I really mean it!
 
