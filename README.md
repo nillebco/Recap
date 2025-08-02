@@ -1,5 +1,9 @@
 <img width="900" height="846" alt="github_export" src="https://github.com/user-attachments/assets/df798940-820c-46b6-b149-3a2771c7b5f3" />
 
+####  Be notified of releases, watch the repo!
+![Watch releases](https://github.com/user-attachments/assets/21a9caad-b27d-4fe9-859b-7de27d6b4084)
+
+
 
 ## Screenshots
 <details>
