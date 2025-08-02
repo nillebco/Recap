@@ -1,6 +1,21 @@
 
 <img width="900" height="846" alt="github_export" src="https://github.com/user-attachments/assets/df798940-820c-46b6-b149-3a2771c7b5f3" />
 
+## Screenshots
+
+### Recap Preview
+<img width="1139" height="565" alt="image" src="https://github.com/user-attachments/assets/65b41806-c86f-4c16-ab0f-4114da5dfd8c" />
+
+### Previous Recaps
+<img width="923" height="538" alt="image" src="https://github.com/user-attachments/assets/3b810b4f-a8b4-4755-bfd7-8ef1d3a3c953" />
+
+### General Settings
+<img width="1038" height="524" alt="image" src="https://github.com/user-attachments/assets/5cfdf0d7-6c89-4f2e-9bae-8bfd6e14ca6d" />
+
+### Whisper Models Section
+<img width="1051" height="546" alt="image" src="https://github.com/user-attachments/assets/a3a3249b-b94d-492d-8009-3ad661cff45f" />
+
+
 ## Why I Built This
 
 Ever been in a meeting where you wanted to focus on your work but still catch the important bits? That's exactly why I created Recap. 
