@@ -41,7 +41,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/Library/Developer/Xcode/DerivedData
-        key: ${{ runner.os }}-deriveddata-${{ hashFiles('Recap/Recap.xcodeproj/project.pbxproj') }}
+        key: ${{ runner.os }}-deriveddata-${{ hashFiles('Recap.xcodeproj/project.pbxproj') }}
         restore-keys: |
           ${{ runner.os }}-deriveddata-
     
@@ -52,7 +52,7 @@ jobs:
       run: |
         set -o pipefail
         xcodebuild build \
-          -project Recap/Recap.xcodeproj \
+          -project Recap.xcodeproj \
           -scheme Recap \
           -configuration Debug \
           -destination 'platform=macOS' \
@@ -62,7 +62,7 @@ jobs:
       run: |
         set -o pipefail
         xcodebuild build \
-          -project Recap/Recap.xcodeproj \
+          -project Recap.xcodeproj \
           -scheme Recap \
           -configuration Release \
           -destination 'platform=macOS' \
@@ -86,7 +86,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/Library/Developer/Xcode/DerivedData
-        key: ${{ runner.os }}-deriveddata-${{ hashFiles('Recap/Recap.xcodeproj/project.pbxproj') }}
+        key: ${{ runner.os }}-deriveddata-${{ hashFiles('Recap.xcodeproj/project.pbxproj') }}
         restore-keys: |
           ${{ runner.os }}-deriveddata-
     
@@ -97,7 +97,7 @@ jobs:
       run: |
         set -o pipefail
         xcodebuild test \
-          -project Recap/Recap.xcodeproj \
+          -project Recap.xcodeproj \
           -scheme Recap \
           -destination 'platform=macOS' \
           -resultBundlePath TestResults.xcresult \
