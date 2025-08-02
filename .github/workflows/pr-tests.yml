@@ -1,0 +1,64 @@
+name: PR Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test-matrix:
+    name: Test on macOS ${{ matrix.macos }}
+    runs-on: ${{ matrix.macos }}
+    strategy:
+      fail-fast: false
+      matrix:
+        macos: [macos-14, macos-15]
+        xcode: ['15.4', '16.0']
+        exclude:
+          - macos: macos-14
+            xcode: '16.0'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ matrix.xcode }}
+    
+    - name: Cache Dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          .build
+        key: ${{ runner.os }}-${{ matrix.macos }}-spm-${{ hashFiles('**/Package.resolved') }}
+    
+    - name: Build and Test
+      run: |
+        cd Recap
+        swift test --parallel
+    
+    - name: Comment PR on Failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '❌ Tests failed on ${{ matrix.macos }} with Xcode ${{ matrix.xcode }}. Please check the workflow logs.'
+          })
+    
+    - name: Comment PR on Success
+      if: success() && matrix.macos == 'macos-15' && matrix.xcode == '16.0'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '✅ All tests passed!'
+          })

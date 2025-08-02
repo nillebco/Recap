@@ -1,0 +1,159 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
+
+jobs:
+  lint:
+    name: SwiftLint
+    runs-on: macos-15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install SwiftLint
+      run: brew install swiftlint
+    
+    - name: Run SwiftLint
+      run: |
+        cd Recap
+        swiftlint --strict --reporter github-actions-logging
+
+  build:
+    name: Build
+    runs-on: macos-15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.0'
+    
+    - name: Cache Swift Package Manager
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          .build
+        key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+    
+    - name: Resolve Dependencies
+      run: |
+        cd Recap
+        swift package resolve
+    
+    - name: Build Debug
+      run: |
+        cd Recap
+        swift build -c debug
+    
+    - name: Build Release
+      run: |
+        cd Recap
+        swift build -c release
+
+  test:
+    name: Test
+    runs-on: macos-15
+    needs: build
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.0'
+    
+    - name: Cache Swift Package Manager
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          .build
+        key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+    
+    - name: Run Tests with Coverage
+      run: |
+        cd Recap
+        swift test --enable-code-coverage --parallel
+    
+    - name: Generate Test Report
+      run: |
+        cd Recap
+        swift test --parallel --xunit-output=test-results.xml || true
+    
+    - name: Generate Coverage Report
+      run: |
+        cd Recap
+        xcrun llvm-cov export \
+          .build/debug/RecapPackageTests.xctest/Contents/MacOS/RecapPackageTests \
+          -instr-profile .build/debug/codecov/default.profdata \
+          -format=lcov \
+          -ignore-filename-regex=".build|Tests|Mocks" \
+          > coverage.lcov || true
+    
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: test-results.xml
+    
+    - name: Upload Coverage Reports
+      uses: codecov/codecov-action@v5
+      with:
+        file: ./coverage.lcov
+        flags: unittests
+        name: recap-coverage
+        fail_ci_if_error: false
+    
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v4
+      if: always()
+      with:
+        report_paths: 'test-results.xml'
+        check_name: 'Test Results'
+        fail_on_failure: true
+
+  check-generated-mocks:
+    name: Check Generated Mocks
+    runs-on: macos-15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.0'
+    
+    - name: Build to Generate Mocks
+      run: |
+        cd Recap
+        swift build
+    
+    - name: Check for Uncommitted Mock Changes
+      run: |
+        if [[ -n $(git status --porcelain) ]]; then
+          echo "Generated mocks are not committed. Please build locally and commit the generated mock files."
+          git status --porcelain
+          exit 1
+        fi

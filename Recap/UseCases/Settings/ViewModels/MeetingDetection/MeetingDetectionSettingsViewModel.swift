@@ -30,28 +30,25 @@ final class MeetingDetectionSettingsViewModel: MeetingDetectionSettingsViewModel
     }
     
     func handleAutoDetectToggle(_ enabled: Bool) async {
-        do {
-            try await userPreferencesRepository.updateAutoDetectMeetings(enabled)
-            
-            withAnimation(.easeInOut(duration: 0.2)) {
-                autoDetectMeetings = enabled
-            }
-            
-            if enabled {
-                let hasPermission = await detectionService.checkPermission()
-                hasScreenRecordingPermission = hasPermission
-                
-                if hasPermission {
-                    detectionService.startMonitoring()
-                } else {
-                    openScreenRecordingPreferences()
-                }
-            } else {
-                detectionService.stopMonitoring()
-            }
-        } catch {
-            print("Failed to update auto detect meetings setting: \(error)")
+        try? await userPreferencesRepository.updateAutoDetectMeetings(enabled)
+        
+        withAnimation(.easeInOut(duration: 0.2)) {
+            autoDetectMeetings = enabled
         }
+        
+        if enabled {
+            let hasPermission = await detectionService.checkPermission()
+            hasScreenRecordingPermission = hasPermission
+            
+            if hasPermission {
+                detectionService.startMonitoring()
+            } else {
+                openScreenRecordingPreferences()
+            }
+        } else {
+            detectionService.stopMonitoring()
+        }
+        
     }
     
     func checkPermissionStatus() async {
