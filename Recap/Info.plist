@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSAudioCaptureUsageDescription</key>
-	<string>YO</string>
+	<string>Recap needs access to your microphone to record audio during meetings. Audio is only captured when you choose to record a meeting.</string>
 	<key>NSScreenCaptureUsageDescription</key>
 	<string>Recap needs Screen Recording permission to detect when Microsoft Teams meetings start. This allows automatic recording of your meetings. No screen content is captured or stored - only window titles are checked to identify active meetings.</string>
 </dict>
