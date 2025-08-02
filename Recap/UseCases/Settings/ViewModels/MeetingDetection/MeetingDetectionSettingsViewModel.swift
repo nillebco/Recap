@@ -20,13 +20,12 @@ final class MeetingDetectionSettingsViewModel: MeetingDetectionSettingsViewModel
     }
     
     private func loadCurrentSettings() async {
-        do {
-            let preferences = try await userPreferencesRepository.getOrCreatePreferences()
-            withAnimation(.easeInOut(duration: 0.2)) {
-                autoDetectMeetings = preferences.autoDetectMeetings
-            }
-        } catch {
-            logger.error("Failed to load user preferences: \(String(describing: error))")
+        guard let preferences = try? await userPreferencesRepository.getOrCreatePreferences() else {
+            return
+        }
+
+        withAnimation(.easeInOut(duration: 0.2)) {
+            autoDetectMeetings = preferences.autoDetectMeetings
         }
     }
     
