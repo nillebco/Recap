@@ -26,7 +26,7 @@ final class MeetingDetectionSettingsViewModel: MeetingDetectionSettingsViewModel
                 autoDetectMeetings = preferences.autoDetectMeetings
             }
         } catch {
-            print("Failed to load user preferences: \(error)")
+            logger.error("Failed to load user preferences: \(String(describing: error))")
         }
     }
     
