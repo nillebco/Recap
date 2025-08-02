@@ -1,0 +1,89 @@
+import Foundation
+
+@MainActor
+final class DependencyContainer {
+    let inMemory: Bool
+    
+    lazy var coreDataManager: CoreDataManagerType = makeCoreDataManager()
+    lazy var whisperModelRepository: WhisperModelRepositoryType = makeWhisperModelRepository()
+    lazy var whisperModelsViewModel: WhisperModelsViewModel = makeWhisperModelsViewModel()
+    lazy var statusBarManager: StatusBarManagerType = makeStatusBarManager()
+    lazy var audioProcessController: AudioProcessController = makeAudioProcessController()
+    lazy var appSelectionViewModel: AppSelectionViewModel = makeAppSelectionViewModel()
+    lazy var previousRecapsViewModel: PreviousRecapsViewModel = makePreviousRecapsViewModel()
+    lazy var recordingCoordinator: RecordingCoordinator = makeRecordingCoordinator()
+    lazy var recordingRepository: RecordingRepositoryType = makeRecordingRepository()
+    lazy var llmModelRepository: LLMModelRepositoryType = makeLLMModelRepository()
+    lazy var userPreferencesRepository: UserPreferencesRepositoryType = makeUserPreferencesRepository()
+    lazy var llmService: LLMServiceType = makeLLMService()
+    lazy var summarizationService: SummarizationServiceType = makeSummarizationService()
+    lazy var processingCoordinator: ProcessingCoordinator = makeProcessingCoordinator()
+    lazy var recordingFileManager: RecordingFileManaging = makeRecordingFileManager()
+    lazy var generalSettingsViewModel: GeneralSettingsViewModel = makeGeneralSettingsViewModel()
+    lazy var transcriptionService: TranscriptionServiceType = makeTranscriptionService()
+    lazy var warningManager: any WarningManagerType = makeWarningManager()
+    lazy var providerWarningCoordinator: ProviderWarningCoordinator = makeProviderWarningCoordinator()
+    
+    init(inMemory: Bool = false) {
+        self.inMemory = inMemory
+    }
+    
+    
+    // MARK: - Public Factory Methods
+    
+    func createMenuBarPanelManager() -> MenuBarPanelManager {
+        providerWarningCoordinator.startMonitoring()
+        return MenuBarPanelManager(
+            statusBarManager: statusBarManager,
+            whisperModelsViewModel: whisperModelsViewModel,
+            coreDataManager: coreDataManager,
+            audioProcessController: audioProcessController,
+            appSelectionViewModel: appSelectionViewModel,
+            previousRecapsViewModel: previousRecapsViewModel,
+            dependencyContainer: self
+        )
+    }
+    
+    func createRecapViewModel() -> RecapViewModel {
+        RecapViewModel(
+            recordingCoordinator: recordingCoordinator,
+            processingCoordinator: processingCoordinator,
+            recordingRepository: recordingRepository,
+            appSelectionViewModel: appSelectionViewModel,
+            fileManager: recordingFileManager,
+            warningManager: warningManager
+        )
+    }
+    
+    
+    func createGeneralSettingsViewModel() -> GeneralSettingsViewModel {
+        generalSettingsViewModel
+    }
+    
+    func createSummaryViewModel() -> SummaryViewModel {
+        SummaryViewModel(
+            recordingRepository: recordingRepository,
+            processingCoordinator: processingCoordinator
+        )
+    }
+}
+
+extension DependencyContainer {
+    static func createForAppDelegate() async -> DependencyContainer {
+        await MainActor.run {
+            DependencyContainer()
+        }
+    }
+}
+
+#if DEBUG
+extension DependencyContainer {
+    static func createForPreview() -> DependencyContainer {
+        DependencyContainer(inMemory: true)
+    }
+    
+    static func createForTesting(inMemory: Bool = true) -> DependencyContainer {
+        DependencyContainer(inMemory: inMemory)
+    }
+}
+#endif
