@@ -92,8 +92,7 @@ private extension RecapViewModel {
     }
     
     func sendMeetingEndedNotification() {
-        // do nothing for now.
-        // ideally we'd later analyze audio levels, and if silence is detected we send a notification here
+        // TODO: Analyze audio levels, and if silence is detected, send a notification here.
     }
 }
 
