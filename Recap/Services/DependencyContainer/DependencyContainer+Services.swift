@@ -26,7 +26,10 @@ extension DependencyContainer {
     }
     
     func makeRecordingSessionManager() -> RecordingSessionManaging {
-        RecordingSessionManager(microphoneCapture: microphoneCapture as! MicrophoneCapture)
+        guard let micCapture = microphoneCapture as? MicrophoneCapture else {
+            fatalError("microphoneCapture is not of type MicrophoneCapture")
+        }
+        return RecordingSessionManager(microphoneCapture: micCapture)
     }
     
     func makeMicrophoneCapture() -> MicrophoneCaptureType {
