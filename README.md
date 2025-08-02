@@ -28,6 +28,12 @@ Now, Recap is broken. But it is a project that I am always working on on my free
 
 ---
 
+> [!IMPORTANT]
+> Recap is not complete yet, it is broken, and not recommended for production usage. 
+
+> [!TIP]
+> Recap is in an incomplete state and I suggest that it is not used for production and daily usage, but help in shaping it is greatly appreciated. 
+
 # Recap
 
 Recap is an open-source, privacy-focused, macOS-native project to help you summarize your meetings. You could summarize audio of any app, not just meetings.
@@ -43,13 +49,7 @@ Built using native macOS technologies - no drivers or kernel extensions required
 **ML**: WhisperKit (local transcription), Ollama/OpenRouter (summarization)  
 **Platform**: Swift + SwiftUI, Apple Silicon optimized, sandboxed execution 
 
-> [!IMPORTANT]
-> Recap is not complete yet, it is broken, and not recommended for production usage. 
-
-
 ### Roadmap: 
-> [!TIP]
-> Recap is in an incomplete state and I suggest that it is not used for production and daily usage, but help in shaping it is greatly appreciated. 
 
 Working on the following features now:
 - [ ] Meeting Detection (Teams, Zoom, Google etc)
