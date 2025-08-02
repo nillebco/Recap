@@ -93,6 +93,8 @@ Right now, Recap is more of a POC of what I am trying to make. It records system
 | **RAM** | 16 GB | 32 GB or more |
 | **Storage** | 10 GB free space | 50 GB free space |
 
+</details>
+
 <details>
     <summary>OpenRouter (Cloud Processing)</summary>
 | Component | Minimum | Recommended |
@@ -102,6 +104,7 @@ Right now, Recap is more of a POC of what I am trying to make. It records system
 | **RAM** | 8 GB | 16 GB or more |
 | **Storage** | 2 GB free space | 5 GB free space |
 </details>
+
 
 > **Note**: Intel Macs are not supported. Use it at your own risk.
 
