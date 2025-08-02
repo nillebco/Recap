@@ -6,13 +6,13 @@ protocol MeetingAppDetecting {
 }
 
 final class MeetingAppDetectionService: MeetingAppDetecting {
-    private var processController: AudioProcessControllerType?
+    private var processController: (any AudioProcessControllerType)?
     
-    init(processController: AudioProcessControllerType?) {
+    init(processController: (any AudioProcessControllerType)?) {
         self.processController = processController
     }
     
-    func setProcessController(_ controller: AudioProcessControllerType) {
+    func setProcessController(_ controller: any AudioProcessControllerType) {
         self.processController = controller
     }
     

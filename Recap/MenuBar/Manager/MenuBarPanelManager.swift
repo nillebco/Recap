@@ -93,6 +93,14 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
         }
     }
     
+    func showMainPanel() {
+        showPanel()
+    }
+    
+    func hideMainPanel() {
+        hidePanel()
+    }
+    
     private func hidePanel() {
         guard let panel = panel else { return }
         

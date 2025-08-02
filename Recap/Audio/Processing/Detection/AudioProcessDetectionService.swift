@@ -8,7 +8,7 @@ protocol AudioProcessDetectionServiceType {
 }
 
 final class AudioProcessDetectionService: AudioProcessDetectionServiceType {
-    private let logger = Logger(subsystem: "com.recap.audio", category: String(describing: AudioProcessDetectionService.self))
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: AudioProcessDetectionService.self))
     
     func detectActiveProcesses(from apps: [NSRunningApplication]) throws -> [AudioProcess] {
         let objectIdentifiers = try AudioObjectID.readProcessList()

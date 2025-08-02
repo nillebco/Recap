@@ -24,7 +24,7 @@ final class ProcessTap: ObservableObject {
     init(process: AudioProcess, muteWhenRunning: Bool = false) {
         self.process = process
         self.muteWhenRunning = muteWhenRunning
-        self.logger = Logger(subsystem: "com.recap.audio", category: "\(String(describing: ProcessTap.self))(\(process.name))")
+        self.logger = Logger(subsystem: AppConstants.Logging.subsystem, category: "\(String(describing: ProcessTap.self))(\(process.name))")
     }
     
     @ObservationIgnored
@@ -184,7 +184,7 @@ final class ProcessTapRecorder: ObservableObject {
         self.process = tap.process
         self.fileURL = fileURL
         self._tap = tap
-        self.logger = Logger(subsystem: "com.recap.audio", category: "\(String(describing: ProcessTapRecorder.self))(\(fileURL.lastPathComponent))")
+        self.logger = Logger(subsystem: AppConstants.Logging.subsystem, category: "\(String(describing: ProcessTapRecorder.self))(\(fileURL.lastPathComponent))")
     }
     
     private var tap: ProcessTap {

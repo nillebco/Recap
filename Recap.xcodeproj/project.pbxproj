@@ -42,9 +42,16 @@
 		A7C35B1B2E3DFE1D00F9261F /* Exceptions for "Recap" folder in "RecapTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Audio/Models/AudioProcess.swift,
+				Audio/Models/AudioProcessGroup.swift,
+				Audio/Processing/Detection/AudioProcessControllerType.swift,
+				Components/Buttons/PillButton.swift,
+				Components/Cards/ActionableWarningCard.swift,
 				DataModels/RecapDataModel.xcdatamodeld,
 				"Helpers/Colors/Color+Extension.swift",
-				Helpers/UIConstants.swift,
+				Helpers/Constants/AppConstants.swift,
+				Helpers/Constants/UIConstants.swift,
+				Helpers/MeetingDetection/MeetingPatternMatcher.swift,
 				Repositories/Models/LLMProvider.swift,
 				Repositories/Models/RecordingInfo.swift,
 				Repositories/Models/UserPreferencesInfo.swift,
@@ -54,6 +61,12 @@
 				Repositories/UserPreferences/UserPreferencesRepositoryType.swift,
 				Services/CoreData/CoreDataManagerType.swift,
 				Services/LLM/Core/LLMError.swift,
+				Services/MeetingDetection/Core/MeetingDetectionService.swift,
+				Services/MeetingDetection/Core/MeetingDetectionServiceType.swift,
+				Services/MeetingDetection/Detectors/GoogleMeetDetector.swift,
+				Services/MeetingDetection/Detectors/MeetingDetectorType.swift,
+				Services/MeetingDetection/Detectors/TeamsMeetingDetector.swift,
+				Services/MeetingDetection/Detectors/ZoomMeetingDetector.swift,
 				Services/Processing/Models/ProcessingError.swift,
 				Services/Processing/Models/ProcessingResult.swift,
 				Services/Processing/Models/ProcessingState.swift,
@@ -65,10 +78,16 @@
 				Services/Summarization/Models/SummarizationResult.swift,
 				Services/Summarization/SummarizationServiceType.swift,
 				Services/Transcription/TranscriptionServiceType.swift,
-				Views/Summary/Components/ProcessingProgressBar.swift,
-				Views/Summary/Components/ProcessingStatesCard.swift,
-				Views/Summary/ViewModel/SummaryViewModel.swift,
-				Views/Summary/ViewModel/SummaryViewModelType.swift,
+				Services/Warnings/WarningManagerType.swift,
+				UseCases/Settings/Components/MeetingDetection/MeetingDetectionView.swift,
+				UseCases/Settings/Components/Reusable/CustomToggle.swift,
+				UseCases/Settings/Components/SettingsCard.swift,
+				UseCases/Settings/ViewModels/MeetingDetection/MeetingDetectionSettingsViewModel.swift,
+				UseCases/Settings/ViewModels/MeetingDetection/MeetingDetectionSettingsViewModelType.swift,
+				UseCases/Summary/Components/ProcessingProgressBar.swift,
+				UseCases/Summary/Components/ProcessingStatesCard.swift,
+				UseCases/Summary/ViewModel/SummaryViewModel.swift,
+				UseCases/Summary/ViewModel/SummaryViewModelType.swift,
 			);
 			target = A721065F2E30165B0073C515 /* RecapTests */;
 		};
@@ -515,7 +534,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = EY7EQX6JC5;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.rawa.RecapTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -534,7 +553,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = EY7EQX6JC5;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.rawa.RecapTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -551,6 +570,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = EY7EQX6JC5;
 				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.rawa.RecapUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -567,6 +587,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = EY7EQX6JC5;
 				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.rawa.RecapUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

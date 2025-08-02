@@ -3,7 +3,14 @@ import Foundation
 extension DependencyContainer {
     
     func makeRecordingCoordinator() -> RecordingCoordinator {
-        RecordingCoordinator.createDefault()
+        let coordinator = RecordingCoordinator(
+            appDetectionService: meetingAppDetectionService,
+            sessionManager: recordingSessionManager,
+            fileManager: recordingFileManager,
+            microphoneCapture: microphoneCapture
+        )
+        coordinator.setupProcessController()
+        return coordinator
     }
     
     func makeProcessingCoordinator() -> ProcessingCoordinator {
@@ -20,5 +27,9 @@ extension DependencyContainer {
             warningManager: warningManager,
             llmService: llmService
         )
+    }
+    
+    func makeAppSelectionCoordinator() -> AppSelectionCoordinatorType {
+        AppSelectionCoordinator(appSelectionViewModel: appSelectionViewModel)
     }
 }

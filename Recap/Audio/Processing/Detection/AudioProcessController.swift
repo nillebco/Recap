@@ -6,7 +6,7 @@ import Combine
 
 @MainActor
 final class AudioProcessController: AudioProcessControllerType {
-    private let logger = Logger(subsystem: "com.recap.audio", category: String(describing: AudioProcessController.self))
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: AudioProcessController.self))
     
     private let detectionService: AudioProcessDetectionServiceType
     private var cancellables = Set<AnyCancellable>()

@@ -3,7 +3,7 @@ import AVFoundation
 import OSLog
 
 final class RecordingCoordinator: ObservableObject {
-    private let logger = Logger(subsystem: "com.recap.audio", category: String(describing: RecordingCoordinator.self))
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: RecordingCoordinator.self))
     
     private(set) var state: RecordingState = .idle
     private(set) var detectedMeetingApps: [AudioProcess] = []
