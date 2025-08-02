@@ -8,10 +8,6 @@ permissions:
   contents: read
   pull-requests: write
 
-defaults:
-  run:
-    working-directory: ./Recap
-
 jobs:
   test:
     name: Test PR
@@ -26,18 +22,23 @@ jobs:
       with:
         xcode-version: latest-stable
     
-    - name: Cache Dependencies
+    - name: Cache DerivedData
       uses: actions/cache@v4
       with:
-        path: |
-          ~/Library/Developer/Xcode/DerivedData
-          .build
-        key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+        path: ~/Library/Developer/Xcode/DerivedData
+        key: ${{ runner.os }}-deriveddata-${{ hashFiles('Recap/Recap.xcodeproj/project.pbxproj') }}
         restore-keys: |
-          ${{ runner.os }}-spm-
+          ${{ runner.os }}-deriveddata-
     
     - name: Build and Test
-      run: swift test --parallel
+      run: |
+        cd Recap
+        xcodebuild test \
+          -project Recap.xcodeproj \
+          -scheme Recap \
+          -destination 'platform=macOS' \
+          -resultBundlePath TestResults \
+          | xcbeautify
     
     - name: Comment PR on Failure
       if: failure() && github.event_name == 'pull_request'
