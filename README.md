@@ -245,6 +245,14 @@ All skill levels welcome - from fixing typos to architecting new features. I rea
 #### Linter
 Not using any linter right now, but I am planning to use SwiftLint/SwiftFormat in the future (PRs greatly welcomed).
 
+
+####  Be notified of releases, watch the repo!
+![Watch releases](https://github.com/user-attachments/assets/21a9caad-b27d-4fe9-859b-7de27d6b4084)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=rawandahmad698/Recap&type=Date)](https://www.star-history.com/#rawandahmad698/Recap&Date)
+
 ## License
 
 Copyright © 2025 Rawand Ahmed Shaswar
@@ -263,5 +271,3 @@ is prohibited without express prior written consent from the copyright holder.
 
 Please see the [LICENSE](LICENSE) file for full details.
 
-####  Be notified of releases, watch the repo!
-![Watch releases](https://github.com/user-attachments/assets/21a9caad-b27d-4fe9-859b-7de27d6b4084)
