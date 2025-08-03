@@ -105,7 +105,7 @@ final class RecapViewModel: ObservableObject {
     }
     
     var canStartRecording: Bool {
-        selectedApp != nil && !recordingCoordinator.isRecording
+        selectedApp != nil
     }
     
     func toggleMicrophone() {

@@ -77,6 +77,7 @@
 				Services/Summarization/SummarizationServiceType.swift,
 				Services/Transcription/TranscriptionServiceType.swift,
 				Services/Warnings/WarningManagerType.swift,
+				UIComponents/Buttons/PillButton.swift,
 				UIComponents/Cards/ActionableWarningCard.swift,
 				UseCases/Settings/Components/MeetingDetection/MeetingDetectionView.swift,
 				UseCases/Settings/Components/Reusable/CustomToggle.swift,
