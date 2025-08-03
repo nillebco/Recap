@@ -173,14 +173,16 @@ Currently, Recap is only available through compilation from source. Pre-built re
 
 ## Usage
 
-### Required Environment Variables
+### Required Environment Variables (Set Via Xcode Scheme Editor)
 
-Before using, you need to set up the following environment variables:
+- Support for Keychain-based token storage soon
+  
+Before using, you need to set up the following environment variables using Xcode Scheme Editor:
 
 * **`HF_TOKEN`** (Required): Hugging Face token for downloading Whisper models
 
   ```bash
-  export HF_TOKEN="your_huggingface_token_here"
+  HF_TOKEN="your_huggingface_token_here"
   ```
 
 Read [Hugging Face documentation](https://huggingface.co/docs/hub/security-tokens) to get a token!
@@ -188,7 +190,7 @@ Read [Hugging Face documentation](https://huggingface.co/docs/hub/security-token
 * **`OPENROUTER_API_KEY`** (Optional): Only required if using OpenRouter for summarization
 
   ```bash
-  export OPENROUTER_API_KEY="your_openrouter_api_key_here"
+  OPENROUTER_API_KEY="your_openrouter_api_key_here"
   ```
 
 Read [OpenRouter documentation](https://openrouter.ai/docs/api-keys) to get a key!
