@@ -86,7 +86,6 @@ extension DependencyContainer {
     }
 }
 
-#if DEBUG
 extension DependencyContainer {
     static func createForPreview() -> DependencyContainer {
         DependencyContainer(inMemory: true)
@@ -96,4 +95,3 @@ extension DependencyContainer {
         DependencyContainer(inMemory: inMemory)
     }
 }
-#endif

@@ -1,0 +1,356 @@
+name: Release Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type (patch, minor, major)'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-release:
+    name: Build, Sign, Release
+    runs-on: macos-15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for release notes
+          
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+          
+      - name: Get current version
+        id: get_version
+        run: |
+          VERSION=$(xcodebuild -project Recap.xcodeproj -target Recap -showBuildSettings 2>/dev/null | grep "MARKETING_VERSION" | head -1 | sed 's/.*= //' | tr -d ' ')
+          BUILD=$(xcodebuild -project Recap.xcodeproj -target Recap -showBuildSettings 2>/dev/null | grep "CURRENT_PROJECT_VERSION" | head -1 | sed 's/.*= //' | tr -d ' ')
+          
+          VERSION=${VERSION:-"1.0"}
+          BUILD=${BUILD:-"1"}
+          
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
+              VERSION="${VERSION}.0"
+            else
+              VERSION="1.0.0"
+            fi
+          fi
+          
+          echo "current_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "current_build=$BUILD" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION ($BUILD)"
+          
+      - name: Calculate next version
+        id: next_version
+        run: |
+          CURRENT="${{ steps.get_version.outputs.current_version }}"
+          TYPE="${{ github.event.inputs.release_type || 'patch' }}"
+          
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          
+          case $TYPE in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          NEW_BUILD="${{ github.run_number }}"
+          
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "build=$NEW_BUILD" >> $GITHUB_OUTPUT
+          echo "Next version: $NEW_VERSION ($NEW_BUILD)"
+          
+      - name: Update version in project
+        run: |
+          sed -i '' "s/MARKETING_VERSION = [^;]*/MARKETING_VERSION = ${{ steps.next_version.outputs.version }}/g" Recap.xcodeproj/project.pbxproj
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*/CURRENT_PROJECT_VERSION = ${{ steps.next_version.outputs.build }}/g" Recap.xcodeproj/project.pbxproj
+          
+          echo "Updated project version to ${{ steps.next_version.outputs.version }} (${{ steps.next_version.outputs.build }})"
+          
+      - name: Install Apple certificates
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+        run: |
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+          
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          security import $CERTIFICATE_PATH -k $KEYCHAIN_PATH -P "$P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          security list-keychain -d user -s $KEYCHAIN_PATH login.keychain
+          
+          echo "Certificates in new keychain:"
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
+          
+          echo "✓ Certificates installed"
+          
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Developer/Xcode/DerivedData/*/SourcePackages
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+            
+      - name: Resolve Dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project Recap.xcodeproj \
+            -scheme Recap \
+            -configuration Release
+            
+      - name: Build and Archive  
+        env:
+          DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+          CODE_SIGN_IDENTITY: ${{ secrets.CODE_SIGN_IDENTITY }}
+        run: |
+          xcodebuild archive \
+            -project Recap.xcodeproj \
+            -scheme Recap \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/Recap.xcarchive \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath $RUNNER_TEMP/DerivedData \
+            -skipMacroValidation \
+            -allowProvisioningUpdates \
+            ONLY_ACTIVE_ARCH=YES \
+            ARCHS=arm64 \
+            VALID_ARCHS=arm64 \
+            EXCLUDED_ARCHS=x86_64 \
+            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
+            CODE_SIGN_STYLE="Manual" \
+            CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            CODE_SIGNING_REQUIRED=YES \
+            CODE_SIGNING_ALLOWED=YES \
+            SWIFT_VERSION=5.0 \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=NO \
+            GCC_TREAT_WARNINGS_AS_ERRORS=NO
+            
+      - name: Export Archive
+        env:
+          DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+        run: |
+          if [ ! -d "$RUNNER_TEMP/Recap.xcarchive" ]; then
+            echo "Archive not found at $RUNNER_TEMP/Recap.xcarchive"
+            exit 1
+          fi
+          
+          echo "Available signing certificates:"
+          security find-identity -v -p codesigning
+          
+          cat > $RUNNER_TEMP/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>developer-id</string>
+            <key>teamID</key>
+            <string>$DEVELOPMENT_TEAM</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>uploadBitcode</key>
+            <false/>
+            <key>uploadSymbols</key>
+            <false/>
+          </dict>
+          </plist>
+          EOF
+          
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/Recap.xcarchive \
+            -exportPath $RUNNER_TEMP/export \
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
+            -allowProvisioningUpdates
+            
+      - name: Notarize app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          TEAM_ID: ${{ secrets.DEVELOPMENT_TEAM }}
+        run: |
+          if [ ! -d "$RUNNER_TEMP/export" ]; then
+            echo "Export directory not found at $RUNNER_TEMP/export"
+            echo "Contents of RUNNER_TEMP:"
+            ls -la $RUNNER_TEMP
+            exit 1
+          fi
+          
+          xcrun notarytool store-credentials "notarytool-profile" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_PASSWORD" \
+            --team-id "$TEAM_ID"
+          
+          cd $RUNNER_TEMP/export
+          
+          if [ ! -d "Recap.app" ]; then
+            echo "Recap.app not found in export directory"
+            echo "Contents of export directory:"
+            ls -la
+            exit 1
+          fi
+          
+          ditto -c -k --keepParent "Recap.app" "Recap.zip"
+          
+          xcrun notarytool submit "Recap.zip" \
+            --keychain-profile "notarytool-profile" \
+            --wait \
+            --timeout 30m
+          
+          xcrun stapler staple "Recap.app"
+          
+      - name: Create DMG
+        run: |
+          brew install create-dmg
+          
+          cd $RUNNER_TEMP
+          
+          ICON_PATH=""
+          if [ -f "$GITHUB_WORKSPACE/Recap/Assets.xcassets/AppIcon.appiconset/mac512.png" ]; then
+            ICON_PATH="$GITHUB_WORKSPACE/Recap/Assets.xcassets/AppIcon.appiconset/mac512.png"
+          elif [ -f "$GITHUB_WORKSPACE/Recap/Recap/Assets.xcassets/AppIcon.appiconset/mac512.png" ]; then
+            ICON_PATH="$GITHUB_WORKSPACE/Recap/Recap/Assets.xcassets/AppIcon.appiconset/mac512.png"
+          else
+            echo "Warning: mac512.png not found, using app's icon"
+            ICON_PATH=""
+          fi
+          
+          mkdir dmg_source
+          cp -R export/Recap.app dmg_source/
+          
+          if [ -n "$ICON_PATH" ]; then
+            create-dmg \
+              --volname "Recap" \
+              --volicon "$ICON_PATH" \
+              --window-pos 200 120 \
+              --window-size 600 400 \
+              --icon-size 100 \
+              --icon "Recap.app" 150 180 \
+              --hide-extension "Recap.app" \
+              --app-drop-link 450 180 \
+              --no-internet-enable \
+              "Recap-${{ steps.next_version.outputs.version }}.dmg" \
+              "dmg_source/"
+          else
+            create-dmg \
+              --volname "Recap" \
+              --window-pos 200 120 \
+              --window-size 600 400 \
+              --icon-size 100 \
+              --icon "Recap.app" 150 180 \
+              --hide-extension "Recap.app" \
+              --app-drop-link 450 180 \
+              --no-internet-enable \
+              "Recap-${{ steps.next_version.outputs.version }}.dmg" \
+              "dmg_source/"
+          fi
+          
+          xcrun notarytool submit "Recap-${{ steps.next_version.outputs.version }}.dmg" \
+            --keychain-profile "notarytool-profile" \
+            --wait \
+            --timeout 30m
+          
+          xcrun stapler staple "Recap-${{ steps.next_version.outputs.version }}.dmg"
+          
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          
+          cat > $RUNNER_TEMP/release_notes.md <<EOF
+          # Recap v${{ steps.next_version.outputs.version }}
+          
+          ## What's Changed
+          
+          EOF
+          
+          git log --pretty=format:"- %s (%h)" $LAST_TAG..HEAD >> $RUNNER_TEMP/release_notes.md
+          
+          cat >> $RUNNER_TEMP/release_notes.md <<EOF
+          
+          
+          ## Installation
+          
+          1. Download the DMG file below
+          2. Open the DMG and drag Recap to your Applications folder
+          3. On first launch, right-click and select "Open"
+          
+          ## Checksums
+          
+          EOF
+          
+          cd $RUNNER_TEMP
+          echo '```' >> release_notes.md
+          echo "SHA256 (DMG): $(shasum -a 256 Recap-${{ steps.next_version.outputs.version }}.dmg | cut -d' ' -f1)" >> release_notes.md
+          echo '```' >> release_notes.md
+          
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.next_version.outputs.version }}
+          name: Recap v${{ steps.next_version.outputs.version }}
+          body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+          draft: false
+          prerelease: false
+          files: |
+            ${{ runner.temp }}/Recap-${{ steps.next_version.outputs.version }}.dmg
+          
+      - name: Upload Build Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            ${{ runner.temp }}/Recap.xcarchive
+            ${{ runner.temp }}/export/
+            ${{ runner.temp }}/*.dmg
+            
+      - name: Clean up keychain
+        if: always()
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db

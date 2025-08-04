@@ -198,11 +198,9 @@ extension RecapViewModel {
     }
 }
 
-#if DEBUG
 extension RecapViewModel {
     static func createForPreview() -> RecapViewModel {
         let container = DependencyContainer.createForPreview()
         return container.createRecapViewModel()
     }
 }
-#endif
