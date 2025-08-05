@@ -64,8 +64,9 @@ Recap is an open-source, privacy-focused, macOS-native project to help you summa
 ### Roadmap:
 
 Working on the following features now:
-- [ ] Meeting Detection (Teams, Zoom, Google etc)
-- [ ] Custom Prompt Via Settings
+- [ ] Meeting Detection (Teams, Zoom, Google etc) (PR In progress)
+- [ ] Custom Prompt Via Settings (PR In Progress)
+- [ ] Live Transcription using Parakeet V2 (PR In Progress)
 - [ ] Background Audio Processing
 - [ ] Auto Recording Stop
 - [ ] Better Error Handling
