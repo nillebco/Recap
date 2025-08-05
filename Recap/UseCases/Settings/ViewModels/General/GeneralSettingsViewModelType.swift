@@ -15,10 +15,13 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var showToast: Bool { get }
     var toastMessage: String { get }
     var activeWarnings: [WarningItem] { get }
+    var customPromptTemplate: String { get set }
     
     func loadModels() async
     func selectModel(_ model: LLMModelInfo) async
     func selectProvider(_ provider: LLMProvider) async
     func toggleAutoDetectMeetings(_ enabled: Bool) async
     func toggleAutoStopRecording(_ enabled: Bool) async
+    func updateCustomPromptTemplate(_ template: String) async
+    func resetToDefaultPrompt() async
 }

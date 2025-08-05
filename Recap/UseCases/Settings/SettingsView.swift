@@ -152,6 +152,7 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
 
 private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModelType {
     var activeWarnings: [WarningItem] = []
+    @Published var customPromptTemplate: String = UserPreferencesInfo.defaultPromptTemplate
     
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
@@ -186,5 +187,13 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     }
     func toggleAutoStopRecording(_ enabled: Bool) async {
         isAutoStopRecording = enabled
+    }
+    
+    func updateCustomPromptTemplate(_ template: String) async {
+        customPromptTemplate = template
+    }
+    
+    func resetToDefaultPrompt() async {
+        customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
     }
 }

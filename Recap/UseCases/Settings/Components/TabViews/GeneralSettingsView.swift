@@ -86,6 +86,41 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         }
                     }
                     
+                    SettingsCard(title: "Custom Prompt") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            CustomTextEditor(
+                                title: "Prompt Template",
+                                text: Binding(
+                                    get: { viewModel.customPromptTemplate },
+                                    set: { newTemplate in
+                                        viewModel.customPromptTemplate = newTemplate
+                                        Task {
+                                            await viewModel.updateCustomPromptTemplate(newTemplate)
+                                        }
+                                    }
+                                ),
+                                placeholder: "Enter your custom prompt template here...",
+                                height: 120
+                            )
+                            
+                            HStack {
+                                Text("Customize how AI summarizes your meeting transcripts")
+                                    .font(.system(size: 11, weight: .regular))
+                                    .foregroundColor(UIConstants.Colors.textSecondary)
+                                
+                                Spacer()
+                                
+                                Button("Reset to Default") {
+                                    Task {
+                                        await viewModel.resetToDefaultPrompt()
+                                    }
+                                }
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(Color.blue)
+                            }
+                        }
+                    }
+                    
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
@@ -127,6 +162,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
 }
 
 private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModelType {
+    @Published var customPromptTemplate: String = UserPreferencesInfo.defaultPromptTemplate
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
         LLMModelInfo(name: "codellama", provider: "ollama")
@@ -169,5 +205,13 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     }
     func toggleAutoStopRecording(_ enabled: Bool) async {
         isAutoStopRecording = enabled
+    }
+    
+    func updateCustomPromptTemplate(_ template: String) async {
+        customPromptTemplate = template
+    }
+    
+    func resetToDefaultPrompt() async {
+        customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
     }
 }

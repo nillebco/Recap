@@ -8,6 +8,7 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     @Published private(set) var selectedProvider: LLMProvider = .default
     @Published private(set) var autoDetectMeetings: Bool = false
     @Published private(set) var isAutoStopRecording: Bool = false
+    @Published var customPromptTemplate: String = ""
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
     @Published private(set) var showToast = false
@@ -58,10 +59,12 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
             selectedProvider = preferences.selectedProvider
             autoDetectMeetings = preferences.autoDetectMeetings
             isAutoStopRecording = preferences.autoStopRecording
+            customPromptTemplate = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
         } catch {
             selectedProvider = .default
             autoDetectMeetings = false
             isAutoStopRecording = false
+            customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
         }
         await loadModels()
     }
@@ -166,5 +169,23 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
             errorMessage = error.localizedDescription
             isAutoStopRecording = !enabled
         }
+    }
+    
+    func updateCustomPromptTemplate(_ template: String) async {
+        errorMessage = nil
+        let trimmedTemplate = template.trimmingCharacters(in: .whitespacesAndNewlines)
+        customPromptTemplate = trimmedTemplate
+        
+        do {
+            let templateToSave = trimmedTemplate.isEmpty ? nil : trimmedTemplate
+            try await userPreferencesRepository.updateSummaryPromptTemplate(templateToSave)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    func resetToDefaultPrompt() async {
+        await updateCustomPromptTemplate("")
+        customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
     }
 }
