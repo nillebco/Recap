@@ -17,7 +17,7 @@ extension DependencyContainer {
         TranscriptionService(whisperModelRepository: whisperModelRepository)
     }
     
-    func makeMeetingDetectionService() -> MeetingDetectionServiceType {
+    func makeMeetingDetectionService() -> any MeetingDetectionServiceType {
         MeetingDetectionService(audioProcessController: audioProcessController)
     }
     
@@ -26,13 +26,11 @@ extension DependencyContainer {
     }
     
     func makeRecordingSessionManager() -> RecordingSessionManaging {
-        guard let micCapture = microphoneCapture as? MicrophoneCapture else {
-            fatalError("microphoneCapture is not of type MicrophoneCapture")
-        }
-        return RecordingSessionManager(microphoneCapture: micCapture, permissionsHelper: makePermissionsHelper())
+        RecordingSessionManager(microphoneCapture: microphoneCapture,
+                                       permissionsHelper: makePermissionsHelper())
     }
     
-    func makeMicrophoneCapture() -> MicrophoneCaptureType {
+    func makeMicrophoneCapture() -> any MicrophoneCaptureType {
         MicrophoneCapture()
     }
     

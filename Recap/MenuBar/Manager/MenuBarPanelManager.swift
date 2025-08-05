@@ -24,8 +24,12 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     let appSelectionViewModel: AppSelectionViewModel
     let previousRecapsViewModel: PreviousRecapsViewModel
     let whisperModelsViewModel: WhisperModelsViewModel
+    let recapViewModel: RecapViewModel
+    let onboardingViewModel: OnboardingViewModel
+    let summaryViewModel: SummaryViewModel
+    let generalSettingsViewModel: GeneralSettingsViewModel
     let userPreferencesRepository: UserPreferencesRepositoryType
-    let dependencyContainer: DependencyContainer
+    let meetingDetectionService: any MeetingDetectionServiceType
     
     init(
         statusBarManager: StatusBarManagerType,
@@ -34,15 +38,23 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
         audioProcessController: AudioProcessController,
         appSelectionViewModel: AppSelectionViewModel,
         previousRecapsViewModel: PreviousRecapsViewModel,
+        recapViewModel: RecapViewModel,
+        onboardingViewModel: OnboardingViewModel,
+        summaryViewModel: SummaryViewModel,
+        generalSettingsViewModel: GeneralSettingsViewModel,
         userPreferencesRepository: UserPreferencesRepositoryType,
-        dependencyContainer: DependencyContainer
+        meetingDetectionService: any MeetingDetectionServiceType
     ) {
         self.statusBarManager = statusBarManager
         self.audioProcessController = audioProcessController
         self.appSelectionViewModel = appSelectionViewModel
         self.whisperModelsViewModel = whisperModelsViewModel
+        self.recapViewModel = recapViewModel
+        self.onboardingViewModel = onboardingViewModel
+        self.summaryViewModel = summaryViewModel
+        self.generalSettingsViewModel = generalSettingsViewModel
         self.userPreferencesRepository = userPreferencesRepository
-        self.dependencyContainer = dependencyContainer
+        self.meetingDetectionService = meetingDetectionService
         self.previousRecapsViewModel = previousRecapsViewModel
         setupDelegates()
     }
@@ -52,9 +64,8 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     }
     
     func createMainPanel() -> SlidingPanel {
-        let viewModel = dependencyContainer.createRecapViewModel()
-        viewModel.delegate = self
-        let contentView = RecapHomeView(viewModel: viewModel)
+        recapViewModel.delegate = self
+        let contentView = RecapHomeView(viewModel: recapViewModel)
         let hostingController = NSHostingController(rootView: contentView)
         hostingController.view.wantsLayer = true
         hostingController.view.layer?.cornerRadius = 12

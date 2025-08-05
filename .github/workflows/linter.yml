@@ -11,6 +11,7 @@ jobs:
   lint:
     name: SwiftLint
     runs-on: macos-15
+    if: github.event.pull_request.draft == false
     
     steps:
     - name: Checkout code
@@ -27,6 +28,7 @@ jobs:
   build:
     name: Build
     runs-on: macos-15
+    if: github.event.pull_request.draft == false
     
     steps:
     - name: Checkout code
@@ -75,6 +77,7 @@ jobs:
     name: Test
     runs-on: macos-15
     needs: build
+    if: github.event.pull_request.draft == false
     
     steps:
     - name: Checkout code

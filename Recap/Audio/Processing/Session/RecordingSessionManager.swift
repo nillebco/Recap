@@ -7,10 +7,10 @@ protocol RecordingSessionManaging {
 
 final class RecordingSessionManager: RecordingSessionManaging {
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: RecordingSessionManager.self))
-    private let microphoneCapture: MicrophoneCapture
+    private let microphoneCapture: MicrophoneCaptureType
     private let permissionsHelper: PermissionsHelperType
     
-    init(microphoneCapture: MicrophoneCapture, permissionsHelper: PermissionsHelperType) {
+    init(microphoneCapture: MicrophoneCaptureType, permissionsHelper: PermissionsHelperType) {
         self.microphoneCapture = microphoneCapture
         self.permissionsHelper = permissionsHelper
     }

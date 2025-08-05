@@ -20,6 +20,9 @@ final class DependencyContainer {
     lazy var processingCoordinator: ProcessingCoordinator = makeProcessingCoordinator()
     lazy var recordingFileManager: RecordingFileManaging = makeRecordingFileManager()
     lazy var generalSettingsViewModel: GeneralSettingsViewModel = makeGeneralSettingsViewModel()
+    lazy var recapViewModel: RecapViewModel = createRecapViewModel()
+    lazy var onboardingViewModel: OnboardingViewModel = makeOnboardingViewModel()
+    lazy var summaryViewModel: SummaryViewModel = createSummaryViewModel()
     lazy var transcriptionService: TranscriptionServiceType = makeTranscriptionService()
     lazy var warningManager: any WarningManagerType = makeWarningManager()
     lazy var providerWarningCoordinator: ProviderWarningCoordinator = makeProviderWarningCoordinator()
@@ -46,7 +49,12 @@ final class DependencyContainer {
             audioProcessController: audioProcessController,
             appSelectionViewModel: appSelectionViewModel,
             previousRecapsViewModel: previousRecapsViewModel,
-            dependencyContainer: self
+            recapViewModel: recapViewModel,
+            onboardingViewModel: onboardingViewModel,
+            summaryViewModel: summaryViewModel,
+            generalSettingsViewModel: generalSettingsViewModel,
+            userPreferencesRepository: userPreferencesRepository,
+            meetingDetectionService: meetingDetectionService
         )
     }
     

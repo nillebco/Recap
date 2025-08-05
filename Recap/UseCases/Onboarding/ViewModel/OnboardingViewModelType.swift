@@ -12,7 +12,7 @@ protocol OnboardingViewModelType: ObservableObject {
     var isAutoSummarizeEnabled: Bool { get }
     var isLiveTranscriptionEnabled: Bool { get }
     var hasRequiredPermissions: Bool { get }
-    var showErrorToast: Bool { get }
+    var showErrorToast: Bool { get set }
     var errorMessage: String { get }
     var canContinue: Bool { get }
     var delegate: OnboardingDelegate? { get set }
