@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 protocol LLMTaskManageable: AnyObject {
     var currentTask: Task<Void, Never>? { get set }
     func cancelCurrentTask()
@@ -19,7 +20,9 @@ extension LLMTaskManageable {
         return try await withTaskCancellationHandler {
             try await operation()
         } onCancel: {
-            cancelCurrentTask()
+            Task.detached { [weak self] in
+                await self?.cancelCurrentTask()
+            }
         }
     }
 }

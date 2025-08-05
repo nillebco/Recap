@@ -7,16 +7,6 @@ final class NotificationService: NotificationServiceType {
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: "NotificationService")
     private let notificationCenter = UNUserNotificationCenter.current()
     
-    func requestPermission() async -> Bool {
-        do {
-            let granted = try await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
-            return granted
-        } catch {
-            logger.error("Failed to request notification permission: \(error)")
-            return false
-        }
-    }
-    
     func sendMeetingStartedNotification(appName: String, title: String) async {
         let content = UNMutableNotificationContent()
         content.title = "\(appName): Meeting Detected"

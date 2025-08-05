@@ -74,7 +74,7 @@ private extension RecapViewModel {
 // MARK: - App Auto-Selection
 private extension RecapViewModel {
     func autoSelectAppIfAvailable(_ detectedApp: AudioProcess?) {
-        guard let detectedApp = detectedApp else {
+        guard let detectedApp else {
             return
         }
         
@@ -86,13 +86,12 @@ private extension RecapViewModel {
 private extension RecapViewModel {
     func sendMeetingStartedNotification(appName: String, title: String) {
         Task {
-            await notificationService.requestPermission()
             await notificationService.sendMeetingStartedNotification(appName: appName, title: title)
         }
     }
     
     func sendMeetingEndedNotification() {
-        // TODO: Analyze audio levels, and if silence is detected, send a notification here.
+        // TODO: Later we will analyze audio levels, and if silence is detected, send a notification here.
     }
 }
 

@@ -8,35 +8,38 @@ final class OllamaProvider: LLMProviderType, LLMTaskManageable {
     let name = "Ollama"
     
     var isAvailable: Bool {
-        availabilityCoordinator.isAvailable
+        availabilityHelper.isAvailable
     }
     
     var availabilityPublisher: AnyPublisher<Bool, Never> {
-        availabilityCoordinator.availabilityPublisher
+        availabilityHelper.availabilityPublisher
     }
     
     var currentTask: Task<Void, Never>?
     
     private let apiClient: OllamaAPIClient
-    private let availabilityCoordinator: AvailabilityCoordinatorType
+    private let availabilityHelper: AvailabilityHelper
     
     init(baseURL: String = "http://localhost", port: Int = 11434) {
         self.apiClient = OllamaAPIClient(baseURL: baseURL, port: port)
-        self.availabilityCoordinator = AvailabilityCoordinator(
+
+        self.availabilityHelper = AvailabilityHelper(
             checkInterval: 30.0,
             availabilityCheck: { [weak apiClient] in
                 await apiClient?.checkAvailability() ?? false
             }
         )
-        availabilityCoordinator.startMonitoring()
+        availabilityHelper.startMonitoring()
     }
     
     deinit {
-        cancelCurrentTask()
+        Task.detached { [weak self] in
+            await self?.cancelCurrentTask()
+        }
     }
     
     func checkAvailability() async -> Bool {
-        await availabilityCoordinator.checkAvailabilityNow()
+        await availabilityHelper.checkAvailabilityNow()
     }
     
     func listModels() async throws -> [OllamaModel] {

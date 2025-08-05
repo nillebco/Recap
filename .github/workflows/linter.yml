@@ -1,4 +1,4 @@
-name: Run SwiftLint
+name: Build and Lint
 
 on:
   push:
@@ -51,7 +51,7 @@ jobs:
           -project Recap.xcodeproj \
           -scheme Recap
     
-    - name: Build Debug
+    - name: Build Project
       run: |
         xcodebuild build \
           -project Recap.xcodeproj \

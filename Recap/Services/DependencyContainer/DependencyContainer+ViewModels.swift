@@ -29,4 +29,11 @@ extension DependencyContainer {
             userPreferencesRepository: userPreferencesRepository
         )
     }
+    
+    func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(
+            permissionsHelper: PermissionsHelper(),
+            userPreferencesRepository: userPreferencesRepository
+        )
+    }
 }
