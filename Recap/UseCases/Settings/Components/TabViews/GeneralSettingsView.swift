@@ -90,7 +90,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         VStack(alignment: .leading, spacing: 12) {
                             CustomTextEditor(
                                 title: "Prompt Template",
-                                text: viewModel.customPromptTemplate,
+                                text: $viewModel.customPromptTemplate,
                                 placeholder: "Enter your custom prompt template here...",
                                 height: 120
                             )
@@ -178,9 +178,14 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
 }
 
 private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
+    func updateCustomPromptTemplate(_ template: String) async {}
+    
+    func resetToDefaultPrompt() async {}
+    
     var customPromptTemplate: Binding<String> {
         .constant(UserPreferencesInfo.defaultPromptTemplate)
     }
+
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
         LLMModelInfo(name: "codellama", provider: "ollama")

@@ -24,6 +24,8 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     func selectProvider(_ provider: LLMProvider) async
     func toggleAutoDetectMeetings(_ enabled: Bool) async
     func toggleAutoStopRecording(_ enabled: Bool) async
+    func updateCustomPromptTemplate(_ template: String) async
+    func resetToDefaultPrompt() async
     func saveAPIKey(_ apiKey: String) async throws
     func dismissAPIKeyAlert()
 }

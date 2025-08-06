@@ -152,7 +152,7 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
 }
 
 // Just used for previews only!
-private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModelType {
+private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
     var showAPIKeyAlert: Bool = false
     
     var existingAPIKey: String? = nil
@@ -160,8 +160,6 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     func saveAPIKey(_ apiKey: String) async throws {}
     
     func dismissAPIKeyAlert() {}
-    
-    var activeWarnings: [WarningItem] = []
     
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),

@@ -177,6 +177,21 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
         }
     }
     
+    func updateCustomPromptTemplate(_ template: String) async {
+        customPromptTemplateValue = template
+        
+        do {
+            let templateToSave = template.isEmpty ? nil : template
+            try await userPreferencesRepository.updateSummaryPromptTemplate(templateToSave)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func resetToDefaultPrompt() async {
+        await updateCustomPromptTemplate(UserPreferencesInfo.defaultPromptTemplate)
+    }
+    
     func toggleAutoStopRecording(_ enabled: Bool) async {
         errorMessage = nil
         isAutoStopRecording = enabled
