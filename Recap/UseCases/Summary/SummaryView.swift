@@ -5,6 +5,7 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
     let onClose: () -> Void
     @ObservedObject var viewModel: ViewModel
     let recordingID: String?
+    @State var showingTranscript: Bool = false
     
     init(
         onClose: @escaping () -> Void,
@@ -148,9 +149,14 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: UIConstants.Spacing.cardSpacing) {
                     if let recording = viewModel.currentRecording,
-                       let summaryText = recording.summaryText {
+                       let summaryText = recording.summaryText,
+                       let transcriptionText = recording.transcriptionText {
                         
                         VStack(alignment: .leading, spacing: UIConstants.Spacing.cardInternalSpacing) {
+                            if (!transcriptionText.isEmpty) {
+                                TranscriptDropdownButton(transcriptText: transcriptionText)
+                            }
+                            
                             Text("Summary")
                                 .font(UIConstants.Typography.infoCardTitle)
                                 .foregroundColor(UIConstants.Colors.textPrimary)
