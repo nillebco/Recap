@@ -195,7 +195,7 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     }
     
     func resetToDefaultPrompt() async {
-        await updateCustomPromptTemplate("")
         _customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
+        await updateCustomPromptTemplate(UserPreferencesInfo.defaultPromptTemplate)
     }
 }
