@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import SwiftUI
 
 @MainActor
 protocol GeneralSettingsViewModelType: ObservableObject {
@@ -15,10 +16,13 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var showToast: Bool { get }
     var toastMessage: String { get }
     var activeWarnings: [WarningItem] { get }
+    var customPromptTemplate: Binding<String> { get }
     
     func loadModels() async
     func selectModel(_ model: LLMModelInfo) async
     func selectProvider(_ provider: LLMProvider) async
     func toggleAutoDetectMeetings(_ enabled: Bool) async
     func toggleAutoStopRecording(_ enabled: Bool) async
+    func updateCustomPromptTemplate(_ template: String) async
+    func resetToDefaultPrompt() async
 }

@@ -1,13 +1,27 @@
 import Foundation
 import Combine
+import SwiftUI
 
 @MainActor
-final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModelType {
+final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var availableModels: [LLMModelInfo] = []
     @Published private(set) var selectedModel: LLMModelInfo?
     @Published private(set) var selectedProvider: LLMProvider = .default
     @Published private(set) var autoDetectMeetings: Bool = false
     @Published private(set) var isAutoStopRecording: Bool = false
+    @Published private var customPromptTemplateValue: String = ""
+    
+    var customPromptTemplate: Binding<String> {
+        Binding(
+            get: { self.customPromptTemplateValue },
+            set: { newValue in
+                Task {
+                    await self.updateCustomPromptTemplate(newValue)
+                }
+            }
+        )
+    }
+
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
     @Published private(set) var showToast = false
@@ -31,7 +45,7 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     init(
         llmService: LLMServiceType,
         userPreferencesRepository: UserPreferencesRepositoryType,
-        environmentValidator: EnvironmentValidatorType = EnvironmentValidator(),
+        environmentValidator: EnvironmentValidatorType,
         warningManager: WarningManagerType
     ) {
         self.llmService = llmService
@@ -58,10 +72,12 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
             selectedProvider = preferences.selectedProvider
             autoDetectMeetings = preferences.autoDetectMeetings
             isAutoStopRecording = preferences.autoStopRecording
+            customPromptTemplateValue = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
         } catch {
             selectedProvider = .default
             autoDetectMeetings = false
             isAutoStopRecording = false
+            customPromptTemplateValue = UserPreferencesInfo.defaultPromptTemplate
         }
         await loadModels()
     }
@@ -166,5 +182,20 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
             errorMessage = error.localizedDescription
             isAutoStopRecording = !enabled
         }
+    }
+    
+    func updateCustomPromptTemplate(_ template: String) async {
+        customPromptTemplateValue = template
+        
+        do {
+            let templateToSave = template.isEmpty ? nil : template
+            try await userPreferencesRepository.updateSummaryPromptTemplate(templateToSave)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    func resetToDefaultPrompt() async {
+        await updateCustomPromptTemplate(UserPreferencesInfo.defaultPromptTemplate)
     }
 }

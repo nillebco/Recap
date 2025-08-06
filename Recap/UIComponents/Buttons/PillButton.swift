@@ -1,10 +1,3 @@
-//
-//  PillButton.swift
-//  Recap
-//
-//  Created by Rawand Ahmad on 25/07/2025.
-//
-
 import SwiftUI
 
 struct PillButton: View {
