@@ -90,7 +90,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         VStack(alignment: .leading, spacing: 12) {
                             CustomTextEditor(
                                 title: "Prompt Template",
-                                text: $viewModel.customPromptTemplate,
+                                text: viewModel.customPromptTemplate,
                                 placeholder: "Enter your custom prompt template here...",
                                 height: 120
                             )

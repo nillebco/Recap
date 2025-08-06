@@ -153,6 +153,8 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
 
 // Just used for previews only!
 private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
+    var customPromptTemplate: Binding<String> = .constant("Hello")
+
     var showAPIKeyAlert: Bool = false
     
     var existingAPIKey: String? = nil

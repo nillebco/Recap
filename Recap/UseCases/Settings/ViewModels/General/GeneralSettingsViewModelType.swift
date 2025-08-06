@@ -16,6 +16,7 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var showToast: Bool { get }
     var toastMessage: String { get }
     var activeWarnings: [WarningItem] { get }
+    var customPromptTemplate: Binding<String> { get }
     var showAPIKeyAlert: Bool { get }
     var existingAPIKey: String? { get }
     
