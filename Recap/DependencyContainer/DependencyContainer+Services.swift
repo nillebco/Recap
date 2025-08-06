@@ -18,7 +18,7 @@ extension DependencyContainer {
     }
     
     func makeMeetingDetectionService() -> any MeetingDetectionServiceType {
-        MeetingDetectionService(audioProcessController: audioProcessController)
+        MeetingDetectionService(audioProcessController: audioProcessController, permissionsHelper: makePermissionsHelper())
     }
     
     func makeMeetingAppDetectionService() -> MeetingAppDetecting {
@@ -36,5 +36,13 @@ extension DependencyContainer {
     
     func makeNotificationService() -> NotificationServiceType {
         NotificationService()
+    }
+    
+    func makeKeychainService() -> KeychainServiceType {
+        KeychainService()
+    }
+    
+    func makeKeychainAPIValidator() -> KeychainAPIValidatorType {
+        KeychainAPIValidator(keychainService: keychainService)
     }
 }

@@ -36,7 +36,7 @@ private extension RecapViewModel {
     }
     
     func startMonitoringIfPermissionGranted() async {
-        if await meetingDetectionService.checkPermission() {
+        if await permissionsHelper.checkScreenCapturePermission() {
             meetingDetectionService.startMonitoring()
         } else {
             logger.warning("Meeting detection permission denied")

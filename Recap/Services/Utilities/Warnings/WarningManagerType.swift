@@ -1,6 +1,12 @@
 import Foundation
 import Combine
+#if MOCKING
+import Mockable
+#endif
 
+#if MOCKING
+@Mockable
+#endif
 protocol WarningManagerType: ObservableObject {
     var activeWarnings: [WarningItem] { get }
     var activeWarningsPublisher: AnyPublisher<[WarningItem], Never> { get }

@@ -15,4 +15,5 @@ protocol PermissionsHelperType: AnyObject {
     func checkMicrophonePermissionStatus() -> AVAuthorizationStatus
     func checkNotificationPermissionStatus() async -> Bool
     func checkScreenRecordingPermission() -> Bool
+    func checkScreenCapturePermission() async -> Bool
 }

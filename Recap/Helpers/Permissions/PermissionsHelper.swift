@@ -51,4 +51,13 @@ final class PermissionsHelper: PermissionsHelperType {
             return true
         }
     }
+    
+    func checkScreenCapturePermission() async -> Bool {
+        do {
+            let _ = try await SCShareableContent.current
+            return true
+        } catch {
+            return false
+        }
+    }
 }

@@ -151,13 +151,14 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
             VStack(spacing: 12) {
                 PermissionCard(
                     title: "Auto Summarize",
-                    description: "Generate summaries after each recording",
+                    description: "Generate summaries after each recording - Coming Soon!",
                     isEnabled: Binding(
-                        get: { viewModel.isAutoSummarizeEnabled },
+                        get: { false },
                         set: { _ in }
                     ),
+                    isDisabled: true,
                     onToggle: { enabled in
-                        viewModel.toggleAutoSummarize(enabled)
+                        
                     }
                 )
                 
@@ -226,6 +227,7 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
+                .padding(.all, 6)
                 
                 Spacer()
             }
@@ -252,7 +254,7 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
             userPreferencesRepository: PreviewUserPreferencesRepository()
         )
     )
-    .frame(width: 600, height: 700)
+    .frame(width: 600, height: 500)
 }
 
 private class PreviewUserPreferencesRepository: UserPreferencesRepositoryType {

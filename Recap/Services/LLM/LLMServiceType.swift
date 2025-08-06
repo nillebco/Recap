@@ -1,7 +1,13 @@
 import Foundation
 import Combine
+#if MOCKING
+import Mockable
+#endif
 
 @MainActor
+#if MOCKING
+@Mockable
+#endif
 protocol LLMServiceType: AnyObject {
     var currentProvider: (any LLMProviderType)? { get }
     var availableProviders: [any LLMProviderType] { get }

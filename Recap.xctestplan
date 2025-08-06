@@ -1,0 +1,36 @@
+{
+  "configurations" : [
+    {
+      "id" : "16849F79-ACBC-4890-8336-EF7543A98E8A",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Recap.xcodeproj",
+      "identifier" : "A72106512E3016590073C515",
+      "name" : "Recap"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Recap.xcodeproj",
+        "identifier" : "A721065F2E30165B0073C515",
+        "name" : "RecapTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Recap.xcodeproj",
+        "identifier" : "A72106692E30165B0073C515",
+        "name" : "RecapUITests"
+    }
+  ],
+  "version" : 1
+}

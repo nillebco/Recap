@@ -32,6 +32,8 @@ final class DependencyContainer {
     lazy var microphoneCapture: MicrophoneCaptureType = makeMicrophoneCapture()
     lazy var notificationService: NotificationServiceType = makeNotificationService()
     lazy var appSelectionCoordinator: AppSelectionCoordinatorType = makeAppSelectionCoordinator()
+    lazy var keychainService: KeychainServiceType = makeKeychainService()
+    lazy var keychainAPIValidator: KeychainAPIValidatorType = makeKeychainAPIValidator()
     
     init(inMemory: Bool = false) {
         self.inMemory = inMemory
@@ -69,7 +71,8 @@ final class DependencyContainer {
             meetingDetectionService: meetingDetectionService,
             userPreferencesRepository: userPreferencesRepository,
             notificationService: notificationService,
-            appSelectionCoordinator: appSelectionCoordinator
+            appSelectionCoordinator: appSelectionCoordinator,
+            permissionsHelper: makePermissionsHelper()
         )
     }
     

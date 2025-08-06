@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 @MainActor
-final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModelType {
+final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var availableModels: [LLMModelInfo] = []
     @Published private(set) var selectedModel: LLMModelInfo?
     @Published private(set) var selectedProvider: LLMProvider = .default
@@ -13,6 +13,8 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     @Published private(set) var showToast = false
     @Published private(set) var toastMessage = ""
     @Published private(set) var activeWarnings: [WarningItem] = []
+    @Published private(set) var showAPIKeyAlert = false
+    @Published private(set) var existingAPIKey: String?
     
     var hasModels: Bool {
         !availableModels.isEmpty
@@ -24,19 +26,22 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     
     private let llmService: LLMServiceType
     private let userPreferencesRepository: UserPreferencesRepositoryType
-    private let environmentValidator: EnvironmentValidatorType
-    private let warningManager: WarningManagerType
+    private let keychainAPIValidator: KeychainAPIValidatorType
+    private let keychainService: KeychainServiceType
+    private let warningManager: any WarningManagerType
     private var cancellables = Set<AnyCancellable>()
     
     init(
         llmService: LLMServiceType,
         userPreferencesRepository: UserPreferencesRepositoryType,
-        environmentValidator: EnvironmentValidatorType = EnvironmentValidator(),
-        warningManager: WarningManagerType
+        keychainAPIValidator: KeychainAPIValidatorType,
+        keychainService: KeychainServiceType,
+        warningManager: any WarningManagerType
     ) {
         self.llmService = llmService
         self.userPreferencesRepository = userPreferencesRepository
-        self.environmentValidator = environmentValidator
+        self.keychainAPIValidator = keychainAPIValidator
+        self.keychainService = keychainService
         self.warningManager = warningManager
         
         setupWarningObserver()
@@ -100,15 +105,15 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
         errorMessage = nil
         
         if provider == .openRouter {
-            let validation = environmentValidator.validateOpenRouterEnvironment()
+            let validation = keychainAPIValidator.validateOpenRouterAPI()
             
             if !validation.isValid {
-                if let message = validation.errorMessage {
-                    showValidationToast(message)
+                do {
+                    existingAPIKey = try keychainService.retrieveOpenRouterAPIKey()
+                } catch {
+                    existingAPIKey = nil
                 }
-                selectedProvider = .ollama
-                try? await llmService.selectProvider(.ollama)
-                await loadModels()
+                showAPIKeyAlert = true
                 return
             }
         }
@@ -166,5 +171,19 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
             errorMessage = error.localizedDescription
             isAutoStopRecording = !enabled
         }
+    }
+    
+    func saveAPIKey(_ apiKey: String) async throws {
+        try keychainService.storeOpenRouterAPIKey(apiKey)
+        
+        existingAPIKey = apiKey
+        showAPIKeyAlert = false
+        
+        await selectProvider(.openRouter)
+    }
+    
+    func dismissAPIKeyAlert() {
+        showAPIKeyAlert = false
+        existingAPIKey = nil
     }
 }

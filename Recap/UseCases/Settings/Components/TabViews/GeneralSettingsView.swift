@@ -101,6 +101,32 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                 title: viewModel.toastMessage
             )
         }
+        .blur(radius: viewModel.showAPIKeyAlert ? 2 : 0)
+        .animation(.easeInOut(duration: 0.3), value: viewModel.showAPIKeyAlert)
+        .overlay(
+            Group {
+                if viewModel.showAPIKeyAlert {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                            .transition(.opacity)
+                        
+                        OpenRouterAPIKeyAlert(
+                            isPresented: Binding(
+                                get: { viewModel.showAPIKeyAlert },
+                                set: { _ in viewModel.dismissAPIKeyAlert() }
+                            ),
+                            existingKey: viewModel.existingAPIKey,
+                            onSave: { apiKey in
+                                try await viewModel.saveAPIKey(apiKey)
+                            }
+                        )
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                    }
+                }
+            }
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showAPIKeyAlert)
+        )
     }
     
     
@@ -139,6 +165,8 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     @Published var errorMessage: String?
     @Published var showToast = false
     @Published var toastMessage = ""
+    @Published var showAPIKeyAlert = false
+    @Published var existingAPIKey: String?
     @Published var activeWarnings: [WarningItem] = [
         WarningItem(
             id: "ollama",
@@ -169,5 +197,9 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     }
     func toggleAutoStopRecording(_ enabled: Bool) async {
         isAutoStopRecording = enabled
+    }
+    func saveAPIKey(_ apiKey: String) async throws {}
+    func dismissAPIKeyAlert() {
+        showAPIKeyAlert = false
     }
 }
