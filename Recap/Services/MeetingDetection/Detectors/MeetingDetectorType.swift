@@ -4,6 +4,14 @@ import ScreenCaptureKit
 import Mockable
 #endif
 
+// MARK: - Window Protocol for Testing
+
+protocol WindowTitleProviding {
+    var title: String? { get }
+}
+
+extension SCWindow: WindowTitleProviding {}
+
 @MainActor
 #if MOCKING
 @Mockable
@@ -14,7 +22,7 @@ protocol MeetingDetectorType: ObservableObject {
     var meetingAppName: String { get }
     var supportedBundleIdentifiers: Set<String> { get }
     
-    func checkForMeeting(in windows: [SCWindow]) async -> MeetingDetectionResult
+    func checkForMeeting(in windows: [any WindowTitleProviding]) async -> MeetingDetectionResult
 }
 
 struct MeetingDetectionResult {

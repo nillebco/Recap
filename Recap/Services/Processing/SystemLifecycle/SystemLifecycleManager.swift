@@ -1,6 +1,7 @@
 import Foundation
 import AppKit
 
+@MainActor
 protocol SystemLifecycleDelegate: AnyObject {
     func systemWillSleep()
     func systemDidWake()

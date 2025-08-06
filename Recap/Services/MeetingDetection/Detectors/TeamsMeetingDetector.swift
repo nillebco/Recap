@@ -18,7 +18,7 @@ final class TeamsMeetingDetector: MeetingDetectorType {
         self.patternMatcher = MeetingPatternMatcher(patterns: MeetingPatternMatcher.teamsPatterns)
     }
     
-    func checkForMeeting(in windows: [SCWindow]) async -> MeetingDetectionResult {
+    func checkForMeeting(in windows: [any WindowTitleProviding]) async -> MeetingDetectionResult {
         for window in windows {
             guard let title = window.title, !title.isEmpty else { continue }
             

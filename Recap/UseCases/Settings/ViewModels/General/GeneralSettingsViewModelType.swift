@@ -17,6 +17,8 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var toastMessage: String { get }
     var activeWarnings: [WarningItem] { get }
     var customPromptTemplate: Binding<String> { get }
+    var showAPIKeyAlert: Bool { get }
+    var existingAPIKey: String? { get }
     
     func loadModels() async
     func selectModel(_ model: LLMModelInfo) async
@@ -25,4 +27,6 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     func toggleAutoStopRecording(_ enabled: Bool) async
     func updateCustomPromptTemplate(_ template: String) async
     func resetToDefaultPrompt() async
+    func saveAPIKey(_ apiKey: String) async throws
+    func dismissAPIKeyAlert()
 }

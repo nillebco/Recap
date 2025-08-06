@@ -39,15 +39,6 @@ final class MicrophoneCapture: MicrophoneCaptureType {
         cleanup()
     }
     
-    func requestPermission() async -> Bool {
-        await withCheckedContinuation { continuation in
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                self.logger.info("Microphone permission granted: \(granted)")
-                continuation.resume(returning: granted)
-            }
-        }
-    }
-    
     func start(outputURL: URL, targetFormat: AudioStreamBasicDescription? = nil) throws {
         self.outputURL = outputURL
         

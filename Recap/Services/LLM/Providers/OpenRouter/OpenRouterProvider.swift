@@ -8,36 +8,38 @@ final class OpenRouterProvider: LLMProviderType, LLMTaskManageable {
     let name = "OpenRouter"
     
     var isAvailable: Bool {
-        availabilityCoordinator.isAvailable
+        availabilityHelper.isAvailable
     }
     
     var availabilityPublisher: AnyPublisher<Bool, Never> {
-        availabilityCoordinator.availabilityPublisher
+        availabilityHelper.availabilityPublisher
     }
     
     var currentTask: Task<Void, Never>?
     
     private let apiClient: OpenRouterAPIClient
-    private let availabilityCoordinator: AvailabilityCoordinatorType
+    private let availabilityHelper: AvailabilityHelper
     
     init(apiKey: String? = nil) {
         let resolvedApiKey = apiKey ?? ProcessInfo.processInfo.environment["OPENROUTER_API_KEY"]
         self.apiClient = OpenRouterAPIClient(apiKey: resolvedApiKey)
-        self.availabilityCoordinator = AvailabilityCoordinator(
+        self.availabilityHelper = AvailabilityHelper(
             checkInterval: 60.0,
             availabilityCheck: { [weak apiClient] in
                 await apiClient?.checkAvailability() ?? false
             }
         )
-        availabilityCoordinator.startMonitoring()
+        availabilityHelper.startMonitoring()
     }
     
     deinit {
-        cancelCurrentTask()
+        Task { [weak self] in
+            await self?.cancelCurrentTask()
+        }
     }
     
     func checkAvailability() async -> Bool {
-        await availabilityCoordinator.checkAvailabilityNow()
+        await availabilityHelper.checkAvailabilityNow()
     }
     
     func listModels() async throws -> [OpenRouterModel] {

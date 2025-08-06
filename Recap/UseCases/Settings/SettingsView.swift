@@ -27,7 +27,7 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
     init(
         whisperModelsViewModel: WhisperModelsViewModel,
         generalSettingsViewModel: GeneralViewModel,
-        meetingDetectionService: MeetingDetectionServiceType,
+        meetingDetectionService: any MeetingDetectionServiceType,
         userPreferencesRepository: UserPreferencesRepositoryType,
         onClose: @escaping () -> Void
     ) {
@@ -35,7 +35,8 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
         self.generalSettingsViewModel = generalSettingsViewModel
         self._meetingDetectionViewModel = StateObject(wrappedValue: MeetingDetectionSettingsViewModel(
             detectionService: meetingDetectionService,
-            userPreferencesRepository: userPreferencesRepository
+            userPreferencesRepository: userPreferencesRepository,
+            permissionsHelper: PermissionsHelper()
         ))
         self.onClose = onClose
     }
@@ -143,18 +144,25 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
     SettingsView(
         whisperModelsViewModel: whisperModelsViewModel, 
         generalSettingsViewModel: generalSettingsViewModel,
-        meetingDetectionService: MeetingDetectionService(audioProcessController: AudioProcessController()),
+        meetingDetectionService: MeetingDetectionService(audioProcessController: AudioProcessController(), permissionsHelper: PermissionsHelper()),
         userPreferencesRepository: UserPreferencesRepository(coreDataManager: coreDataManager),
         onClose: {}
     )
     .frame(width: 550, height: 500)
 }
 
-
+// Just used for previews only!
 private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
-    var customPromptTemplate: Binding<String> {
-        .constant(UserPreferencesInfo.defaultPromptTemplate)
-    }
+    var customPromptTemplate: Binding<String> = .constant("Hello")
+
+    var showAPIKeyAlert: Bool = false
+    
+    var existingAPIKey: String? = nil
+    
+    func saveAPIKey(_ apiKey: String) async throws {}
+    
+    func dismissAPIKeyAlert() {}
+    
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
         LLMModelInfo(name: "codellama", provider: "ollama")

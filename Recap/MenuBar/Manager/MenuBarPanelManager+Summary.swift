@@ -7,7 +7,7 @@ extension MenuBarPanelManager {
             onClose: { [weak self] in
                 self?.hideSummaryPanel()
             },
-            viewModel: dependencyContainer.createSummaryViewModel(),
+            viewModel: summaryViewModel,
             recordingID: recordingID
         )
         let hostingController = NSHostingController(rootView: contentView)

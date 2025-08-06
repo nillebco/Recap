@@ -23,19 +23,11 @@
 			remoteGlobalIDString = A72106512E3016590073C515;
 			remoteInfo = Recap;
 		};
-		A721066B2E30165B0073C515 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A721064A2E3016590073C515 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A72106512E3016590073C515;
-			remoteInfo = Recap;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A72106522E3016590073C515 /* Recap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Recap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A72106602E30165B0073C515 /* RecapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A721066A2E30165B0073C515 /* RecapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -46,10 +38,16 @@
 				Audio/Models/AudioProcessGroup.swift,
 				Audio/Processing/Detection/AudioProcessControllerType.swift,
 				DataModels/RecapDataModel.xcdatamodeld,
+				Helpers/Availability/AvailabilityHelper.swift,
 				"Helpers/Colors/Color+Extension.swift",
 				Helpers/Constants/AppConstants.swift,
 				Helpers/Constants/UIConstants.swift,
 				Helpers/MeetingDetection/MeetingPatternMatcher.swift,
+				Helpers/Permissions/PermissionsHelper.swift,
+				Helpers/Permissions/PermissionsHelperType.swift,
+				Repositories/LLMModels/LLMModelRepository.swift,
+				Repositories/LLMModels/LLMModelRepositoryType.swift,
+				Repositories/Models/LLMModelInfo.swift,
 				Repositories/Models/LLMProvider.swift,
 				Repositories/Models/RecordingInfo.swift,
 				Repositories/Models/UserPreferencesInfo.swift,
@@ -58,7 +56,24 @@
 				Repositories/UserPreferences/UserPreferencesRepository.swift,
 				Repositories/UserPreferences/UserPreferencesRepositoryType.swift,
 				Services/CoreData/CoreDataManagerType.swift,
+				Services/Keychain/KeychainAPIValidator.swift,
+				Services/Keychain/KeychainAPIValidatorType.swift,
+				Services/Keychain/KeychainService.swift,
+				"Services/Keychain/KeychainService+Extensions.swift",
+				Services/Keychain/KeychainServiceType.swift,
 				Services/LLM/Core/LLMError.swift,
+				Services/LLM/Core/LLMModelType.swift,
+				Services/LLM/Core/LLMOptions.swift,
+				Services/LLM/Core/LLMProviderType.swift,
+				Services/LLM/Core/LLMTaskManageable.swift,
+				Services/LLM/LLMService.swift,
+				Services/LLM/LLMServiceType.swift,
+				Services/LLM/Providers/Ollama/OllamaAPIClient.swift,
+				Services/LLM/Providers/Ollama/OllamaModel.swift,
+				Services/LLM/Providers/Ollama/OllamaProvider.swift,
+				Services/LLM/Providers/OpenRouter/OpenRouterAPIClient.swift,
+				Services/LLM/Providers/OpenRouter/OpenRouterModel.swift,
+				Services/LLM/Providers/OpenRouter/OpenRouterProvider.swift,
 				Services/MeetingDetection/Core/MeetingDetectionService.swift,
 				Services/MeetingDetection/Core/MeetingDetectionServiceType.swift,
 				Services/MeetingDetection/Detectors/GoogleMeetDetector.swift,
@@ -76,12 +91,18 @@
 				Services/Summarization/Models/SummarizationResult.swift,
 				Services/Summarization/SummarizationServiceType.swift,
 				Services/Transcription/TranscriptionServiceType.swift,
-				Services/Warnings/WarningManagerType.swift,
+				Services/Utilities/Warnings/ProviderWarningCoordinator.swift,
+				Services/Utilities/Warnings/WarningManager.swift,
+				Services/Utilities/Warnings/WarningManagerType.swift,
 				UIComponents/Buttons/PillButton.swift,
 				UIComponents/Cards/ActionableWarningCard.swift,
+				UseCases/Onboarding/ViewModel/OnboardingViewModel.swift,
+				UseCases/Onboarding/ViewModel/OnboardingViewModelType.swift,
 				UseCases/Settings/Components/MeetingDetection/MeetingDetectionView.swift,
 				UseCases/Settings/Components/Reusable/CustomToggle.swift,
 				UseCases/Settings/Components/SettingsCard.swift,
+				UseCases/Settings/ViewModels/General/GeneralSettingsViewModel.swift,
+				UseCases/Settings/ViewModels/General/GeneralSettingsViewModelType.swift,
 				UseCases/Settings/ViewModels/MeetingDetection/MeetingDetectionSettingsViewModel.swift,
 				UseCases/Settings/ViewModels/MeetingDetection/MeetingDetectionSettingsViewModelType.swift,
 				UseCases/Summary/Components/ProcessingProgressBar.swift,
@@ -130,13 +151,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A72106672E30165B0073C515 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -154,7 +168,6 @@
 			children = (
 				A72106522E3016590073C515 /* Recap.app */,
 				A72106602E30165B0073C515 /* RecapTests.xctest */,
-				A721066A2E30165B0073C515 /* RecapUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -213,26 +226,6 @@
 			productReference = A72106602E30165B0073C515 /* RecapTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		A72106692E30165B0073C515 /* RecapUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A721067A2E30165B0073C515 /* Build configuration list for PBXNativeTarget "RecapUITests" */;
-			buildPhases = (
-				A72106662E30165B0073C515 /* Sources */,
-				A72106672E30165B0073C515 /* Frameworks */,
-				A72106682E30165B0073C515 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				A721066C2E30165B0073C515 /* PBXTargetDependency */,
-			);
-			name = RecapUITests;
-			packageProductDependencies = (
-			);
-			productName = RecapUITests;
-			productReference = A721066A2E30165B0073C515 /* RecapUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -247,10 +240,6 @@
 						CreatedOnToolsVersion = 16.4;
 					};
 					A721065F2E30165B0073C515 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = A72106512E3016590073C515;
-					};
-					A72106692E30165B0073C515 = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = A72106512E3016590073C515;
 					};
@@ -278,7 +267,6 @@
 			targets = (
 				A72106512E3016590073C515 /* Recap */,
 				A721065F2E30165B0073C515 /* RecapTests */,
-				A72106692E30165B0073C515 /* RecapUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -292,13 +280,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A721065E2E30165B0073C515 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A72106682E30165B0073C515 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -322,13 +303,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A72106662E30165B0073C515 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -336,11 +310,6 @@
 			isa = PBXTargetDependency;
 			target = A72106512E3016590073C515 /* Recap */;
 			targetProxy = A72106612E30165B0073C515 /* PBXContainerItemProxy */;
-		};
-		A721066C2E30165B0073C515 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = A72106512E3016590073C515 /* Recap */;
-			targetProxy = A721066B2E30165B0073C515 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -567,40 +536,6 @@
 			};
 			name = Release;
 		};
-		A721067B2E30165B0073C515 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = EY7EQX6JC5;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.rawa.RecapUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = Recap;
-			};
-			name = Debug;
-		};
-		A721067C2E30165B0073C515 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = EY7EQX6JC5;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.rawa.RecapUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = Recap;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -627,15 +562,6 @@
 			buildConfigurations = (
 				A72106782E30165B0073C515 /* Debug */,
 				A72106792E30165B0073C515 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		A721067A2E30165B0073C515 /* Build configuration list for PBXNativeTarget "RecapUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A721067B2E30165B0073C515 /* Debug */,
-				A721067C2E30165B0073C515 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

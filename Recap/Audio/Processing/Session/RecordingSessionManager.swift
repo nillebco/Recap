@@ -7,10 +7,12 @@ protocol RecordingSessionManaging {
 
 final class RecordingSessionManager: RecordingSessionManaging {
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: RecordingSessionManager.self))
-    private let microphoneCapture: MicrophoneCapture
+    private let microphoneCapture: MicrophoneCaptureType
+    private let permissionsHelper: PermissionsHelperType
     
-    init(microphoneCapture: MicrophoneCapture) {
+    init(microphoneCapture: MicrophoneCaptureType, permissionsHelper: PermissionsHelperType) {
         self.microphoneCapture = microphoneCapture
+        self.permissionsHelper = permissionsHelper
     }
     
     func startSession(configuration: RecordingConfiguration) async throws -> AudioRecordingCoordinatorType {
@@ -27,8 +29,8 @@ final class RecordingSessionManager: RecordingSessionManaging {
         let microphoneCaptureToUse = configuration.enableMicrophone ? microphoneCapture : nil
         
         if configuration.enableMicrophone {
-            let hasPermission = await microphoneCapture.requestPermission()
-            guard hasPermission else {
+            let hasPermission = await permissionsHelper.checkMicrophonePermissionStatus()
+            guard hasPermission == .authorized else {
                 throw AudioCaptureError.microphonePermissionDenied
             }
         }

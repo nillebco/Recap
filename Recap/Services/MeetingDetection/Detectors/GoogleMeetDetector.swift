@@ -20,7 +20,7 @@ final class GoogleMeetDetector: MeetingDetectorType {
         self.patternMatcher = MeetingPatternMatcher(patterns: MeetingPatternMatcher.googleMeetPatterns)
     }
     
-    func checkForMeeting(in windows: [SCWindow]) async -> MeetingDetectionResult {
+    func checkForMeeting(in windows: [any WindowTitleProviding]) async -> MeetingDetectionResult {
         for window in windows {
             guard let title = window.title, !title.isEmpty else { continue }
             

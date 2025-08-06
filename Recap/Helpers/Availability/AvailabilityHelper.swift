@@ -2,7 +2,18 @@ import Foundation
 import Combine
 
 @MainActor
-final class AvailabilityCoordinator: AvailabilityCoordinatorType {
+protocol AvailabilityHelperType: AnyObject {
+    var isAvailable: Bool { get }
+    var availabilityPublisher: AnyPublisher<Bool, Never> { get }
+    
+    func startMonitoring()
+    func stopMonitoring()
+    func checkAvailabilityNow() async -> Bool
+}
+
+
+@MainActor
+final class AvailabilityHelper: AvailabilityHelperType {
     @Published private(set) var isAvailable: Bool = false
     var availabilityPublisher: AnyPublisher<Bool, Never> {
         $isAvailable.eraseToAnyPublisher()

@@ -19,7 +19,6 @@ protocol MeetingDetectionServiceType: ObservableObject {
     
     func startMonitoring()
     func stopMonitoring()
-    func checkPermission() async -> Bool
 }
 
 struct ActiveMeetingInfo {
