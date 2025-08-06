@@ -8,7 +8,7 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     @Published private(set) var selectedProvider: LLMProvider = .default
     @Published private(set) var autoDetectMeetings: Bool = false
     @Published private(set) var isAutoStopRecording: Bool = false
-    @Published var customPromptTemplate: String = ""
+    @Published var customPromptTemplate: String? = nil
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
     @Published private(set) var showToast = false
