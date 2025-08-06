@@ -1,5 +1,11 @@
 import Foundation
+#if MOCKING
+import Mockable
+#endif
 
+#if MOCKING
+@Mockable
+#endif
 @MainActor
 protocol UserPreferencesRepositoryType {
     func getOrCreatePreferences() async throws -> UserPreferencesInfo
@@ -7,5 +13,7 @@ protocol UserPreferencesRepositoryType {
     func updateSelectedProvider(_ provider: LLMProvider) async throws
     func updateAutoDetectMeetings(_ enabled: Bool) async throws
     func updateAutoStopRecording(_ enabled: Bool) async throws
+    func updateAutoSummarize(_ enabled: Bool) async throws
     func updateSummaryPromptTemplate(_ template: String?) async throws
+    func updateOnboardingStatus(_ completed: Bool) async throws
 }

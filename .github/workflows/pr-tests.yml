@@ -12,6 +12,7 @@ jobs:
   test:
     name: Test PR
     runs-on: macos-15
+    if: github.event.pull_request.draft == false
     
     steps:
     - name: Checkout code

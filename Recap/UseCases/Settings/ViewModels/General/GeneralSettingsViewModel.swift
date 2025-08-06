@@ -27,6 +27,8 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var showToast = false
     @Published private(set) var toastMessage = ""
     @Published private(set) var activeWarnings: [WarningItem] = []
+    @Published private(set) var showAPIKeyAlert = false
+    @Published private(set) var existingAPIKey: String?
     
     var hasModels: Bool {
         !availableModels.isEmpty
@@ -38,19 +40,22 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     
     private let llmService: LLMServiceType
     private let userPreferencesRepository: UserPreferencesRepositoryType
-    private let environmentValidator: EnvironmentValidatorType
-    private let warningManager: WarningManagerType
+    private let keychainAPIValidator: KeychainAPIValidatorType
+    private let keychainService: KeychainServiceType
+    private let warningManager: any WarningManagerType
     private var cancellables = Set<AnyCancellable>()
     
     init(
         llmService: LLMServiceType,
         userPreferencesRepository: UserPreferencesRepositoryType,
-        environmentValidator: EnvironmentValidatorType,
-        warningManager: WarningManagerType
+        keychainAPIValidator: KeychainAPIValidatorType,
+        keychainService: KeychainServiceType,
+        warningManager: any WarningManagerType
     ) {
         self.llmService = llmService
         self.userPreferencesRepository = userPreferencesRepository
-        self.environmentValidator = environmentValidator
+        self.keychainAPIValidator = keychainAPIValidator
+        self.keychainService = keychainService
         self.warningManager = warningManager
         
         setupWarningObserver()
@@ -116,15 +121,15 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
         errorMessage = nil
         
         if provider == .openRouter {
-            let validation = environmentValidator.validateOpenRouterEnvironment()
+            let validation = keychainAPIValidator.validateOpenRouterAPI()
             
             if !validation.isValid {
-                if let message = validation.errorMessage {
-                    showValidationToast(message)
+                do {
+                    existingAPIKey = try keychainService.retrieveOpenRouterAPIKey()
+                } catch {
+                    existingAPIKey = nil
                 }
-                selectedProvider = .ollama
-                try? await llmService.selectProvider(.ollama)
-                await loadModels()
+                showAPIKeyAlert = true
                 return
             }
         }
@@ -184,18 +189,17 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
         }
     }
     
-    func updateCustomPromptTemplate(_ template: String) async {
-        customPromptTemplateValue = template
+    func saveAPIKey(_ apiKey: String) async throws {
+        try keychainService.storeOpenRouterAPIKey(apiKey)
         
-        do {
-            let templateToSave = template.isEmpty ? nil : template
-            try await userPreferencesRepository.updateSummaryPromptTemplate(templateToSave)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        existingAPIKey = apiKey
+        showAPIKeyAlert = false
+        
+        await selectProvider(.openRouter)
     }
     
-    func resetToDefaultPrompt() async {
-        await updateCustomPromptTemplate(UserPreferencesInfo.defaultPromptTemplate)
+    func dismissAPIKeyAlert() {
+        showAPIKeyAlert = false
+        existingAPIKey = nil
     }
 }

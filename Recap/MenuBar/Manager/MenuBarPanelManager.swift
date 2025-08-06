@@ -24,7 +24,12 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     let appSelectionViewModel: AppSelectionViewModel
     let previousRecapsViewModel: PreviousRecapsViewModel
     let whisperModelsViewModel: WhisperModelsViewModel
-    let dependencyContainer: DependencyContainer
+    let recapViewModel: RecapViewModel
+    let onboardingViewModel: OnboardingViewModel
+    let summaryViewModel: SummaryViewModel
+    let generalSettingsViewModel: GeneralSettingsViewModel
+    let userPreferencesRepository: UserPreferencesRepositoryType
+    let meetingDetectionService: any MeetingDetectionServiceType
     
     init(
         statusBarManager: StatusBarManagerType,
@@ -33,13 +38,23 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
         audioProcessController: AudioProcessController,
         appSelectionViewModel: AppSelectionViewModel,
         previousRecapsViewModel: PreviousRecapsViewModel,
-        dependencyContainer: DependencyContainer
+        recapViewModel: RecapViewModel,
+        onboardingViewModel: OnboardingViewModel,
+        summaryViewModel: SummaryViewModel,
+        generalSettingsViewModel: GeneralSettingsViewModel,
+        userPreferencesRepository: UserPreferencesRepositoryType,
+        meetingDetectionService: any MeetingDetectionServiceType
     ) {
         self.statusBarManager = statusBarManager
         self.audioProcessController = audioProcessController
         self.appSelectionViewModel = appSelectionViewModel
         self.whisperModelsViewModel = whisperModelsViewModel
-        self.dependencyContainer = dependencyContainer
+        self.recapViewModel = recapViewModel
+        self.onboardingViewModel = onboardingViewModel
+        self.summaryViewModel = summaryViewModel
+        self.generalSettingsViewModel = generalSettingsViewModel
+        self.userPreferencesRepository = userPreferencesRepository
+        self.meetingDetectionService = meetingDetectionService
         self.previousRecapsViewModel = previousRecapsViewModel
         setupDelegates()
     }
@@ -48,10 +63,9 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
         statusBarManager.delegate = self
     }
     
-    private func createPanel() -> SlidingPanel? {
-        let viewModel = dependencyContainer.createRecapViewModel()
-        viewModel.delegate = self
-        let contentView = RecapHomeView(viewModel: viewModel)
+    func createMainPanel() -> SlidingPanel {
+        recapViewModel.delegate = self
+        let contentView = RecapHomeView(viewModel: recapViewModel)
         let hostingController = NSHostingController(rootView: contentView)
         hostingController.view.wantsLayer = true
         hostingController.view.layer?.cornerRadius = 12
@@ -61,7 +75,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
         return newPanel
     }
     
-    private func positionPanel(_ panel: NSPanel, size: CGSize? = nil) {
+    func positionPanel(_ panel: NSPanel, size: CGSize? = nil) {
         guard let statusButton = statusBarManager.statusButton,
               let statusWindow = statusButton.window,
               let screen = statusWindow.screen else { return }
@@ -77,12 +91,59 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
         )
     }
     
-    
     private func showPanel() {
         if panel == nil {
-            panel = createPanel()
+            createAndShowNewPanel()
+        } else {
+            showExistingPanel()
+        }
+    }
+    
+    private func createAndShowNewPanel() {
+        Task {
+            do {
+                let preferences = try await userPreferencesRepository.getOrCreatePreferences()
+                await createPanelBasedOnOnboardingStatus(isOnboarded: preferences.onboarded)
+            } catch {
+                await createMainPanelAndPosition()
+            }
+            
+            await animateAndShowPanel()
+        }
+    }
+    
+    private func createPanelBasedOnOnboardingStatus(isOnboarded: Bool) async {
+        if !isOnboarded {
+            panel = createOnboardingPanel()
+        } else {
+            panel = createMainPanel()
         }
         
+        if let panel = panel {
+            positionPanel(panel)
+        }
+    }
+    
+    private func createMainPanelAndPosition() async {
+        panel = createMainPanel()
+        if let panel = panel {
+            positionPanel(panel)
+        }
+    }
+    
+    private func animateAndShowPanel() async {
+        guard let panel = panel else { return }
+        panel.contentView?.wantsLayer = true
+        
+        await withCheckedContinuation { continuation in
+            PanelAnimator.slideIn(panel: panel) { [weak self] in
+                self?.isVisible = true
+                continuation.resume()
+            }
+        }
+    }
+    
+    private func showExistingPanel() {
         guard let panel = panel else { return }
         
         positionPanel(panel)

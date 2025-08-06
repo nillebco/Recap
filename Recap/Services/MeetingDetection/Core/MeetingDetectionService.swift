@@ -34,9 +34,11 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
     private let checkInterval: TimeInterval = 1.0
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: "MeetingDetectionService")
     private let audioProcessController: any AudioProcessControllerType
+    private let permissionsHelper: any PermissionsHelperType
     
-    init(audioProcessController: any AudioProcessControllerType) {
+    init(audioProcessController: any AudioProcessControllerType, permissionsHelper: any PermissionsHelperType) {
         self.audioProcessController = audioProcessController
+        self.permissionsHelper = permissionsHelper
         setupDetectors()
     }
     
@@ -122,17 +124,6 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
         }
     }
     
-    func checkPermission() async -> Bool {
-        do {
-            _ = try await SCShareableContent.current
-            hasPermission = true
-            return true
-        } catch {
-            hasPermission = false
-            logger.warning("Screen recording permission denied: \(error.localizedDescription)")
-            return false
-        }
-    }
     
     private func findMatchingAudioProcess(bundleIdentifiers: Set<String>) -> AudioProcess? {
         audioProcessController.processes.first { process in

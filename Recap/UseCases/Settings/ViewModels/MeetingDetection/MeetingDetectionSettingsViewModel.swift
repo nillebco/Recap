@@ -8,11 +8,14 @@ final class MeetingDetectionSettingsViewModel: MeetingDetectionSettingsViewModel
     
     private let detectionService: any MeetingDetectionServiceType
     private let userPreferencesRepository: UserPreferencesRepositoryType
+    private let permissionsHelper: any PermissionsHelperType
     
     init(detectionService: any MeetingDetectionServiceType,
-         userPreferencesRepository: UserPreferencesRepositoryType) {
+         userPreferencesRepository: UserPreferencesRepositoryType,
+         permissionsHelper: any PermissionsHelperType) {
         self.detectionService = detectionService
         self.userPreferencesRepository = userPreferencesRepository
+        self.permissionsHelper = permissionsHelper
         
         Task {
             await loadCurrentSettings()
@@ -37,7 +40,7 @@ final class MeetingDetectionSettingsViewModel: MeetingDetectionSettingsViewModel
         }
         
         if enabled {
-            let hasPermission = await detectionService.checkPermission()
+            let hasPermission = await permissionsHelper.checkScreenCapturePermission()
             hasScreenRecordingPermission = hasPermission
             
             if hasPermission {
@@ -52,7 +55,7 @@ final class MeetingDetectionSettingsViewModel: MeetingDetectionSettingsViewModel
     }
     
     func checkPermissionStatus() async {
-        hasScreenRecordingPermission = await detectionService.checkPermission()
+        hasScreenRecordingPermission = await permissionsHelper.checkScreenCapturePermission()
         
         if autoDetectMeetings && hasScreenRecordingPermission {
             detectionService.startMonitoring()

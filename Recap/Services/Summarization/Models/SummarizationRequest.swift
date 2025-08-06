@@ -1,5 +1,6 @@
 import Foundation
 
+// TODO: Clean up
 struct SummarizationRequest {
     let transcriptText: String
     let metadata: TranscriptMetadata?

@@ -1,5 +1,6 @@
 import AppKit
 
+@MainActor
 protocol StatusBarDelegate: AnyObject {
     func statusItemClicked()
     func quitRequested()
