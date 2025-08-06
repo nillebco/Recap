@@ -180,4 +180,61 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
+    
+    func updateAutoSummarize(_ enabled: Bool) async throws {
+        let context = coreDataManager.viewContext
+        let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
+        request.fetchLimit = 1
+        
+        do {
+            guard let preferences = try context.fetch(request).first else {
+                let newPreferences = UserPreferences(context: context)
+                newPreferences.id = defaultPreferencesId
+                newPreferences.autoSummarizeEnabled = enabled
+                newPreferences.selectedProvider = LLMProvider.default.rawValue
+                newPreferences.autoDetectMeetings = false
+                newPreferences.autoStopRecording = false
+                newPreferences.createdAt = Date()
+                newPreferences.modifiedAt = Date()
+                try context.save()
+                return
+            }
+            
+            preferences.autoSummarizeEnabled = enabled
+            preferences.modifiedAt = Date()
+            try context.save()
+        } catch {
+            throw LLMError.dataAccessError(error.localizedDescription)
+        }
+    }
+    
+    func updateOnboardingStatus(_ completed: Bool) async throws {
+        let context = coreDataManager.viewContext
+        let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
+        request.fetchLimit = 1
+        
+        do {
+            guard let preferences = try context.fetch(request).first else {
+                let newPreferences = UserPreferences(context: context)
+                newPreferences.id = defaultPreferencesId
+                newPreferences.onboarded = completed
+                newPreferences.selectedProvider = LLMProvider.default.rawValue
+                newPreferences.autoDetectMeetings = false
+                newPreferences.autoStopRecording = false
+                newPreferences.autoSummarizeEnabled = true
+                newPreferences.createdAt = Date()
+                newPreferences.modifiedAt = Date()
+                try context.save()
+                return
+            }
+            
+            preferences.onboarded = completed
+            preferences.modifiedAt = Date()
+            try context.save()
+        } catch {
+            throw LLMError.dataAccessError(error.localizedDescription)
+        }
+    }
 }

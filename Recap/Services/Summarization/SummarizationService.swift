@@ -93,7 +93,7 @@ final class SummarizationService: SummarizationServiceType {
         
         return LLMOptions(
             temperature: 0.7,
-            maxTokens: 8192,
+            maxTokens: maxTokens,
             keepAliveMinutes: 5
         )
     }

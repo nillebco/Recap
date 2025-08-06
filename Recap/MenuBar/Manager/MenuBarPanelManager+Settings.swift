@@ -3,12 +3,11 @@ import AppKit
 
 extension MenuBarPanelManager {
     func createSettingsPanel() -> SlidingPanel? {
-        let generalSettingsViewModel = dependencyContainer.createGeneralSettingsViewModel()
-        let contentView = SettingsView<GeneralSettingsViewModel>(
+        let contentView = SettingsView(
             whisperModelsViewModel: whisperModelsViewModel,
             generalSettingsViewModel: generalSettingsViewModel,
-            meetingDetectionService: dependencyContainer.meetingDetectionService,
-            userPreferencesRepository: dependencyContainer.userPreferencesRepository
+            meetingDetectionService: meetingDetectionService,
+            userPreferencesRepository: userPreferencesRepository
         ) { [weak self] in
             self?.hideSettingsPanel()
         }

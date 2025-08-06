@@ -15,10 +15,14 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var showToast: Bool { get }
     var toastMessage: String { get }
     var activeWarnings: [WarningItem] { get }
+    var showAPIKeyAlert: Bool { get }
+    var existingAPIKey: String? { get }
     
     func loadModels() async
     func selectModel(_ model: LLMModelInfo) async
     func selectProvider(_ provider: LLMProvider) async
     func toggleAutoDetectMeetings(_ enabled: Bool) async
     func toggleAutoStopRecording(_ enabled: Bool) async
+    func saveAPIKey(_ apiKey: String) async throws
+    func dismissAPIKeyAlert()
 }

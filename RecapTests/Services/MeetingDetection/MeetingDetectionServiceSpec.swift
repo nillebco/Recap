@@ -30,7 +30,8 @@ final class MeetingDetectionServiceSpec: XCTestCase {
             .meetingApps
             .willReturn(emptyProcesses)
         
-        sut = MeetingDetectionService(audioProcessController: mockAudioProcessController)
+        let mockPermissionsHelper = MockPermissionsHelperType()
+        sut = MeetingDetectionService(audioProcessController: mockAudioProcessController, permissionsHelper: mockPermissionsHelper)
     }
     
     override func tearDown() async throws {
