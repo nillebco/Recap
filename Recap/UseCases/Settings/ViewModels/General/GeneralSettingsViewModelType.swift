@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import SwiftUI
 
 @MainActor
 protocol GeneralSettingsViewModelType: ObservableObject {
@@ -15,7 +16,7 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var showToast: Bool { get }
     var toastMessage: String { get }
     var activeWarnings: [WarningItem] { get }
-    var customPromptTemplate: String { get set }
+    var customPromptTemplate: Binding<String> { get }
     
     func loadModels() async
     func selectModel(_ model: LLMModelInfo) async

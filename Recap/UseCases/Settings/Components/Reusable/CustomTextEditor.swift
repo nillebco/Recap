@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CustomTextEditor: View {
     let title: String
-    @Binding var text: String
+    let textBinding: Binding<String>
     let placeholder: String
     let height: CGFloat
     
@@ -16,13 +16,13 @@ struct CustomTextEditor: View {
         height: CGFloat = 100
     ) {
         self.title = title
-        self._text = text
+        self.textBinding = text
         self.placeholder = placeholder
         self.height = height
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(UIConstants.Colors.textSecondary)
@@ -46,7 +46,7 @@ struct CustomTextEditor: View {
                     )
                     .frame(height: height)
                 
-                if text.isEmpty && !isFocused {
+                if textBinding.wrappedValue.isEmpty && !isFocused {
                     Text(placeholder)
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(UIConstants.Colors.textSecondary.opacity(0.6))
@@ -55,7 +55,7 @@ struct CustomTextEditor: View {
                         .allowsHitTesting(false)
                 }
                 
-                TextEditor(text: $text)
+                TextEditor(text: textBinding)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(UIConstants.Colors.textPrimary)
                     .background(Color.clear)
@@ -63,6 +63,8 @@ struct CustomTextEditor: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .focused($isFocused)
+                    .lineLimit(nil)
+                    .textSelection(.enabled)
                     .onChange(of: isFocused) { _, focused in
                         withAnimation(.easeInOut(duration: 0.2)) {
                             isEditing = focused

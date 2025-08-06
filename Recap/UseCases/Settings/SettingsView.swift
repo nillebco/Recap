@@ -150,10 +150,11 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
     .frame(width: 550, height: 500)
 }
 
-private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModelType {
-    var activeWarnings: [WarningItem] = []
-    @Published var customPromptTemplate: String = UserPreferencesInfo.defaultPromptTemplate
-    
+
+private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
+    var customPromptTemplate: Binding<String> {
+        .constant(UserPreferencesInfo.defaultPromptTemplate)
+    }
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
         LLMModelInfo(name: "codellama", provider: "ollama")
@@ -166,6 +167,15 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     @Published var errorMessage: String?
     @Published var showToast = false
     @Published var toastMessage = ""
+    @Published var activeWarnings: [WarningItem] = [
+        WarningItem(
+            id: "ollama",
+            title: "Ollama Not Running",
+            message: "Please start Ollama to use local AI models for summarization.",
+            icon: "server.rack",
+            severity: .warning
+        )
+    ]
     
     var hasModels: Bool {
         !availableModels.isEmpty
@@ -189,11 +199,7 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
         isAutoStopRecording = enabled
     }
     
-    func updateCustomPromptTemplate(_ template: String) async {
-        customPromptTemplate = template
-    }
+    func updateCustomPromptTemplate(_ template: String) async {}
     
-    func resetToDefaultPrompt() async {
-        customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
-    }
+    func resetToDefaultPrompt() async {}
 }

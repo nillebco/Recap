@@ -90,7 +90,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         VStack(alignment: .leading, spacing: 12) {
                             CustomTextEditor(
                                 title: "Prompt Template",
-                                text: $viewModel.customPromptTemplate,
+                                text: viewModel.customPromptTemplate,
                                 placeholder: "Enter your custom prompt template here...",
                                 height: 120
                             )
@@ -102,13 +102,11 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                 
                                 Spacer()
                                 
-                                Button("Reset to Default") {
+                                PillButton(text: "Reset to Default") {
                                     Task {
                                         await viewModel.resetToDefaultPrompt()
                                     }
                                 }
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(Color.blue)
                             }
                         }
                     }
@@ -148,13 +146,15 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
 }
 
 #Preview {
-    GeneralSettingsView<PreviewGeneralSettingsViewModel>(viewModel: PreviewGeneralSettingsViewModel())
+    GeneralSettingsView(viewModel: PreviewGeneralSettingsViewModel())
         .frame(width: 550, height: 500)
         .background(Color.black)
 }
 
-private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModelType {
-    @Published var customPromptTemplate: String = UserPreferencesInfo.defaultPromptTemplate
+private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
+    var customPromptTemplate: Binding<String> {
+        .constant(UserPreferencesInfo.defaultPromptTemplate)
+    }
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
         LLMModelInfo(name: "codellama", provider: "ollama")
@@ -199,11 +199,7 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
         isAutoStopRecording = enabled
     }
     
-    func updateCustomPromptTemplate(_ template: String) async {
-        customPromptTemplate = template
-    }
+    func updateCustomPromptTemplate(_ template: String) async {}
     
-    func resetToDefaultPrompt() async {
-        customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
-    }
+    func resetToDefaultPrompt() async {}
 }
