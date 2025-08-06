@@ -8,7 +8,17 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     @Published private(set) var selectedProvider: LLMProvider = .default
     @Published private(set) var autoDetectMeetings: Bool = false
     @Published private(set) var isAutoStopRecording: Bool = false
-    @Published var customPromptTemplate: String? = nil
+    @Published private var _customPromptTemplate: String = ""
+    
+    var customPromptTemplate: String {
+        get { _customPromptTemplate }
+        set {
+            _customPromptTemplate = newValue
+            Task {
+                await updateCustomPromptTemplate(newValue)
+            }
+        }
+    }
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
     @Published private(set) var showToast = false
@@ -59,12 +69,12 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
             selectedProvider = preferences.selectedProvider
             autoDetectMeetings = preferences.autoDetectMeetings
             isAutoStopRecording = preferences.autoStopRecording
-            customPromptTemplate = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
+            _customPromptTemplate = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
         } catch {
             selectedProvider = .default
             autoDetectMeetings = false
             isAutoStopRecording = false
-            customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
+            _customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
         }
         await loadModels()
     }
@@ -174,7 +184,7 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     func updateCustomPromptTemplate(_ template: String) async {
         errorMessage = nil
         let trimmedTemplate = template.trimmingCharacters(in: .whitespacesAndNewlines)
-        customPromptTemplate = trimmedTemplate
+        _customPromptTemplate = trimmedTemplate
         
         do {
             let templateToSave = trimmedTemplate.isEmpty ? nil : trimmedTemplate
@@ -185,7 +195,7 @@ final class GeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModel
     }
     
     func resetToDefaultPrompt() async {
-        customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
-        await updateCustomPromptTemplate(UserPreferencesInfo.defaultPromptTemplate)
+        await updateCustomPromptTemplate("")
+        _customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
     }
 }
