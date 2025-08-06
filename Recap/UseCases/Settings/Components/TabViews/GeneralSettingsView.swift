@@ -93,7 +93,6 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                 text: Binding(
                                     get: { viewModel.customPromptTemplate },
                                     set: { newTemplate in
-                                        viewModel.customPromptTemplate = newTemplate
                                         Task {
                                             await viewModel.updateCustomPromptTemplate(newTemplate)
                                         }
