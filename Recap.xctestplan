@@ -30,6 +30,7 @@
         "containerPath" : "container:Recap.xcodeproj",
         "identifier" : "A72106692E30165B0073C515",
         "name" : "RecapUITests"
+      }
     }
   ],
   "version" : 1
