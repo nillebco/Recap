@@ -9,11 +9,11 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var selectedProvider: LLMProvider = .default
     @Published private(set) var autoDetectMeetings: Bool = false
     @Published private(set) var isAutoStopRecording: Bool = false
-    @Published private var _customPromptTemplate: String = ""
+    @Published private var customPromptTemplateValue: String = ""
     
     var customPromptTemplate: Binding<String> {
         Binding(
-            get: { self._customPromptTemplate },
+            get: { self.customPromptTemplateValue },
             set: { newValue in
                 Task {
                     await self.updateCustomPromptTemplate(newValue)
@@ -72,12 +72,12 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             selectedProvider = preferences.selectedProvider
             autoDetectMeetings = preferences.autoDetectMeetings
             isAutoStopRecording = preferences.autoStopRecording
-            _customPromptTemplate = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
+            customPromptTemplateValue = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
         } catch {
             selectedProvider = .default
             autoDetectMeetings = false
             isAutoStopRecording = false
-            _customPromptTemplate = UserPreferencesInfo.defaultPromptTemplate
+            customPromptTemplateValue = UserPreferencesInfo.defaultPromptTemplate
         }
         await loadModels()
     }
@@ -185,7 +185,7 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     }
     
     func updateCustomPromptTemplate(_ template: String) async {
-        _customPromptTemplate = template
+        customPromptTemplateValue = template
         
         do {
             let templateToSave = template.isEmpty ? nil : template
