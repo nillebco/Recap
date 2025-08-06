@@ -4,6 +4,7 @@ import Combine
 import Mockable
 #endif
 
+@MainActor
 #if MOCKING
 @Mockable
 #endif

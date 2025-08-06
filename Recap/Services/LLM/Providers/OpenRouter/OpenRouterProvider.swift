@@ -33,7 +33,7 @@ final class OpenRouterProvider: LLMProviderType, LLMTaskManageable {
     }
     
     deinit {
-        Task.detached { [weak self] in
+        Task { [weak self] in
             await self?.cancelCurrentTask()
         }
     }

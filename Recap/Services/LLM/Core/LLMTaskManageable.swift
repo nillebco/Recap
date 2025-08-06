@@ -20,7 +20,7 @@ extension LLMTaskManageable {
         return try await withTaskCancellationHandler {
             try await operation()
         } onCancel: {
-            Task.detached { [weak self] in
+            Task { [weak self] in
                 await self?.cancelCurrentTask()
             }
         }

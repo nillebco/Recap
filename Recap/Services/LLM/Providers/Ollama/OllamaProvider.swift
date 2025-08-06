@@ -33,7 +33,7 @@ final class OllamaProvider: LLMProviderType, LLMTaskManageable {
     }
     
     deinit {
-        Task.detached { [weak self] in
+        Task { [weak self] in
             await self?.cancelCurrentTask()
         }
     }

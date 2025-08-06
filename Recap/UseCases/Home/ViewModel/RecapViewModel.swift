@@ -171,7 +171,7 @@ final class RecapViewModel: ObservableObject {
     }
     
     deinit {
-        Task.detached { [weak self] in
+        Task { [weak self] in
             await self?.stopTimers()
         }
     }
