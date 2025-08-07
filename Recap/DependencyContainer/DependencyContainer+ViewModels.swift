@@ -18,7 +18,8 @@ extension DependencyContainer {
         GeneralSettingsViewModel(
             llmService: llmService,
             userPreferencesRepository: userPreferencesRepository,
-            environmentValidator: EnvironmentValidator(),
+            keychainAPIValidator: keychainAPIValidator,
+            keychainService: keychainService,
             warningManager: warningManager
         )
     }
@@ -26,6 +27,14 @@ extension DependencyContainer {
     func makeMeetingDetectionSettingsViewModel() -> MeetingDetectionSettingsViewModel {
         MeetingDetectionSettingsViewModel(
             detectionService: meetingDetectionService,
+            userPreferencesRepository: userPreferencesRepository,
+            permissionsHelper: makePermissionsHelper()
+        )
+    }
+    
+    func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(
+            permissionsHelper: PermissionsHelper(),
             userPreferencesRepository: userPreferencesRepository
         )
     }

@@ -8,6 +8,7 @@ struct UserPreferencesInfo: Identifiable {
     let autoSummarizeEnabled: Bool
     let autoDetectMeetings: Bool
     let autoStopRecording: Bool
+    let onboarded: Bool
     let summaryPromptTemplate: String?
     let createdAt: Date
     let modifiedAt: Date
@@ -19,6 +20,7 @@ struct UserPreferencesInfo: Identifiable {
         self.autoSummarizeEnabled = managedObject.autoSummarizeEnabled
         self.autoDetectMeetings = managedObject.autoDetectMeetings
         self.autoStopRecording = managedObject.autoStopRecording
+        self.onboarded = managedObject.onboarded
         self.summaryPromptTemplate = managedObject.summaryPromptTemplate
         self.createdAt = managedObject.createdAt ?? Date()
         self.modifiedAt = managedObject.modifiedAt ?? Date()
@@ -32,6 +34,7 @@ struct UserPreferencesInfo: Identifiable {
         autoSummarizeEnabled: Bool = true,
         autoDetectMeetings: Bool = false,
         autoStopRecording: Bool = false,
+        onboarded: Bool = false,
         summaryPromptTemplate: String? = nil,
         createdAt: Date = Date(),
         modifiedAt: Date = Date()
@@ -42,6 +45,7 @@ struct UserPreferencesInfo: Identifiable {
         self.autoSummarizeEnabled = autoSummarizeEnabled
         self.autoDetectMeetings = autoDetectMeetings
         self.autoStopRecording = autoStopRecording
+        self.onboarded = onboarded
         self.summaryPromptTemplate = summaryPromptTemplate
         self.createdAt = createdAt
         self.modifiedAt = modifiedAt

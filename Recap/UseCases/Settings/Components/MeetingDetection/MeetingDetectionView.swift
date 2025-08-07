@@ -27,6 +27,7 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                             },
                             footerText: "This permission allows Recap to read window titles only. No screen content is captured or recorded."
                         )
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                     }
                     
                     SettingsCard(title: "Meeting Detection") {
@@ -50,13 +51,15 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                             if viewModel.autoDetectMeetings {
                                 VStack(spacing: 12) {
                                     if !viewModel.hasScreenRecordingPermission {
-                                        Text("Please enable Screen Recording permission above to continue.")
-                                            .font(.system(size: 10))
-                                            .foregroundColor(.secondary)
-                                            .multilineTextAlignment(.leading)
+                                        HStack {
+                                            Text("Please enable Screen Recording permission above to continue.")
+                                                .font(.system(size: 10))
+                                                .foregroundColor(.secondary)
+                                                .multilineTextAlignment(.leading)
+                                            Spacer()
+                                        }
                                     }
                                 }
-                                .padding(.top, 8)
                             }
                         }
                     }
@@ -64,6 +67,8 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.autoDetectMeetings)
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.hasScreenRecordingPermission)
             }
         }
         .onAppear {

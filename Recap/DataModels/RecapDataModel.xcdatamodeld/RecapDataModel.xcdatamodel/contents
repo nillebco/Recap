@@ -15,6 +15,7 @@
         <attribute name="createdAt" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="modifiedAt" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO"/>
+        <attribute name="onboarded" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="selectedLLMModelID" optional="YES" attributeType="String"/>
         <attribute name="selectedProvider" optional="YES" attributeType="String" defaultValueString="openrouter"/>
         <attribute name="summaryPromptTemplate" optional="YES" attributeType="String"/>

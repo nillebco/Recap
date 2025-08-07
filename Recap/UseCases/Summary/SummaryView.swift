@@ -1,14 +1,14 @@
 import SwiftUI
 import MarkdownUI
 
-struct SummaryView: View {
+struct SummaryView<ViewModel: SummaryViewModelType>: View {
     let onClose: () -> Void
-    @ObservedObject var viewModel: SummaryViewModel
+    @ObservedObject var viewModel: ViewModel
     let recordingID: String?
     
     init(
         onClose: @escaping () -> Void,
-        viewModel: SummaryViewModel,
+        viewModel: ViewModel,
         recordingID: String? = nil
     ) {
         self.onClose = onClose

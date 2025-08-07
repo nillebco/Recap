@@ -1,7 +1,6 @@
 import Foundation
 import Combine
 
-@MainActor
 final class WarningManager: WarningManagerType {
     @Published private(set) var activeWarnings: [WarningItem] = []
     

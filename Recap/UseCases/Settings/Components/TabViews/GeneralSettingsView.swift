@@ -86,6 +86,31 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         }
                     }
                     
+                    SettingsCard(title: "Custom Prompt") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            CustomTextEditor(
+                                title: "Prompt Template",
+                                text: viewModel.customPromptTemplate,
+                                placeholder: "Enter your custom prompt template here...",
+                                height: 120
+                            )
+                            
+                            HStack {
+                                Text("Customize how AI summarizes your meeting transcripts")
+                                    .font(.system(size: 11, weight: .regular))
+                                    .foregroundColor(UIConstants.Colors.textSecondary)
+                                
+                                Spacer()
+                                
+                                PillButton(text: "Reset to Default") {
+                                    Task {
+                                        await viewModel.resetToDefaultPrompt()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
@@ -101,6 +126,32 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                 title: viewModel.toastMessage
             )
         }
+        .blur(radius: viewModel.showAPIKeyAlert ? 2 : 0)
+        .animation(.easeInOut(duration: 0.3), value: viewModel.showAPIKeyAlert)
+        .overlay(
+            Group {
+                if viewModel.showAPIKeyAlert {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                            .transition(.opacity)
+                        
+                        OpenRouterAPIKeyAlert(
+                            isPresented: Binding(
+                                get: { viewModel.showAPIKeyAlert },
+                                set: { _ in viewModel.dismissAPIKeyAlert() }
+                            ),
+                            existingKey: viewModel.existingAPIKey,
+                            onSave: { apiKey in
+                                try await viewModel.saveAPIKey(apiKey)
+                            }
+                        )
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                    }
+                }
+            }
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showAPIKeyAlert)
+        )
     }
     
     
@@ -121,12 +172,20 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
 }
 
 #Preview {
-    GeneralSettingsView<PreviewGeneralSettingsViewModel>(viewModel: PreviewGeneralSettingsViewModel())
+    GeneralSettingsView(viewModel: PreviewGeneralSettingsViewModel())
         .frame(width: 550, height: 500)
         .background(Color.black)
 }
 
-private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSettingsViewModelType {
+private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
+    func updateCustomPromptTemplate(_ template: String) async {}
+    
+    func resetToDefaultPrompt() async {}
+    
+    var customPromptTemplate: Binding<String> {
+        .constant(UserPreferencesInfo.defaultPromptTemplate)
+    }
+
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
         LLMModelInfo(name: "codellama", provider: "ollama")
@@ -139,6 +198,8 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     @Published var errorMessage: String?
     @Published var showToast = false
     @Published var toastMessage = ""
+    @Published var showAPIKeyAlert = false
+    @Published var existingAPIKey: String?
     @Published var activeWarnings: [WarningItem] = [
         WarningItem(
             id: "ollama",
@@ -169,5 +230,9 @@ private final class PreviewGeneralSettingsViewModel: ObservableObject, GeneralSe
     }
     func toggleAutoStopRecording(_ enabled: Bool) async {
         isAutoStopRecording = enabled
+    }
+    func saveAPIKey(_ apiKey: String) async throws {}
+    func dismissAPIKeyAlert() {
+        showAPIKeyAlert = false
     }
 }

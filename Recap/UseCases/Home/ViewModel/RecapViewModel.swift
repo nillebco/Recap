@@ -35,6 +35,7 @@ final class RecapViewModel: ObservableObject {
     let userPreferencesRepository: UserPreferencesRepositoryType
     let notificationService: any NotificationServiceType
     var appSelectionCoordinator: any AppSelectionCoordinatorType
+    let permissionsHelper: any PermissionsHelperType
 
     var timer: Timer?
     var levelTimer: Timer?
@@ -56,7 +57,8 @@ final class RecapViewModel: ObservableObject {
         meetingDetectionService: any MeetingDetectionServiceType,
         userPreferencesRepository: UserPreferencesRepositoryType,
         notificationService: any NotificationServiceType,
-        appSelectionCoordinator: any AppSelectionCoordinatorType
+        appSelectionCoordinator: any AppSelectionCoordinatorType,
+        permissionsHelper: any PermissionsHelperType
     ) {
         self.recordingCoordinator = recordingCoordinator
         self.processingCoordinator = processingCoordinator
@@ -68,6 +70,7 @@ final class RecapViewModel: ObservableObject {
         self.userPreferencesRepository = userPreferencesRepository
         self.notificationService = notificationService
         self.appSelectionCoordinator = appSelectionCoordinator
+        self.permissionsHelper = permissionsHelper
         
         setupBindings()
         setupWarningObserver()
@@ -168,7 +171,7 @@ final class RecapViewModel: ObservableObject {
     }
     
     deinit {
-        Task.detached { [weak self] in
+        Task { [weak self] in
             await self?.stopTimers()
         }
     }

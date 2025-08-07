@@ -1,5 +1,6 @@
 import AppKit
 
+@MainActor
 protocol SlidingPanelDelegate: AnyObject {
     func panelDidReceiveClickOutside()
 }
@@ -67,7 +68,6 @@ final class SlidingPanel: NSPanel, SlidingPanelType {
         visualEffect.layer?.rasterizationScale = NSScreen.main?.backingScaleFactor ?? 2.0
         return visualEffect
     }
-    
     
     private func setupEventMonitoring() {
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in

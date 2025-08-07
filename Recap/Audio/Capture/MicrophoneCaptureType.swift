@@ -12,8 +12,7 @@ import AudioToolbox
 protocol MicrophoneCaptureType: ObservableObject {
     var audioLevel: Float { get }
     var recordingFormat: AVAudioFormat? { get }
-    
-    func requestPermission() async -> Bool
+
     func start(outputURL: URL, targetFormat: AudioStreamBasicDescription?) throws
     func stop()
 }

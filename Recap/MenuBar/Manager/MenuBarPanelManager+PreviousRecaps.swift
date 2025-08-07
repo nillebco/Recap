@@ -10,11 +10,9 @@ extension MenuBarPanelManager {
         guard let statusButton = statusBarManager.statusButton,
               let windowManager = previousRecapsWindowManager else { return }
         
-        let viewModel = previousRecapsViewModel
-        
         windowManager.showRecapsWindow(
             relativeTo: statusButton,
-            viewModel: viewModel,
+            viewModel: previousRecapsViewModel,
             onRecordingSelected: { [weak self] recording in
                 self?.handleRecordingSelection(recording)
             },
