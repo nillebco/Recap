@@ -23,7 +23,7 @@ struct TranscriptDropdownButton: View {
                 
                 VStack {
                     
-                    if (!isCollapsed) {
+                    if !isCollapsed {
                         Text(transcriptText)
                     }
                 }
@@ -37,18 +37,11 @@ struct TranscriptDropdownButton: View {
         .padding(.vertical, UIConstants.Spacing.cardPadding)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(hex: "242323"))
+                .fill(UIConstants.Colors.cardSecondaryBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(
-                            LinearGradient(
-                                gradient: Gradient(stops: [
-                                    .init(color: Color(hex: "979797").opacity(0.6), location: 0),
-                                    .init(color: Color(hex: "979797").opacity(0.4), location: 1)
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ),
+                            UIConstants.Gradients.standardBorder,
                             lineWidth: 1
                         )
                 )
