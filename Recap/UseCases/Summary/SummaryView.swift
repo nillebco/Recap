@@ -5,7 +5,6 @@ struct SummaryView: View {
     let onClose: () -> Void
     @ObservedObject var viewModel: SummaryViewModel
     let recordingID: String?
-    @State var showingTranscript: Bool = false
     
     init(
         onClose: @escaping () -> Void,
@@ -153,7 +152,7 @@ struct SummaryView: View {
                        let transcriptionText = recording.transcriptionText {
                         
                         VStack(alignment: .leading, spacing: UIConstants.Spacing.cardInternalSpacing) {
-                            if (!transcriptionText.isEmpty) {
+                            if !transcriptionText.isEmpty {
                                 TranscriptDropdownButton(transcriptText: transcriptionText)
                             }
                             
