@@ -6,7 +6,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: AudioRecordingCoordinator.self))
     
     private let configuration: RecordingConfiguration
-    private let microphoneCapture: MicrophoneCaptureType?
+    private let microphoneCapture: (any MicrophoneCaptureType)?
     private let processTap: ProcessTap
     
     private var isRunning = false
@@ -14,7 +14,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
     
     init(
         configuration: RecordingConfiguration,
-        microphoneCapture: MicrophoneCaptureType?,
+        microphoneCapture: (any MicrophoneCaptureType)?,
         processTap: ProcessTap
     ) {
         self.configuration = configuration

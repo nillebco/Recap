@@ -68,18 +68,18 @@ final class ProcessTap: ObservableObject {
         self.invalidationHandler = nil
         
         if aggregateDeviceID.isValid {
-            var err = AudioDeviceStop(aggregateDeviceID, deviceProcID)
-            if err != noErr { logger.warning("Failed to stop aggregate device: \(err, privacy: .public)") }
-            
             if let deviceProcID = deviceProcID {
-                err = AudioDeviceDestroyIOProcID(aggregateDeviceID, deviceProcID)
-                if err != noErr { logger.warning("Failed to destroy device I/O proc: \(err, privacy: .public)") }
+                var stopErr = AudioDeviceStop(aggregateDeviceID, deviceProcID)
+                if stopErr != noErr { logger.warning("Failed to stop aggregate device: \(stopErr, privacy: .public)") }
+                
+                stopErr = AudioDeviceDestroyIOProcID(aggregateDeviceID, deviceProcID)
+                if stopErr != noErr { logger.warning("Failed to destroy device I/O proc: \(stopErr, privacy: .public)") }
                 self.deviceProcID = nil
             }
             
-            err = AudioHardwareDestroyAggregateDevice(aggregateDeviceID)
-            if err != noErr {
-                logger.warning("Failed to destroy aggregate device: \(err, privacy: .public)")
+            let destroyErr = AudioHardwareDestroyAggregateDevice(aggregateDeviceID)
+            if destroyErr != noErr {
+                logger.warning("Failed to destroy aggregate device: \(destroyErr, privacy: .public)")
             }
             aggregateDeviceID = .unknown
         }
@@ -96,6 +96,8 @@ final class ProcessTap: ObservableObject {
     private func prepare(for objectID: AudioObjectID) throws {
         errorMessage = nil
         
+        logger.info("Preparing process tap for objectID: \(objectID, privacy: .public)")
+        
         let tapDescription = CATapDescription(stereoMixdownOfProcesses: [objectID])
         tapDescription.uuid = UUID()
         tapDescription.muteBehavior = muteWhenRunning ? .mutedWhenTapped : .unmuted
@@ -104,11 +106,13 @@ final class ProcessTap: ObservableObject {
         var err = AudioHardwareCreateProcessTap(tapDescription, &tapID)
         
         guard err == noErr else {
-            errorMessage = "Process tap creation failed with error \(err)"
+            let errorMsg = "Process tap creation failed with error \(err) (0x\(String(err, radix: 16, uppercase: true)))"
+            logger.error("\(errorMsg, privacy: .public)")
+            errorMessage = errorMsg
             return
         }
         
-        logger.debug("Created process tap #\(tapID, privacy: .public)")
+        logger.info("Created process tap #\(tapID, privacy: .public)")
         
         self.processTapID = tapID
         
@@ -137,14 +141,17 @@ final class ProcessTap: ObservableObject {
         ]
         
         self.tapStreamDescription = try tapID.readAudioTapStreamBasicDescription()
+        logger.info("Tap stream description: \(self.tapStreamDescription?.mSampleRate ?? 0)Hz, \(self.tapStreamDescription?.mChannelsPerFrame ?? 0)ch")
         
         aggregateDeviceID = AudioObjectID.unknown
         err = AudioHardwareCreateAggregateDevice(description as CFDictionary, &aggregateDeviceID)
         guard err == noErr else {
-            throw "Failed to create aggregate device: \(err)"
+            let errorMsg = "Failed to create aggregate device: \(err) (0x\(String(err, radix: 16, uppercase: true)))"
+            logger.error("\(errorMsg, privacy: .public)")
+            throw errorMsg
         }
         
-        logger.debug("Created aggregate device #\(self.aggregateDeviceID, privacy: .public)")
+        logger.info("Created aggregate device #\(self.aggregateDeviceID, privacy: .public)")
     }
     
     func run(on queue: DispatchQueue, ioBlock: @escaping AudioDeviceIOBlock, invalidationHandler: @escaping InvalidationHandler) throws {
@@ -153,15 +160,31 @@ final class ProcessTap: ObservableObject {
         
         errorMessage = nil
         
-        logger.debug("Run tap!")
+        logger.info("Starting audio device I/O proc for aggregate device #\(self.aggregateDeviceID, privacy: .public)")
         
         self.invalidationHandler = invalidationHandler
         
-        var err = AudioDeviceCreateIOProcIDWithBlock(&deviceProcID, aggregateDeviceID, queue, ioBlock)
-        guard err == noErr else { throw "Failed to create device I/O proc: \(err)" }
+        let createErr = AudioDeviceCreateIOProcIDWithBlock(&deviceProcID, aggregateDeviceID, queue, ioBlock)
+        guard createErr == noErr else { 
+            let errorMsg = "Failed to create device I/O proc: \(createErr) (0x\(String(createErr, radix: 16, uppercase: true)))"
+            logger.error("\(errorMsg, privacy: .public)")
+            throw errorMsg 
+        }
         
-        err = AudioDeviceStart(aggregateDeviceID, deviceProcID)
-        guard err == noErr else { throw "Failed to start audio device: \(err)" }
+        logger.info("Created device I/O proc ID successfully")
+        
+        guard let procID = deviceProcID else {
+            throw "Device I/O proc ID is nil"
+        }
+        
+        let startErr = AudioDeviceStart(aggregateDeviceID, procID)
+        guard startErr == noErr else { 
+            let errorMsg = "Failed to start audio device: \(startErr) (0x\(String(startErr, radix: 16, uppercase: true)))"
+            logger.error("\(errorMsg, privacy: .public)")
+            throw errorMsg 
+        }
+        
+        logger.info("Audio device started successfully")
     }
     
     deinit { 
@@ -241,14 +264,20 @@ final class ProcessTapRecorder: ObservableObject {
                     throw "Failed to create PCM buffer"
                 }
                 
+                // Log audio data reception for debugging
+                if buffer.frameLength > 0 {
+                    logger.debug("Received audio data: \(buffer.frameLength) frames, \(buffer.format.sampleRate)Hz")
+                }
+                
                 try currentFile.write(from: buffer)
 
                 self.updateAudioLevel(from: buffer)
             } catch {
-                logger.error("\(error, privacy: .public)")
+                logger.error("Audio processing error: \(error, privacy: .public)")
             }
         } invalidationHandler: { [weak self] tap in
             guard let self else { return }
+            logger.warning("Audio tap invalidated")
             handleInvalidation()
         }
         
