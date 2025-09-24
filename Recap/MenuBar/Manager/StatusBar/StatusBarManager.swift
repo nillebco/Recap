@@ -9,9 +9,11 @@ protocol StatusBarDelegate: AnyObject {
 final class StatusBarManager: StatusBarManagerType {
     private var statusItem: NSStatusItem?
     weak var delegate: StatusBarDelegate?
+    private var themeObserver: NSObjectProtocol?
     
     init() {
         setupStatusItem()
+        setupThemeObserver()
     }
     
     var statusButton: NSStatusBarButton? {
@@ -22,10 +24,41 @@ final class StatusBarManager: StatusBarManagerType {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let button = statusItem?.button {
-            button.image = NSImage(named: "barIcon")
+            updateIconForCurrentTheme()
             button.target = self
             button.action = #selector(handleButtonClick(_:))
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        }
+    }
+    
+    private func setupThemeObserver() {
+        themeObserver = DistributedNotificationCenter.default.addObserver(
+            forName: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.updateIconForCurrentTheme()
+            }
+        }
+    }
+    
+    private func updateIconForCurrentTheme() {
+        guard let button = statusItem?.button else { return }
+        
+        // Check system-wide dark mode preference
+        let isDarkMode = UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark"
+        
+        print("🎨 Theme detection: isDarkMode = \(isDarkMode)")
+        
+        if isDarkMode {
+            // Use dark mode icon
+            button.image = NSImage(named: "barIcon-dark")
+            print("🌙 Using dark mode icon")
+        } else {
+            // Use light mode icon
+            button.image = NSImage(named: "barIcon")
+            print("☀️ Using light mode icon")
         }
     }
     
@@ -60,6 +93,9 @@ final class StatusBarManager: StatusBarManagerType {
     }
     
     deinit {
+        if let observer = themeObserver {
+            DistributedNotificationCenter.default.removeObserver(observer)
+        }
         statusItem = nil
     }
 }
