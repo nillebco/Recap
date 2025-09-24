@@ -4,7 +4,5 @@
 <dict>
 	<key>com.apple.security.temporary-exception.audio-unit-host</key>
 	<true/>
-	<key>com.apple.security.temporary-exception.audio-unit-host</key>
-	<true/>
 </dict>
 </plist>
