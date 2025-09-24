@@ -216,10 +216,17 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
                 SummaryActionButton(
-                    text: "Copy",
+                    text: "Copy Summary",
                     icon: "doc.on.doc"
                 ) {
                     viewModel.copySummary()
+                }
+                
+                SummaryActionButton(
+                    text: "Copy Transcription",
+                    icon: "doc.text"
+                ) {
+                    viewModel.copyTranscription()
                 }
                 
                 SummaryActionButton(
