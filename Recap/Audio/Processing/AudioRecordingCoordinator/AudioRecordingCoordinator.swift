@@ -11,7 +11,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
     private let systemWideTap: SystemWideTap?
     
     private var isRunning = false
-    private var tapRecorder: AudioTapRecorderType?
+    private var tapRecorder: (any AudioTapRecorderType)?
     
     init(
         configuration: RecordingConfiguration,
