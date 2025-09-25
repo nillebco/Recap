@@ -32,33 +32,22 @@ final class StatusBarManager: StatusBarManagerType {
     }
     
     private func setupThemeObserver() {
-        themeObserver = DistributedNotificationCenter.default.addObserver(
-            forName: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.updateIconForCurrentTheme()
-            }
-        }
+        themeObserver = nil
     }
     
     private func updateIconForCurrentTheme() {
         guard let button = statusItem?.button else { return }
-        
-        // Check system-wide dark mode preference
-        let isDarkMode = UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark"
-        
-        print("🎨 Theme detection: isDarkMode = \(isDarkMode)")
-        
-        if isDarkMode {
-            // Use dark mode icon
-            button.image = NSImage(named: "barIcon-dark")
-            print("🌙 Using dark mode icon")
-        } else {
-            // Use light mode icon
-            button.image = NSImage(named: "barIcon")
-            print("☀️ Using light mode icon")
+        // Always use the black icon, regardless of theme
+        if let image = NSImage(named: "barIcon-dark") {
+            image.isTemplate = false
+            button.image = image
+            button.image?.isTemplate = false
+            button.contentTintColor = nil
+        } else if let fallback = NSImage(named: "barIcon") {
+            fallback.isTemplate = false
+            button.image = fallback
+            button.image?.isTemplate = false
+            button.contentTintColor = nil
         }
     }
     
