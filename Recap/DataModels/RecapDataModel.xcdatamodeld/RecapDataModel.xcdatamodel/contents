@@ -14,6 +14,7 @@
         <attribute name="autoSummarizeEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="createdAt" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="String"/>
+        <attribute name="microphoneEnabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="modifiedAt" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO"/>
         <attribute name="onboarded" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="selectedLLMModelID" optional="YES" attributeType="String"/>
