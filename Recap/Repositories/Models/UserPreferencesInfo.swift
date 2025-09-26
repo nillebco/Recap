@@ -10,6 +10,7 @@ struct UserPreferencesInfo: Identifiable {
     let autoStopRecording: Bool
     let onboarded: Bool
     let summaryPromptTemplate: String?
+    let microphoneEnabled: Bool
     let createdAt: Date
     let modifiedAt: Date
 
@@ -22,6 +23,7 @@ struct UserPreferencesInfo: Identifiable {
         self.autoStopRecording = managedObject.autoStopRecording
         self.onboarded = managedObject.onboarded
         self.summaryPromptTemplate = managedObject.summaryPromptTemplate
+        self.microphoneEnabled = managedObject.microphoneEnabled
         self.createdAt = managedObject.createdAt ?? Date()
         self.modifiedAt = managedObject.modifiedAt ?? Date()
     }
@@ -36,6 +38,7 @@ struct UserPreferencesInfo: Identifiable {
         autoStopRecording: Bool = false,
         onboarded: Bool = false,
         summaryPromptTemplate: String? = nil,
+        microphoneEnabled: Bool = false,
         createdAt: Date = Date(),
         modifiedAt: Date = Date()
     ) {
@@ -47,6 +50,7 @@ struct UserPreferencesInfo: Identifiable {
         self.autoStopRecording = autoStopRecording
         self.onboarded = onboarded
         self.summaryPromptTemplate = summaryPromptTemplate
+        self.microphoneEnabled = microphoneEnabled
         self.createdAt = createdAt
         self.modifiedAt = modifiedAt
     }

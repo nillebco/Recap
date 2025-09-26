@@ -83,4 +83,8 @@ extension MenuBarPanelManager: RecapViewModelDelegate {
             hide: hidePreviousRecapsWindow
         )
     }
+
+    func didRequestPanelClose() {
+        hideMainPanel()
+    }
 }

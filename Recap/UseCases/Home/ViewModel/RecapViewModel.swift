@@ -8,6 +8,7 @@ protocol RecapViewModelDelegate: AnyObject {
     func didRequestSettingsOpen()
     func didRequestViewOpen()
     func didRequestPreviousRecapsOpen()
+    func didRequestPanelClose()
 }
 
 @MainActor
@@ -79,6 +80,7 @@ final class RecapViewModel: ObservableObject {
         
         Task {
             await loadRecordings()
+            await loadMicrophonePreference()
         }
     }
     
@@ -113,6 +115,15 @@ final class RecapViewModel: ObservableObject {
     
     func toggleMicrophone() {
         isMicrophoneEnabled.toggle()
+
+        // Save the preference
+        Task {
+            do {
+                try await userPreferencesRepository.updateMicrophoneEnabled(isMicrophoneEnabled)
+            } catch {
+                logger.error("Failed to save microphone preference: \(error)")
+            }
+        }
     }
     
     var systemAudioHeatmapLevel: Float {
@@ -140,6 +151,17 @@ final class RecapViewModel: ObservableObject {
             currentRecordings = try await recordingRepository.fetchAllRecordings()
         } catch {
             logger.error("Failed to load recordings: \(error)")
+        }
+    }
+
+    private func loadMicrophonePreference() async {
+        do {
+            let preferences = try await userPreferencesRepository.getOrCreatePreferences()
+            await MainActor.run {
+                isMicrophoneEnabled = preferences.microphoneEnabled
+            }
+        } catch {
+            logger.error("Failed to load microphone preference: \(error)")
         }
     }
     
@@ -198,6 +220,10 @@ extension RecapViewModel {
     
     func openPreviousRecaps() {
         delegate?.didRequestPreviousRecapsOpen()
+    }
+
+    func closePanel() {
+        delegate?.didRequestPanelClose()
     }
 }
 

@@ -28,8 +28,19 @@ struct RecapHomeView: View {
                                 .font(UIConstants.Typography.appTitle)
                                 .padding(.leading, UIConstants.Spacing.contentPadding)
                                 .padding(.top, UIConstants.Spacing.sectionSpacing)
-                            
+
                             Spacer()
+
+                            Button(action: {
+                                viewModel.closePanel()
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.secondary)
+                                    .font(.title2)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.trailing, UIConstants.Spacing.contentPadding)
+                            .padding(.top, UIConstants.Spacing.sectionSpacing)
                         }
                         
                         ForEach(viewModel.activeWarnings, id: \.id) { warning in
@@ -59,23 +70,6 @@ struct RecapHomeView: View {
                         }
                         
                         VStack(spacing: UIConstants.Spacing.cardSpacing) {
-                            CustomReflectionCard(
-                                containerWidth: geometry.size.width,
-                                appSelectionViewModel: viewModel.appSelectionViewModel,
-                                isRecording: viewModel.isRecording,
-                                recordingDuration: viewModel.recordingDuration,
-                                canStartRecording: viewModel.canStartRecording,
-                                onToggleRecording: {
-                                    Task {
-                                        if viewModel.isRecording {
-                                            await viewModel.stopRecording()
-                                        } else {
-                                            await viewModel.startRecording()
-                                        }
-                                    }
-                                }
-                            )
-
                             TranscriptionCard(containerWidth: geometry.size.width) {
                                 viewModel.openView()
                             }

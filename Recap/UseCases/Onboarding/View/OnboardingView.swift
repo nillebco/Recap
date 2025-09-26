@@ -269,4 +269,5 @@ private class PreviewUserPreferencesRepository: UserPreferencesRepositoryType {
     func updateAutoDetectMeetings(_ enabled: Bool) async throws {}
     func updateAutoStopRecording(_ enabled: Bool) async throws {}
     func updateOnboardingStatus(_ completed: Bool) async throws {}
+    func updateMicrophoneEnabled(_ enabled: Bool) async throws {}
 }

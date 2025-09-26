@@ -237,4 +237,34 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
+
+    func updateMicrophoneEnabled(_ enabled: Bool) async throws {
+        let context = coreDataManager.viewContext
+        let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
+        request.fetchLimit = 1
+
+        do {
+            guard let preferences = try context.fetch(request).first else {
+                let newPreferences = UserPreferences(context: context)
+                newPreferences.id = defaultPreferencesId
+                newPreferences.microphoneEnabled = enabled
+                newPreferences.autoDetectMeetings = false
+                newPreferences.autoStopRecording = false
+                newPreferences.selectedProvider = LLMProvider.default.rawValue
+                newPreferences.createdAt = Date()
+                newPreferences.modifiedAt = Date()
+                newPreferences.autoSummarizeEnabled = true
+                newPreferences.onboarded = false
+                try context.save()
+                return
+            }
+
+            preferences.microphoneEnabled = enabled
+            preferences.modifiedAt = Date()
+            try context.save()
+        } catch {
+            throw LLMError.dataAccessError(error.localizedDescription)
+        }
+    }
 }

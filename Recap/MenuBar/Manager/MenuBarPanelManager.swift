@@ -200,9 +200,41 @@ extension MenuBarPanelManager: StatusBarDelegate {
             showPanel()
         }
     }
-    
+
+    func startRecordingRequested() {
+        Task {
+            await startRecordingForAllApplications()
+        }
+    }
+
+    func stopRecordingRequested() {
+        Task {
+            await recapViewModel.stopRecording()
+            statusBarManager.setRecordingState(false)
+        }
+    }
+
+    func settingsRequested() {
+        if isVisible {
+            hidePanel()
+        } else {
+            showPanel()
+        }
+    }
+
     func quitRequested() {
         NSApplication.shared.terminate(nil)
+    }
+
+    private func startRecordingForAllApplications() async {
+        // Set the selected app to "All Apps" for system-wide recording
+        recapViewModel.selectApp(SelectableApp.allApps.audioProcess)
+
+        // Start the recording (respects user's microphone setting)
+        await recapViewModel.startRecording()
+
+        // Update the status bar icon to show recording state
+        statusBarManager.setRecordingState(recapViewModel.isRecording)
     }
 }
 

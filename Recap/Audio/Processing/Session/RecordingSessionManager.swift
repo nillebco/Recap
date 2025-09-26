@@ -24,7 +24,7 @@ final class RecordingSessionManager: RecordingSessionManaging {
                 throw AudioCaptureError.microphonePermissionDenied
             }
         }
-        
+
         let coordinator: AudioRecordingCoordinator
 
         if configuration.audioProcess.id == -1 {
