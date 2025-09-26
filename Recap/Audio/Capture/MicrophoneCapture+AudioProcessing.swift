@@ -5,13 +5,20 @@ extension MicrophoneCapture {
     
     func processAudioBuffer(_ buffer: AVAudioPCMBuffer, at time: AVAudioTime) {
         guard isRecording else { return }
-        
+
         // Log audio data reception for debugging
         if buffer.frameLength > 0 {
             logger.debug("Microphone received audio data: \(buffer.frameLength) frames, \(buffer.format.sampleRate)Hz, \(buffer.format.channelCount)ch")
         }
-        
+
         calculateAndUpdateAudioLevel(from: buffer)
+
+        // Process VAD if enabled
+        if isVADEnabled {
+            Task { @MainActor in
+                vadManager?.processAudioBuffer(buffer)
+            }
+        }
         
         if let audioFile = audioFile {
             do {

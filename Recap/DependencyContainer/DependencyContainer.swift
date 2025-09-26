@@ -24,6 +24,7 @@ final class DependencyContainer {
     lazy var onboardingViewModel: OnboardingViewModel = makeOnboardingViewModel()
     lazy var summaryViewModel: SummaryViewModel = createSummaryViewModel()
     lazy var transcriptionService: TranscriptionServiceType = makeTranscriptionService()
+    lazy var streamingTranscriptionService: StreamingTranscriptionService = makeStreamingTranscriptionService()
     lazy var warningManager: any WarningManagerType = makeWarningManager()
     lazy var providerWarningCoordinator: ProviderWarningCoordinator = makeProviderWarningCoordinator()
     lazy var meetingDetectionService: any MeetingDetectionServiceType = makeMeetingDetectionService()

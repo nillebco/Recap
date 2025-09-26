@@ -13,6 +13,7 @@
 		A7BF55C92E38BF40003536FB /* Ollama in Frameworks */ = {isa = PBXBuildFile; productRef = A7BF55C82E38BF40003536FB /* Ollama */; };
 		A7C35B112E3DFD2700F9261F /* Mockable in Frameworks */ = {isa = PBXBuildFile; productRef = A7C35B102E3DFD2700F9261F /* Mockable */; };
 		A7C35B192E3DFDB500F9261F /* Mockable in Frameworks */ = {isa = PBXBuildFile; productRef = A7C35B182E3DFDB500F9261F /* Mockable */; };
+		E72C13D22E873EA400049183 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = E72C13D12E873EA400049183 /* FluidAudio */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -148,6 +149,7 @@
 				A73F0CBD2E350D2700B07BB2 /* WhisperKit in Frameworks */,
 				A73F0CBF2E350D2700B07BB2 /* whisperkit-cli in Frameworks */,
 				A743B08B2E3D479600785BFF /* MarkdownUI in Frameworks */,
+				E72C13D22E873EA400049183 /* FluidAudio in Frameworks */,
 				A7C35B112E3DFD2700F9261F /* Mockable in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -206,6 +208,7 @@
 				A7BF55C82E38BF40003536FB /* Ollama */,
 				A743B08A2E3D479600785BFF /* MarkdownUI */,
 				A7C35B102E3DFD2700F9261F /* Mockable */,
+				E72C13D12E873EA400049183 /* FluidAudio */,
 			);
 			productName = Recap;
 			productReference = A72106522E3016590073C515 /* Recap.app */;
@@ -268,6 +271,7 @@
 				A7BF55C72E38BF40003536FB /* XCRemoteSwiftPackageReference "ollama-swift" */,
 				A743B0892E3D479600785BFF /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				A7C35B0F2E3DFD2700F9261F /* XCRemoteSwiftPackageReference "Mockable" */,
+				E72C13D02E873EA400049183 /* XCRemoteSwiftPackageReference "FluidAudio" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A72106532E3016590073C515 /* Products */;
@@ -628,6 +632,14 @@
 				minimumVersion = 0.4.0;
 			};
 		};
+		E72C13D02E873EA400049183 /* XCRemoteSwiftPackageReference "FluidAudio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/FluidInference/FluidAudio";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -660,6 +672,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A7C35B0F2E3DFD2700F9261F /* XCRemoteSwiftPackageReference "Mockable" */;
 			productName = Mockable;
+		};
+		E72C13D12E873EA400049183 /* FluidAudio */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E72C13D02E873EA400049183 /* XCRemoteSwiftPackageReference "FluidAudio" */;
+			productName = FluidAudio;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
