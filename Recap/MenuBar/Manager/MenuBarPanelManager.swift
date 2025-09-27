@@ -258,7 +258,7 @@ extension MenuBarPanelManager: StatusBarDelegate {
         NSApplication.shared.terminate(nil)
     }
 
-    private func startRecordingForAllApplications() async {
+    func startRecordingForAllApplications() async {
         // Set the selected app to "All Apps" for system-wide recording
         recapViewModel.selectApp(SelectableApp.allApps.audioProcess)
 

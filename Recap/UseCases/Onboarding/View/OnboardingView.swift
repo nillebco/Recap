@@ -270,4 +270,5 @@ private class PreviewUserPreferencesRepository: UserPreferencesRepositoryType {
     func updateAutoStopRecording(_ enabled: Bool) async throws {}
     func updateOnboardingStatus(_ completed: Bool) async throws {}
     func updateMicrophoneEnabled(_ enabled: Bool) async throws {}
+    func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async throws {}
 }

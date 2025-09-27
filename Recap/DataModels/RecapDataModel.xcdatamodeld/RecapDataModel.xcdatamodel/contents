@@ -13,6 +13,9 @@
         <attribute name="autoStopRecording" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="autoSummarizeEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="createdAt" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO"/>
+        <attribute name="customTmpDirectoryPath" optional="YES" attributeType="String"/>
+        <attribute name="globalShortcutKeyCode" optional="YES" attributeType="Integer 32" defaultValueString="15" usesScalarValueType="YES"/>
+        <attribute name="globalShortcutModifiers" optional="YES" attributeType="Integer 32" defaultValueString="1048840" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="microphoneEnabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="modifiedAt" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO"/>

@@ -111,6 +111,10 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         }
                     }
                     
+                    SettingsCard(title: "Global Shortcut") {
+                        GlobalShortcutSettingsView(viewModel: viewModel)
+                    }
+                    
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
@@ -200,6 +204,8 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     @Published var toastMessage = ""
     @Published var showAPIKeyAlert = false
     @Published var existingAPIKey: String?
+    @Published var globalShortcutKeyCode: Int32 = 15
+    @Published var globalShortcutModifiers: Int32 = 1048840
     @Published var activeWarnings: [WarningItem] = [
         WarningItem(
             id: "ollama",
@@ -234,5 +240,9 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     func saveAPIKey(_ apiKey: String) async throws {}
     func dismissAPIKeyAlert() {
         showAPIKeyAlert = false
+    }
+    func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {
+        globalShortcutKeyCode = keyCode
+        globalShortcutModifiers = modifiers
     }
 }

@@ -17,4 +17,5 @@ protocol UserPreferencesRepositoryType {
     func updateSummaryPromptTemplate(_ template: String?) async throws
     func updateOnboardingStatus(_ completed: Bool) async throws
     func updateMicrophoneEnabled(_ enabled: Bool) async throws
+    func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async throws
 }

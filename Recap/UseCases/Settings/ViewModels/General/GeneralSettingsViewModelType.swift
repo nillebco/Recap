@@ -19,6 +19,8 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var customPromptTemplate: Binding<String> { get }
     var showAPIKeyAlert: Bool { get }
     var existingAPIKey: String? { get }
+    var globalShortcutKeyCode: Int32 { get }
+    var globalShortcutModifiers: Int32 { get }
     
     func loadModels() async
     func selectModel(_ model: LLMModelInfo) async
@@ -29,4 +31,5 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     func resetToDefaultPrompt() async
     func saveAPIKey(_ apiKey: String) async throws
     func dismissAPIKeyAlert()
+    func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async
 }

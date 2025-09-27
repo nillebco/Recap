@@ -166,6 +166,8 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     @Published var errorMessage: String?
     @Published var showToast = false
     @Published var toastMessage = ""
+    @Published var globalShortcutKeyCode: Int32 = 15
+    @Published var globalShortcutModifiers: Int32 = 1048840
     @Published var activeWarnings: [WarningItem] = [
         WarningItem(
             id: "ollama",
@@ -201,4 +203,9 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     func updateCustomPromptTemplate(_ template: String) async {}
     
     func resetToDefaultPrompt() async {}
+    
+    func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {
+        globalShortcutKeyCode = keyCode
+        globalShortcutModifiers = modifiers
+    }
 }

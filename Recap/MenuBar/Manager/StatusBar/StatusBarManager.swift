@@ -118,7 +118,8 @@ final class StatusBarManager: StatusBarManagerType {
 
         // Recording menu item (toggles between Start/Stop)
         let recordingTitle = isRecording ? "Stop recording" : "Start recording"
-        let recordingItem = NSMenuItem(title: recordingTitle, action: #selector(recordingMenuItemClicked), keyEquivalent: "")
+        let recordingItem = NSMenuItem(title: recordingTitle, action: #selector(recordingMenuItemClicked), keyEquivalent: "r")
+        recordingItem.keyEquivalentModifierMask = .command
         recordingItem.target = self
 
         // Recaps menu item
