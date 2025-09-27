@@ -27,7 +27,7 @@ extension MicrophoneCapture {
 
     @MainActor
     func setupVAD(configuration: VADConfiguration = .default, delegate: VADDelegate? = nil) {
-        let manager = VADManager(configuration: configuration)
+        let manager = VADManager(configuration: configuration, source: .microphone)
         manager.delegate = delegate
         self.vadManager = manager
         self.vadDelegate = delegate

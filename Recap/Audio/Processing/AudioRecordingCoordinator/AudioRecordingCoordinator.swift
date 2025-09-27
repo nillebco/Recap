@@ -16,6 +16,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
     // VAD components
     @MainActor private var vadTranscriptionCoordinator: VADTranscriptionCoordinator?
     @MainActor private var streamingTranscriptionService: StreamingTranscriptionService?
+    @MainActor private var systemVADManager: VADManager?
     
     init(
         configuration: RecordingConfiguration,
@@ -129,67 +130,98 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
 
     @MainActor
     var isVADEnabled: Bool {
+        var enabled = false
+
         if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
-            return microphoneCapture.isVADEnabled
+            enabled = enabled || microphoneCapture.isVADEnabled
         }
-        return false
+
+        if let systemVADManager = systemVADManager {
+            enabled = enabled || systemVADManager.isVADEnabled
+        }
+
+        return enabled
     }
 
     @MainActor
     var currentSpeechProbability: Float {
+        var probabilities: [Float] = []
+
         if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
-            return microphoneCapture.currentSpeechProbability
+            probabilities.append(microphoneCapture.currentSpeechProbability)
         }
-        return 0.0
+
+        if let systemVADManager = systemVADManager {
+            probabilities.append(systemVADManager.speechProbability)
+        }
+
+        return probabilities.max() ?? 0.0
     }
 
     @MainActor
     var isSpeaking: Bool {
+        var speaking = false
+
         if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
-            return microphoneCapture.isSpeaking
+            speaking = speaking || microphoneCapture.isSpeaking
         }
-        return false
+
+        if let systemVADManager = systemVADManager {
+            speaking = speaking || systemVADManager.isSpeaking
+        }
+
+        return speaking
     }
 
     // MARK: - VAD Methods
 
     @MainActor
     func enableVAD(configuration: VADConfiguration? = nil, delegate: VADTranscriptionCoordinatorDelegate? = nil) async {
-        guard let microphoneCapture = microphoneCapture as? MicrophoneCapture else {
-            logger.warning("Cannot enable VAD: MicrophoneCapture not available")
-            return
-        }
+        let vadConfig = configuration ?? .default
 
-        // Create streaming transcription service if needed
         if streamingTranscriptionService == nil {
-            // We need access to the transcription service - this will need to be injected
             logger.warning("StreamingTranscriptionService not initialized - VAD transcription will not work")
         }
 
-        // Create VAD transcription coordinator
         if let streamingService = streamingTranscriptionService {
-            vadTranscriptionCoordinator = VADTranscriptionCoordinator(streamingTranscriptionService: streamingService)
-            vadTranscriptionCoordinator?.delegate = delegate
+            if vadTranscriptionCoordinator == nil {
+                vadTranscriptionCoordinator = VADTranscriptionCoordinator(streamingTranscriptionService: streamingService)
+            }
         }
 
-        // Setup VAD on microphone capture
-        await microphoneCapture.setupVAD(
-            configuration: configuration ?? .default,
-            delegate: vadTranscriptionCoordinator
-        )
+        guard let coordinator = vadTranscriptionCoordinator else {
+            logger.warning("Cannot enable VAD: streaming transcription service unavailable")
+            return
+        }
 
-        await microphoneCapture.enableVAD()
+        coordinator.delegate = delegate
 
-        vadTranscriptionCoordinator?.startVADTranscription()
+        if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
+            await microphoneCapture.setupVAD(
+                configuration: vadConfig,
+                delegate: coordinator
+            )
+
+            await microphoneCapture.enableVAD()
+        }
+
+        await setupSystemAudioVAD(with: vadConfig, coordinator: coordinator)
+
+        coordinator.startVADTranscription()
 
         logger.info("VAD enabled for audio recording coordinator")
     }
 
     @MainActor
     func disableVAD() async {
-        guard let microphoneCapture = microphoneCapture as? MicrophoneCapture else { return }
+        if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
+            microphoneCapture.disableVAD()
+        }
 
-        microphoneCapture.disableVAD()
+        systemVADManager?.disable()
+        detachSystemAudioVAD()
+        systemVADManager = nil
+
         vadTranscriptionCoordinator?.stopVADTranscription()
         vadTranscriptionCoordinator = nil
 
@@ -198,16 +230,20 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
 
     @MainActor
     func pauseVAD() async {
-        guard let microphoneCapture = microphoneCapture as? MicrophoneCapture else { return }
+        if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
+            microphoneCapture.pauseVAD()
+        }
 
-        microphoneCapture.pauseVAD()
+        systemVADManager?.pause()
     }
 
     @MainActor
     func resumeVAD() async {
-        guard let microphoneCapture = microphoneCapture as? MicrophoneCapture else { return }
+        if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
+            microphoneCapture.resumeVAD()
+        }
 
-        microphoneCapture.resumeVAD()
+        systemVADManager?.resume()
     }
 
     // MARK: - Dependency Injection for VAD
@@ -216,5 +252,60 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
     func setStreamingTranscriptionService(_ service: StreamingTranscriptionService) {
         self.streamingTranscriptionService = service
         logger.info("StreamingTranscriptionService configured for VAD")
+    }
+
+    @MainActor
+    private func setupSystemAudioVAD(with configuration: VADConfiguration, coordinator: VADTranscriptionCoordinator) async {
+        guard tapRecorder != nil else {
+            logger.debug("No system audio recorder available for VAD")
+            return
+        }
+
+        if systemVADManager == nil {
+            let manager = VADManager(configuration: configuration, source: .system)
+            manager.delegate = coordinator
+            systemVADManager = manager
+        } else {
+            systemVADManager?.delegate = coordinator
+        }
+
+        if let manager = systemVADManager {
+            await manager.enable()
+        }
+
+        attachSystemAudioVADHandler()
+    }
+
+    @MainActor
+    private func attachSystemAudioVADHandler() {
+        guard systemVADManager != nil else { return }
+
+        let handler: (AVAudioPCMBuffer) -> Void = { [weak self] buffer in
+            Task { @MainActor in
+                guard let self else { return }
+                self.systemVADManager?.processAudioBuffer(buffer)
+            }
+        }
+
+        if let recorder = tapRecorder as? SystemWideTapRecorder {
+            recorder.vadBufferHandler = handler
+            logger.info("Attached VAD handler to system-wide tap recorder")
+        } else if let recorder = tapRecorder as? ProcessTapRecorder {
+            recorder.vadBufferHandler = handler
+            logger.info("Attached VAD handler to process tap recorder")
+        } else {
+            logger.warning("Unable to attach VAD handler: unsupported tap recorder type")
+        }
+    }
+
+    @MainActor
+    private func detachSystemAudioVAD() {
+        if let recorder = tapRecorder as? SystemWideTapRecorder {
+            recorder.vadBufferHandler = nil
+        } else if let recorder = tapRecorder as? ProcessTapRecorder {
+            recorder.vadBufferHandler = nil
+        }
+
+        logger.info("Detached VAD handler from system audio recorder")
     }
 }

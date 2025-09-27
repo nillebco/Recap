@@ -13,6 +13,7 @@ final class VADManager: ObservableObject {
 
     private var frameProcessor: FrameProcessor?
     private var configuration: VADConfiguration
+    private let source: VADAudioSource
     private var detectionBuffer: [Float] = []
     private var recentSamplesBuffer: [Float] = []
     private var currentSpeechSamples: [Float] = []
@@ -24,14 +25,19 @@ final class VADManager: ObservableObject {
         return max(desiredSampleCount, targetFrameSize)
     }
 
-    weak var delegate: VADDelegate?
+    weak var delegate: VADDelegate? {
+        didSet {
+            frameProcessor?.delegate = delegate
+        }
+    }
 
     // FluidAudio VAD manager
     private var fluidAudioManager: VadManager?
     private var vadState: VadStreamState?
 
-    init(configuration: VADConfiguration = .conservative) {
+    init(configuration: VADConfiguration = .conservative, source: VADAudioSource) {
         self.configuration = configuration
+        self.source = source
         setupFrameProcessor()
     }
 
@@ -62,7 +68,8 @@ final class VADManager: ObservableObject {
                 Task { @MainActor in
                     self?.isSpeaking = false
                     self?.logger.info("Speech ended, audio data: \(audioData.count) bytes")
-                    self?.delegate?.vadDidDetectEvent(.speechEnd(audioData: audioData))
+                    guard let source = self?.source else { return }
+                    self?.delegate?.vadDidDetectEvent(.speechEnd(audioData: audioData, source: source))
                 }
             }
         )
@@ -71,8 +78,11 @@ final class VADManager: ObservableObject {
             probabilityFunction: probabilityFunc,
             configuration: configuration,
             callbacks: callbacks,
-            delegate: delegate
+            delegate: delegate,
+            source: source
         )
+
+        frameProcessor?.delegate = delegate
     }
 
     func enable() async {
@@ -194,7 +204,7 @@ final class VADManager: ObservableObject {
                             logger.info("FluidAudio detected speech start at \(event.time ?? 0)s")
                             isSpeaking = true
                             beginSpeechCapture()
-                            delegate?.vadDidDetectEvent(.speechStart)
+                            delegate?.vadDidDetectEvent(.speechStart(source: source))
 
                         case .speechEnd:
                             logger.info("FluidAudio detected speech end at \(event.time ?? 0)s")
@@ -203,7 +213,7 @@ final class VADManager: ObservableObject {
                             let audioData = finalizeSpeechCapture()
                             print("🎤 VAD: Speech end - created audio data: \(audioData.count) bytes")
 
-                            delegate?.vadDidDetectEvent(.speechEnd(audioData: audioData))
+                            delegate?.vadDidDetectEvent(.speechEnd(audioData: audioData, source: source))
                         }
                     } else {
                         print("🎤 VADManager: FluidAudio - no event detected")
