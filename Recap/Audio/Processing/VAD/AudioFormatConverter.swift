@@ -70,10 +70,18 @@ final class AudioFormatConverter {
 
     private static func createWAVData(from samples: [Float], sampleRate: Double) -> Data {
         let numChannels: UInt16 = 1
-        let bitsPerSample: UInt16 = 32
+        let bitsPerSample: UInt16 = 16  // Use 16-bit PCM for better WhisperKit compatibility
         let bytesPerSample = bitsPerSample / 8
         let bytesPerFrame = numChannels * bytesPerSample
-        let dataSize = UInt32(samples.count * Int(bytesPerSample))
+        
+        // Convert float samples to 16-bit PCM
+        let pcmSamples = samples.map { sample -> Int16 in
+            // Clamp to [-1.0, 1.0] range and convert to 16-bit PCM
+            let clampedSample = max(-1.0, min(1.0, sample))
+            return Int16(clampedSample * Float(Int16.max))
+        }
+        
+        let dataSize = UInt32(pcmSamples.count * Int(bytesPerSample))
         let fileSize = 36 + dataSize
 
         var data = Data()
@@ -84,7 +92,7 @@ final class AudioFormatConverter {
 
         data.append("fmt ".data(using: .ascii)!)
         data.append(withUnsafeBytes(of: UInt32(16).littleEndian) { Data($0) })
-        data.append(withUnsafeBytes(of: UInt16(3).littleEndian) { Data($0) }) // IEEE float
+        data.append(withUnsafeBytes(of: UInt16(1).littleEndian) { Data($0) }) // PCM format (not IEEE float)
         data.append(withUnsafeBytes(of: numChannels.littleEndian) { Data($0) })
         data.append(withUnsafeBytes(of: UInt32(sampleRate).littleEndian) { Data($0) })
         data.append(withUnsafeBytes(of: UInt32(sampleRate * Double(bytesPerFrame)).littleEndian) { Data($0) })
@@ -94,10 +102,12 @@ final class AudioFormatConverter {
         data.append("data".data(using: .ascii)!)
         data.append(withUnsafeBytes(of: dataSize.littleEndian) { Data($0) })
 
-        for sample in samples {
-            var littleEndianSample = sample.bitPattern.littleEndian
+        for sample in pcmSamples {
+            var littleEndianSample = sample.littleEndian
             data.append(withUnsafeBytes(of: &littleEndianSample) { Data($0) })
         }
+
+        print("🎵 Created 16-bit PCM WAV: \(samples.count) float samples → \(pcmSamples.count) PCM samples → \(data.count) bytes")
 
         return data
     }

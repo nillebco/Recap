@@ -12,6 +12,9 @@ final class StreamingTranscriptionService: ObservableObject {
     private let transcriptionService: TranscriptionServiceType
     private let fileManager = FileManager.default
     private var temporaryDirectory: URL
+    
+    // Debug flag to keep segments for inspection
+    private let keepSegmentsForDebug = true
 
     weak var delegate: StreamingTranscriptionDelegate?
 
@@ -26,8 +29,17 @@ final class StreamingTranscriptionService: ObservableObject {
         do {
             try fileManager.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
             logger.info("Created temporary directory for VAD segments: \(self.temporaryDirectory.path)")
+            print("📁 VAD: Created temporary directory: \(self.temporaryDirectory.path)")
+            
+            // Verify directory exists
+            if fileManager.fileExists(atPath: temporaryDirectory.path) {
+                print("📁 VAD: Directory exists and is accessible")
+            } else {
+                print("📁 VAD: ERROR - Directory was not created!")
+            }
         } catch {
             logger.error("Failed to create temporary directory: \(error)")
+            print("📁 VAD: ERROR - Failed to create directory: \(error)")
         }
     }
 
@@ -44,12 +56,24 @@ final class StreamingTranscriptionService: ObservableObject {
             let temporaryFileURL = temporaryDirectory.appendingPathComponent("\(segmentID).wav")
 
             try audioData.write(to: temporaryFileURL)
+            
+            print("🎵 VAD: Wrote audio file to \(temporaryFileURL.path)")
+            print("🎵 VAD: File size: \(audioData.count) bytes")
 
             defer {
-                try? fileManager.removeItem(at: temporaryFileURL)
+                // Keep files for debugging if flag is set
+                if !keepSegmentsForDebug {
+                    try? fileManager.removeItem(at: temporaryFileURL)
+                } else {
+                    print("🔍 VAD: Keeping segment file for debugging: \(temporaryFileURL.path)")
+                }
             }
 
+            print("🎵 VAD: Starting WhisperKit transcription...")
             let result = try await transcriptionService.transcribe(audioURL: temporaryFileURL, microphoneURL: nil)
+            print("🎵 VAD: WhisperKit transcription completed")
+            print("🎵 VAD: Result text: '\(result.systemAudioText)'")
+            print("🎵 VAD: Result duration: \(result.transcriptionDuration)s")
 
             let segment = StreamingTranscriptionSegment(
                 id: segmentID,
@@ -64,6 +88,9 @@ final class StreamingTranscriptionService: ObservableObject {
             delegate?.streamingTranscriptionDidComplete(segment)
 
             logger.info("Completed transcription for segment \(segmentID): '\(result.systemAudioText.prefix(50))...'")
+            
+            // Debug: List VAD segment files after each transcription
+            listVADSegmentFiles()
 
         } catch {
             logger.error("Failed to transcribe audio segment \(segmentID): \(error)")
@@ -80,6 +107,21 @@ final class StreamingTranscriptionService: ObservableObject {
 
     func getRecentTranscriptions(limit: Int = 10) -> [StreamingTranscriptionSegment] {
         return Array(realtimeTranscriptions.suffix(limit))
+    }
+    
+    // Debug method to list VAD segment files
+    func listVADSegmentFiles() {
+        do {
+            let files = try fileManager.contentsOfDirectory(at: temporaryDirectory, includingPropertiesForKeys: nil)
+            print("🔍 VAD: Found \(files.count) files in VAD segments directory:")
+            for file in files {
+                let attributes = try fileManager.attributesOfItem(atPath: file.path)
+                let size = attributes[.size] as? Int64 ?? 0
+                print("🔍 VAD: - \(file.lastPathComponent) (\(size) bytes)")
+            }
+        } catch {
+            print("🔍 VAD: Error listing VAD segment files: \(error)")
+        }
     }
 
     deinit {
