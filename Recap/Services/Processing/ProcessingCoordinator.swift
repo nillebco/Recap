@@ -1,8 +1,10 @@
 import Foundation
 import Combine
+import OSLog
 
 @MainActor
 final class ProcessingCoordinator: ProcessingCoordinatorType {
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: ProcessingCoordinator.self))
     weak var delegate: ProcessingCoordinatorDelegate?
     
     @Published private(set) var currentProcessingState: ProcessingState = .idle
@@ -12,10 +14,12 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
     private let transcriptionService: TranscriptionServiceType
     private let userPreferencesRepository: UserPreferencesRepositoryType
     private var systemLifecycleManager: SystemLifecycleManager?
+    private var vadTranscriptionCoordinator: VADTranscriptionCoordinator?
     
     private var processingTask: Task<Void, Never>?
     private let processingQueue = AsyncStream<RecordingInfo>.makeStream()
     private var queueTask: Task<Void, Never>?
+    private var vadTranscriptionsCache: [String: [StreamingTranscriptionSegment]] = [:]
     
     init(
         recordingRepository: RecordingRepositoryType,
@@ -36,7 +40,19 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         manager.delegate = self
     }
     
+    func setVADTranscriptionCoordinator(_ coordinator: VADTranscriptionCoordinator) {
+        self.vadTranscriptionCoordinator = coordinator
+    }
+    
     func startProcessing(recordingInfo: RecordingInfo) async {
+        processingQueue.continuation.yield(recordingInfo)
+    }
+    
+    func startProcessing(recordingInfo: RecordingInfo, vadTranscriptions: [StreamingTranscriptionSegment]?) async {
+        // Store VAD transcriptions for this recording
+        if let vadTranscriptions = vadTranscriptions {
+            vadTranscriptionsCache[recordingInfo.id] = vadTranscriptions
+        }
         processingQueue.continuation.yield(recordingInfo)
     }
     
@@ -85,8 +101,17 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         let startTime = Date()
         
         do {
-            let transcriptionText = try await performTranscriptionPhase(recording)
+            // Get VAD transcriptions for this recording if available
+            let vadTranscriptions = vadTranscriptionsCache[recording.id]
+            
+            // Try to get VAD segments from the VAD system if available
+            let vadSegments = await getVADSegmentsForRecording(recording.id)
+            
+            let transcriptionText = try await performTranscriptionPhase(recording, vadTranscriptions: vadTranscriptions, vadSegments: vadSegments)
             guard !Task.isCancelled else { throw ProcessingError.cancelled }
+            
+            // Clear VAD transcriptions from cache after processing
+            vadTranscriptionsCache.removeValue(forKey: recording.id)
             
             let autoSummarizeEnabled = await checkAutoSummarizeEnabled()
             
@@ -116,10 +141,10 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         }
     }
     
-    private func performTranscriptionPhase(_ recording: RecordingInfo) async throws -> String {
+    private func performTranscriptionPhase(_ recording: RecordingInfo, vadTranscriptions: [StreamingTranscriptionSegment]? = nil, vadSegments: [VADAudioSegment]? = nil) async throws -> String {
         try await updateRecordingState(recording.id, state: .transcribing)
         
-        let transcriptionResult = try await performTranscription(recording)
+        let transcriptionResult = try await performTranscription(recording, vadTranscriptions: vadTranscriptions, vadSegments: vadSegments)
         
         try await recordingRepository.updateRecordingTranscription(
             id: recording.id,
@@ -131,6 +156,15 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
             try await recordingRepository.updateRecordingTimestampedTranscription(
                 id: recording.id,
                 timestampedTranscription: timestampedTranscription
+            )
+        }
+        
+        // Save structured transcriptions if available from VAD segments
+        if let vadSegments = vadSegments, !vadSegments.isEmpty {
+            let structuredTranscriptions = await buildStructuredTranscriptionFromVADSegments(vadSegments)
+            try await recordingRepository.updateRecordingStructuredTranscription(
+                id: recording.id,
+                structuredTranscriptions: structuredTranscriptions
             )
         }
         
@@ -224,23 +258,18 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         }
     }
     
-    private func performTranscription(_ recording: RecordingInfo) async throws -> TranscriptionResult {
-        // TEMPORARILY DISABLED: End-of-recording transcription
-        // Now relying on VAD real-time transcription instead
-
-        print("🚫 End-of-recording transcription disabled - using VAD transcription only")
-
-        // Return empty transcription result to skip end-of-recording transcription
-        return TranscriptionResult(
-            systemAudioText: "VAD transcription in progress...",
-            microphoneText: nil,
-            combinedText: "VAD transcription in progress...",
-            transcriptionDuration: 0.0,
-            modelUsed: "VAD",
-            timestampedTranscription: nil
-        )
-
-        /* ORIGINAL CODE - TEMPORARILY COMMENTED OUT:
+    private func performTranscription(_ recording: RecordingInfo, vadTranscriptions: [StreamingTranscriptionSegment]? = nil, vadSegments: [VADAudioSegment]? = nil) async throws -> TranscriptionResult {
+        // If VAD segments are available, transcribe them
+        if let vadSegments = vadSegments, !vadSegments.isEmpty {
+            return await buildTranscriptionResultFromVADSegments(vadSegments)
+        }
+        
+        // If VAD transcriptions are available, use them
+        if let vadTranscriptions = vadTranscriptions, !vadTranscriptions.isEmpty {
+            return buildTranscriptionResultFromVAD(vadTranscriptions)
+        }
+        
+        // Fallback to original transcription service
         do {
             let microphoneURL = recording.hasMicrophoneAudio ? recording.microphoneURL : nil
             return try await transcriptionService.transcribe(
@@ -252,7 +281,55 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         } catch {
             throw ProcessingError.transcriptionFailed(error.localizedDescription)
         }
-        */
+    }
+    
+    private func buildTranscriptionResultFromVAD(_ segments: [StreamingTranscriptionSegment]) -> TranscriptionResult {
+        // Separate system audio and microphone transcriptions
+        let systemAudioSegments = segments.filter { $0.source == .systemAudio }
+        let microphoneSegments = segments.filter { $0.source == .microphone }
+        
+        let systemAudioText = systemAudioSegments.map { $0.text }.joined(separator: " ")
+        let microphoneText = microphoneSegments.isEmpty ? nil : microphoneSegments.map { $0.text }.joined(separator: " ")
+        
+        let combinedText = buildCombinedText(
+            systemAudioText: systemAudioText,
+            microphoneText: microphoneText
+        )
+        
+        // Create timestamped transcription
+        let transcriptionSegments = segments.map { segment in
+            TranscriptionSegment(
+                text: segment.text,
+                startTime: segment.timestamp.timeIntervalSince1970,
+                endTime: segment.timestamp.timeIntervalSince1970 + segment.duration,
+                source: segment.source
+            )
+        }
+        let timestampedTranscription = TimestampedTranscription(segments: transcriptionSegments)
+        
+        return TranscriptionResult(
+            systemAudioText: systemAudioText,
+            microphoneText: microphoneText,
+            combinedText: combinedText,
+            transcriptionDuration: segments.reduce(0) { $0 + $1.duration },
+            modelUsed: "VAD",
+            timestampedTranscription: timestampedTranscription
+        )
+    }
+    
+    private func buildTranscriptionResultFromVADSegments(_ vadSegments: [VADAudioSegment]) async -> TranscriptionResult {
+        // Transcribe the accumulated VAD segments
+        let vadTranscriptionService = VADTranscriptionService(transcriptionService: transcriptionService)
+        let transcriptionSegments = await vadTranscriptionService.transcribeAccumulatedSegments(vadSegments)
+        
+        // Use the existing method to build the result
+        return buildTranscriptionResultFromVAD(transcriptionSegments)
+    }
+    
+    private func buildStructuredTranscriptionFromVADSegments(_ vadSegments: [VADAudioSegment]) async -> [StructuredTranscription] {
+        // Transcribe the accumulated VAD segments with structured output
+        let vadTranscriptionService = VADTranscriptionService(transcriptionService: transcriptionService)
+        return await vadTranscriptionService.transcribeAccumulatedSegmentsStructured(vadSegments)
     }
     
     private func handleProcessingError(_ error: ProcessingError, for recording: RecordingInfo) async {
@@ -288,6 +365,42 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         } catch {
             return true
         }
+    }
+    
+    func clearVADTranscriptionsCache() {
+        vadTranscriptionsCache.removeAll()
+    }
+    
+    func getVADSegments(for recordingID: String) async -> [VADAudioSegment] {
+        return await vadTranscriptionCoordinator?.getAccumulatedSegments(for: recordingID) ?? []
+    }
+    
+    func getStructuredTranscriptions(for recordingID: String) async -> [StructuredTranscription] {
+        let vadSegments = await getVADSegments(for: recordingID)
+        return await buildStructuredTranscriptionFromVADSegments(vadSegments)
+    }
+    
+    private func getVADSegmentsForRecording(_ recordingID: String) async -> [VADAudioSegment] {
+        // Try to get VAD segments from the VAD coordinator if available
+        if let vadCoordinator = vadTranscriptionCoordinator {
+            return await vadCoordinator.getAccumulatedSegments(for: recordingID)
+        }
+        
+        // Fallback: return empty array if no VAD coordinator is available
+        logger.warning("No VAD coordinator available, cannot get VAD segments for recording \(recordingID)")
+        return []
+    }
+    
+    private func buildCombinedText(systemAudioText: String, microphoneText: String?) -> String {
+        var combinedText = systemAudioText
+        
+        if let microphoneText = microphoneText, !microphoneText.isEmpty {
+            combinedText += "\n\n[User Audio Note: The following was spoken by the user during this recording. Please incorporate this context when creating the meeting summary:]\n\n"
+            combinedText += microphoneText
+            combinedText += "\n\n[End of User Audio Note. Please align the above user input with the meeting content for a comprehensive summary.]"
+        }
+        
+        return combinedText
     }
     
     deinit {

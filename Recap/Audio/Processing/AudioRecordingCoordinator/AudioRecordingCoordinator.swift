@@ -176,7 +176,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
     // MARK: - VAD Methods
 
     @MainActor
-    func enableVAD(configuration: VADConfiguration? = nil, delegate: VADTranscriptionCoordinatorDelegate? = nil) async {
+    func enableVAD(configuration: VADConfiguration? = nil, delegate: VADTranscriptionCoordinatorDelegate? = nil, recordingID: String? = nil) async {
         let vadConfig = configuration ?? .default
 
         if streamingTranscriptionService == nil {
@@ -207,7 +207,12 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
 
         await setupSystemAudioVAD(with: vadConfig, coordinator: coordinator)
 
-        coordinator.startVADTranscription()
+        // Start VAD with recording ID if provided
+        if let recordingID = recordingID {
+            coordinator.startVADTranscription(for: recordingID)
+        } else {
+            coordinator.startVADTranscription()
+        }
 
         logger.info("VAD enabled for audio recording coordinator")
     }
@@ -244,6 +249,21 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
         }
 
         systemVADManager?.resume()
+    }
+    
+    @MainActor
+    func getVADTranscriptions() async -> [StreamingTranscriptionSegment] {
+        return vadTranscriptionCoordinator?.realtimeTranscriptions ?? []
+    }
+    
+    @MainActor
+    func getVADSegments(for recordingID: String) async -> [VADAudioSegment] {
+        return vadTranscriptionCoordinator?.getAccumulatedSegments(for: recordingID) ?? []
+    }
+    
+    @MainActor
+    func getVADTranscriptionCoordinator() -> VADTranscriptionCoordinator? {
+        return vadTranscriptionCoordinator
     }
 
     // MARK: - Dependency Injection for VAD

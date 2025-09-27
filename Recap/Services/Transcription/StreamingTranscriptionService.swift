@@ -53,6 +53,12 @@ final class StreamingTranscriptionService: ObservableObject {
             return
         }
 
+        // Check for cancellation before starting
+        guard !Task.isCancelled else {
+            logger.info("Transcription task cancelled before starting for segment \(segmentID)")
+            return
+        }
+
         isProcessing = true
         logger.info("Starting transcription for segment \(segmentID) [source: \(source.rawValue)], size: \(audioData.count) bytes")
 
@@ -73,6 +79,12 @@ final class StreamingTranscriptionService: ObservableObject {
                 }
             }
 
+            // Check for cancellation before expensive transcription operation
+            guard !Task.isCancelled else {
+                logger.info("Transcription task cancelled before WhisperKit call for segment \(segmentID)")
+                return
+            }
+            
             print("🎵 VAD: Starting WhisperKit transcription...")
             let result = try await transcriptionService.transcribe(audioURL: temporaryFileURL, microphoneURL: nil)
             print("🎵 VAD: WhisperKit transcription completed")
@@ -98,6 +110,12 @@ final class StreamingTranscriptionService: ObservableObject {
             listVADSegmentFiles()
 
         } catch {
+            // Handle cancellation gracefully - don't report as failure
+            if error is CancellationError {
+                logger.info("Transcription cancelled for segment \(segmentID) - this is normal when VAD stops")
+                return
+            }
+            
             logger.error("Failed to transcribe audio segment \(segmentID): \(error)")
             delegate?.streamingTranscriptionDidFail(segmentID: segmentID, error: error)
         }

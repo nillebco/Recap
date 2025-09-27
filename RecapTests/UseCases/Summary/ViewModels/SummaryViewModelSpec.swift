@@ -164,6 +164,7 @@ private extension SummaryViewModelSpec {
             transcriptionText: "Test transcription",
             summaryText: summaryText,
             timestampedTranscription: nil,
+            structuredTranscriptions: nil,
             createdAt: Date(),
             modifiedAt: Date()
         )

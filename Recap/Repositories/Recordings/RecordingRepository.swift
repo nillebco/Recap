@@ -159,6 +159,26 @@ final class RecordingRepository: RecordingRepositoryType {
         }
     }
     
+    func updateRecordingStructuredTranscription(id: String, structuredTranscriptions: [StructuredTranscription]) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            coreDataManager.performBackgroundTask { context in
+                do {
+                    let recording = try self.fetchRecordingEntity(id: id, context: context)
+                    
+                    // Encode the structured transcriptions to binary data
+                    let data = try JSONEncoder().encode(structuredTranscriptions)
+                    recording.structuredTranscriptionData = data
+                    recording.modifiedAt = Date()
+                    
+                    try context.save()
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
     func updateRecordingSummary(id: String, summaryText: String) async throws {
         try await withCheckedThrowingContinuation { continuation in
             coreDataManager.performBackgroundTask { context in
