@@ -11,6 +11,8 @@ struct UserPreferencesInfo: Identifiable {
     let onboarded: Bool
     let summaryPromptTemplate: String?
     let microphoneEnabled: Bool
+    let globalShortcutKeyCode: Int32
+    let globalShortcutModifiers: Int32
     let createdAt: Date
     let modifiedAt: Date
 
@@ -24,6 +26,8 @@ struct UserPreferencesInfo: Identifiable {
         self.onboarded = managedObject.onboarded
         self.summaryPromptTemplate = managedObject.summaryPromptTemplate
         self.microphoneEnabled = managedObject.microphoneEnabled
+        self.globalShortcutKeyCode = managedObject.globalShortcutKeyCode
+        self.globalShortcutModifiers = managedObject.globalShortcutModifiers
         self.createdAt = managedObject.createdAt ?? Date()
         self.modifiedAt = managedObject.modifiedAt ?? Date()
     }
@@ -39,6 +43,8 @@ struct UserPreferencesInfo: Identifiable {
         onboarded: Bool = false,
         summaryPromptTemplate: String? = nil,
         microphoneEnabled: Bool = false,
+        globalShortcutKeyCode: Int32 = 15, // 'R' key
+        globalShortcutModifiers: Int32 = 1048840, // Cmd key
         createdAt: Date = Date(),
         modifiedAt: Date = Date()
     ) {
@@ -51,6 +57,8 @@ struct UserPreferencesInfo: Identifiable {
         self.onboarded = onboarded
         self.summaryPromptTemplate = summaryPromptTemplate
         self.microphoneEnabled = microphoneEnabled
+        self.globalShortcutKeyCode = globalShortcutKeyCode
+        self.globalShortcutModifiers = globalShortcutModifiers
         self.createdAt = createdAt
         self.modifiedAt = modifiedAt
     }
