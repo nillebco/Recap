@@ -127,6 +127,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
 
     // MARK: - VAD Properties
 
+    @MainActor
     var isVADEnabled: Bool {
         if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
             return microphoneCapture.isVADEnabled
@@ -134,6 +135,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
         return false
     }
 
+    @MainActor
     var currentSpeechProbability: Float {
         if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
             return microphoneCapture.currentSpeechProbability
@@ -141,6 +143,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
         return 0.0
     }
 
+    @MainActor
     var isSpeaking: Bool {
         if let microphoneCapture = microphoneCapture as? MicrophoneCapture {
             return microphoneCapture.isSpeaking
@@ -188,6 +191,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
 
         microphoneCapture.disableVAD()
         vadTranscriptionCoordinator?.stopVADTranscription()
+        vadTranscriptionCoordinator = nil
 
         logger.info("VAD disabled for audio recording coordinator")
     }

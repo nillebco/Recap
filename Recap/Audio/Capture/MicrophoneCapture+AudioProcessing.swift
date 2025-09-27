@@ -14,8 +14,8 @@ extension MicrophoneCapture {
         calculateAndUpdateAudioLevel(from: buffer)
 
         // Process VAD if enabled
-        if isVADEnabled {
-            Task { @MainActor in
+        Task { @MainActor in
+            if isVADEnabled {
                 vadManager?.processAudioBuffer(buffer)
             }
         }
