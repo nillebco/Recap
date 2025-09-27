@@ -10,16 +10,25 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
     @Published var currentSpeechProbability: Float = 0.0
 
     private let streamingTranscriptionService: StreamingTranscriptionService
+    private let segmentAccumulator: VADSegmentAccumulator
     private var pendingTranscriptionTasks: Set<Task<Void, Never>> = []
     private var speechProbabilities: [VADAudioSource: Float] = [:]
+    private var currentRecordingID: String?
 
     weak var delegate: VADTranscriptionCoordinatorDelegate?
 
     init(streamingTranscriptionService: StreamingTranscriptionService) {
         self.streamingTranscriptionService = streamingTranscriptionService
+        self.segmentAccumulator = VADSegmentAccumulator()
         self.streamingTranscriptionService.delegate = self
     }
 
+    func startVADTranscription(for recordingID: String) {
+        isVADActive = true
+        currentRecordingID = recordingID
+        logger.info("VAD transcription coordinator started for recording \(recordingID)")
+    }
+    
     func startVADTranscription() {
         isVADActive = true
         logger.info("VAD transcription coordinator started")
@@ -114,9 +123,14 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
     // MARK: - Private Methods
 
     private func processAudioSegment(_ audioData: Data, source: TranscriptionSegment.AudioSource) {
+        // Always accumulate segments regardless of VAD state
+        guard let recordingID = currentRecordingID else {
+            logger.warning("No recording ID set, cannot accumulate VAD segment")
+            return
+        }
+        
         let segmentID = UUID().uuidString
-
-        print("🎙️ VAD: Processing audio segment \(segmentID) for source \(source.rawValue), size: \(audioData.count) bytes")
+        logger.info("Accumulating VAD segment \(segmentID) for recording \(recordingID) [source: \(source.rawValue)], size: \(audioData.count) bytes")
         
         // Debug: Check if audio data looks like a valid WAV file
         if audioData.count >= 44 {
@@ -129,18 +143,41 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
             print("🎙️ VAD: Audio data too small to be valid WAV file")
         }
 
-        let task = Task {
-            print("🎙️ VAD: Starting transcription for segment \(segmentID) [source: \(source.rawValue)]")
-            await streamingTranscriptionService.transcribeAudioSegment(audioData, source: source, segmentID: segmentID)
-            print("🎙️ VAD: Completed transcription for segment \(segmentID)")
-
-            // Remove completed task from pending set
-            await MainActor.run {
-                self.pendingTranscriptionTasks = self.pendingTranscriptionTasks.filter { !$0.isCancelled }
-            }
+        // Accumulate the segment - this is independent of VAD/transcription state
+        segmentAccumulator.accumulateSegment(audioData, source: source, recordingID: recordingID)
+        
+        // Notify delegate that a segment was accumulated
+        delegate?.vadTranscriptionDidAccumulateSegment(segmentID: segmentID, source: source)
+    }
+    
+    // MARK: - Public Methods for Accessing Accumulated Segments
+    
+    /// Get all accumulated VAD segments for the current recording
+    func getAccumulatedSegments() -> [VADAudioSegment] {
+        guard let recordingID = currentRecordingID else {
+            logger.warning("No recording ID set, cannot get accumulated segments")
+            return []
         }
-
-        pendingTranscriptionTasks.insert(task)
+        return segmentAccumulator.getAllAccumulatedSegments(for: recordingID)
+    }
+    
+    /// Get all accumulated VAD segments for a specific recording
+    func getAccumulatedSegments(for recordingID: String) -> [VADAudioSegment] {
+        return segmentAccumulator.getAllAccumulatedSegments(for: recordingID)
+    }
+    
+    /// Clear accumulated segments for the current recording
+    func clearAccumulatedSegments() {
+        guard let recordingID = currentRecordingID else {
+            logger.warning("No recording ID set, cannot clear accumulated segments")
+            return
+        }
+        segmentAccumulator.clearSegments(for: recordingID)
+    }
+    
+    /// Clear accumulated segments for a specific recording
+    func clearAccumulatedSegments(for recordingID: String) {
+        segmentAccumulator.clearSegments(for: recordingID)
     }
 
 }
@@ -151,4 +188,5 @@ protocol VADTranscriptionCoordinatorDelegate: AnyObject {
     func vadTranscriptionDidDetectMisfire()
     func vadTranscriptionDidComplete(_ segment: StreamingTranscriptionSegment)
     func vadTranscriptionDidFail(segmentID: String, error: Error)
+    func vadTranscriptionDidAccumulateSegment(segmentID: String, source: TranscriptionSegment.AudioSource)
 }

@@ -236,6 +236,7 @@ private class MockPreviousRecapsViewModel: ObservableObject, PreviousRecapsViewM
                 transcriptionText: "Meeting about project updates",
                 summaryText: "Discussed progress and next steps",
                 timestampedTranscription: nil,
+                structuredTranscriptions: nil,
                 createdAt: Date(),
                 modifiedAt: Date()
             )
@@ -254,6 +255,7 @@ private class MockPreviousRecapsViewModel: ObservableObject, PreviousRecapsViewM
                 transcriptionText: "Team standup discussion",
                 summaryText: "Daily standup with team updates",
                 timestampedTranscription: nil,
+                structuredTranscriptions: nil,
                 createdAt: Calendar.current.date(byAdding: .day, value: -3, to: Date()) ?? Date(),
                 modifiedAt: Calendar.current.date(byAdding: .day, value: -3, to: Date()) ?? Date()
             )
