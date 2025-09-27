@@ -43,22 +43,26 @@ final class StreamingTranscriptionService: ObservableObject {
         }
     }
 
-    func transcribeAudioSegment(_ audioData: Data, segmentID: String = UUID().uuidString) async {
+    func transcribeAudioSegment(
+        _ audioData: Data,
+        source: TranscriptionSegment.AudioSource,
+        segmentID: String = UUID().uuidString
+    ) async {
         guard !audioData.isEmpty else {
             logger.warning("Received empty audio data for transcription")
             return
         }
 
         isProcessing = true
-        logger.info("Starting transcription for segment \(segmentID), size: \(audioData.count) bytes")
+        logger.info("Starting transcription for segment \(segmentID) [source: \(source.rawValue)], size: \(audioData.count) bytes")
 
         do {
             let temporaryFileURL = temporaryDirectory.appendingPathComponent("\(segmentID).wav")
 
             try audioData.write(to: temporaryFileURL)
-            
+
             print("🎵 VAD: Wrote audio file to \(temporaryFileURL.path)")
-            print("🎵 VAD: File size: \(audioData.count) bytes")
+            print("🎵 VAD: File size: \(audioData.count) bytes (source: \(source.rawValue))")
 
             defer {
                 // Keep files for debugging if flag is set
@@ -80,14 +84,15 @@ final class StreamingTranscriptionService: ObservableObject {
                 text: result.systemAudioText,
                 timestamp: Date(),
                 confidence: 1.0, // WhisperKit doesn't provide confidence scores
-                duration: result.transcriptionDuration
+                duration: result.transcriptionDuration,
+                source: source
             )
 
             realtimeTranscriptions.append(segment)
 
             delegate?.streamingTranscriptionDidComplete(segment)
 
-            logger.info("Completed transcription for segment \(segmentID): '\(result.systemAudioText.prefix(50))...'")
+            logger.info("Completed transcription for segment \(segmentID) [source: \(source.rawValue)]: '\(result.systemAudioText.prefix(50))...'")
             
             // Debug: List VAD segment files after each transcription
             listVADSegmentFiles()
@@ -135,6 +140,7 @@ struct StreamingTranscriptionSegment: Identifiable {
     let timestamp: Date
     let confidence: Float
     let duration: TimeInterval
+    let source: TranscriptionSegment.AudioSource
 
     var formattedTimestamp: String {
         let formatter = DateFormatter()

@@ -11,6 +11,7 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
 
     private let streamingTranscriptionService: StreamingTranscriptionService
     private var pendingTranscriptionTasks: Set<Task<Void, Never>> = []
+    private var speechProbabilities: [VADAudioSource: Float] = [:]
 
     weak var delegate: VADTranscriptionCoordinatorDelegate?
 
@@ -32,6 +33,8 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
             task.cancel()
         }
         pendingTranscriptionTasks.removeAll()
+        speechProbabilities.removeAll()
+        currentSpeechProbability = 0.0
 
         logger.info("VAD transcription coordinator stopped")
     }
@@ -39,6 +42,8 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
     func clearTranscriptions() {
         realtimeTranscriptions.removeAll()
         streamingTranscriptionService.clearTranscriptions()
+        speechProbabilities.removeAll()
+        currentSpeechProbability = 0.0
     }
 
     // MARK: - VADDelegate
@@ -47,27 +52,29 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
         guard isVADActive else { return }
 
         switch event {
-        case .speechStart:
-            logger.debug("VAD detected speech start")
+        case .speechStart(let source):
+            logger.debug("VAD detected speech start for \(source.transcriptionSource.rawValue) source")
             delegate?.vadTranscriptionDidDetectSpeechStart()
 
-        case .speechRealStart:
-            logger.debug("VAD confirmed real speech start")
+        case .speechRealStart(let source):
+            logger.debug("VAD confirmed real speech start for \(source.transcriptionSource.rawValue) source")
             delegate?.vadTranscriptionDidConfirmSpeechStart()
 
-        case .speechEnd(let audioData):
-            logger.info("VAD detected speech end, processing audio data: \(audioData.count) bytes")
-            print("🔥 VAD: Speech end detected! Audio data size: \(audioData.count) bytes")
-            processAudioSegment(audioData)
+        case .speechEnd(let audioData, let source):
+            let transcriptionSource = source.transcriptionSource
+            logger.info("VAD detected speech end for \(transcriptionSource.rawValue) audio, processing: \(audioData.count) bytes")
+            print("🔥 VAD: Speech end detected for \(transcriptionSource.rawValue) source! Audio data size: \(audioData.count) bytes")
+            processAudioSegment(audioData, source: transcriptionSource)
 
-        case .vadMisfire:
-            logger.debug("VAD misfire detected")
+        case .vadMisfire(let source):
+            logger.debug("VAD misfire detected for \(source.transcriptionSource.rawValue) source")
             delegate?.vadTranscriptionDidDetectMisfire()
         }
     }
 
-    func vadDidProcessFrame(_ probability: Float, _ audioFrame: [Float]) {
-        currentSpeechProbability = probability
+    func vadDidProcessFrame(_ probability: Float, _ audioFrame: [Float], source: VADAudioSource) {
+        speechProbabilities[source] = probability
+        currentSpeechProbability = speechProbabilities.values.max() ?? 0.0
     }
 
     // MARK: - StreamingTranscriptionDelegate
@@ -81,7 +88,7 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
     private func streamingTranscriptionDidCompleteInternal(_ segment: StreamingTranscriptionSegment) {
         realtimeTranscriptions.append(segment)
 
-        print("✅ VAD: Transcription result received: '\(segment.text)' (segment \(segment.id))")
+        print("✅ VAD: Transcription result received: '\(segment.text)' (segment \(segment.id), source: \(segment.source.rawValue))")
         print("✅ VAD: Total transcriptions collected: \(realtimeTranscriptions.count)")
 
         // Keep only the last 50 transcriptions to avoid memory issues
@@ -106,10 +113,10 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
 
     // MARK: - Private Methods
 
-    private func processAudioSegment(_ audioData: Data) {
+    private func processAudioSegment(_ audioData: Data, source: TranscriptionSegment.AudioSource) {
         let segmentID = UUID().uuidString
 
-        print("🎙️ VAD: Processing audio segment \(segmentID), size: \(audioData.count) bytes")
+        print("🎙️ VAD: Processing audio segment \(segmentID) for source \(source.rawValue), size: \(audioData.count) bytes")
         
         // Debug: Check if audio data looks like a valid WAV file
         if audioData.count >= 44 {
@@ -123,8 +130,8 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
         }
 
         let task = Task {
-            print("🎙️ VAD: Starting transcription for segment \(segmentID)")
-            await streamingTranscriptionService.transcribeAudioSegment(audioData, segmentID: segmentID)
+            print("🎙️ VAD: Starting transcription for segment \(segmentID) [source: \(source.rawValue)]")
+            await streamingTranscriptionService.transcribeAudioSegment(audioData, source: source, segmentID: segmentID)
             print("🎙️ VAD: Completed transcription for segment \(segmentID)")
 
             // Remove completed task from pending set

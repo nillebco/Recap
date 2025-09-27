@@ -13,13 +13,15 @@ final class FrameProcessor {
     private var speechFrameCount: Int = 0
     private var realStartFired: Bool = false
     private var lowProbabilityStreak: Int = 0
+    private let source: VADAudioSource
     private var isPaused: Bool = false
 
     init(
         probabilityFunction: @escaping ProbabilityFunction,
         configuration: VADConfiguration = .default,
         callbacks: VADCallbacks = .empty,
-        delegate: VADDelegate? = nil
+        delegate: VADDelegate? = nil,
+        source: VADAudioSource
     ) {
         self.probabilityFunction = probabilityFunction
         self.configuration = configuration
@@ -27,6 +29,7 @@ final class FrameProcessor {
         self.delegate = delegate
         self.preRingBuffer = []
         self.preRingBuffer.reserveCapacity(configuration.preSpeechPadFrames)
+        self.source = source
     }
 
     func pause() {
@@ -58,7 +61,7 @@ final class FrameProcessor {
         let speechProbability = probabilityFunction(frame)
 
         callbacks.onFrameProcessed?(speechProbability, frame)
-        delegate?.vadDidProcessFrame(speechProbability, frame)
+        delegate?.vadDidProcessFrame(speechProbability, frame, source: source)
 
         if !inSpeech {
             handleIdleState(frame: frame, probability: speechProbability)
@@ -89,7 +92,7 @@ final class FrameProcessor {
         if !realStartFired && speechFrameCount >= configuration.minSpeechFrames {
             realStartFired = true
             callbacks.onSpeechRealStart?()
-            delegate?.vadDidDetectEvent(.speechRealStart)
+            delegate?.vadDidDetectEvent(.speechRealStart(source: source))
         }
 
         if probability < configuration.negativeSpeechThreshold {
@@ -111,7 +114,7 @@ final class FrameProcessor {
         lowProbabilityStreak = 0
 
         callbacks.onSpeechStart?()
-        delegate?.vadDidDetectEvent(.speechStart)
+        delegate?.vadDidDetectEvent(.speechStart(source: source))
     }
 
     private func finalizeSegment() {
@@ -133,12 +136,12 @@ final class FrameProcessor {
         if totalFrames < configuration.minSpeechFrames {
             print("🎯 VAD misfire: \(totalFrames) < \(configuration.minSpeechFrames)")
             callbacks.onVADMisfire?()
-            delegate?.vadDidDetectEvent(.vadMisfire)
+            delegate?.vadDidDetectEvent(.vadMisfire(source: source))
             return
         }
 
         callbacks.onSpeechEnd?(audioData)
-        delegate?.vadDidDetectEvent(.speechEnd(audioData: audioData))
+        delegate?.vadDidDetectEvent(.speechEnd(audioData: audioData, source: source))
     }
 
     private func concatenateFramesToData(_ frames: [[Float]]) -> Data {

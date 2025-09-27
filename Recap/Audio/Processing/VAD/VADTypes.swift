@@ -1,11 +1,25 @@
 import Foundation
 import AVFoundation
 
+enum VADAudioSource: Hashable {
+    case microphone
+    case system
+
+    var transcriptionSource: TranscriptionSegment.AudioSource {
+        switch self {
+        case .microphone:
+            return .microphone
+        case .system:
+            return .systemAudio
+        }
+    }
+}
+
 enum VADEvent {
-    case speechStart
-    case speechRealStart
-    case speechEnd(audioData: Data)
-    case vadMisfire
+    case speechStart(source: VADAudioSource)
+    case speechRealStart(source: VADAudioSource)
+    case speechEnd(audioData: Data, source: VADAudioSource)
+    case vadMisfire(source: VADAudioSource)
 }
 
 struct VADCallbacks {
@@ -26,7 +40,7 @@ struct VADCallbacks {
 
 protocol VADDelegate: AnyObject {
     func vadDidDetectEvent(_ event: VADEvent)
-    func vadDidProcessFrame(_ probability: Float, _ audioFrame: [Float])
+    func vadDidProcessFrame(_ probability: Float, _ audioFrame: [Float], source: VADAudioSource)
 }
 
 typealias ProbabilityFunction = ([Float]) -> Float
