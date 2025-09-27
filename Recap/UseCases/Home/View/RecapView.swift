@@ -48,26 +48,6 @@ struct RecapHomeView: View {
                                 .padding(.horizontal, UIConstants.Spacing.contentPadding)
                         }
                         
-                        HStack(spacing: UIConstants.Spacing.cardSpacing) {
-                            HeatmapCard(
-                                title: "System Audio", 
-                                containerWidth: geometry.size.width,
-                                isSelected: true,
-                                audioLevel: viewModel.systemAudioHeatmapLevel,
-                                isInteractionEnabled: !viewModel.isRecording,
-                                onToggle: { }
-                            )
-                            HeatmapCard(
-                                title: "Microphone", 
-                                containerWidth: geometry.size.width,
-                                isSelected: viewModel.isMicrophoneEnabled,
-                                audioLevel: viewModel.microphoneHeatmapLevel,
-                                isInteractionEnabled: !viewModel.isRecording,
-                                onToggle: { 
-                                    viewModel.toggleMicrophone()
-                                }
-                            )
-                        }
                         
                         VStack(spacing: UIConstants.Spacing.cardSpacing) {
                             TranscriptionCard(containerWidth: geometry.size.width) {

@@ -9,11 +9,13 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
 
     var settingsPanel: SlidingPanel?
     var summaryPanel: SlidingPanel?
+    var recapsPanel: SlidingPanel?
     var previousRecapsWindowManager: RecapsWindowManager?
 
     var isVisible = false
     var isSettingsVisible = false
     var isSummaryVisible = false
+    var isRecapsVisible = false
     var isPreviousRecapsVisible = false
     
     let initialSize = CGSize(width: 485, height: 500)
@@ -174,7 +176,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
         hidePanel()
     }
     
-    private func hidePanel() {
+    func hidePanel() {
         guard let panel = panel else { return }
         
         PanelAnimator.slideOut(panel: panel) { [weak self] in
@@ -185,6 +187,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     private func hideAllSidePanels() {
         if isSettingsVisible { hideSettingsPanel() }
         if isSummaryVisible { hideSummaryPanel() }
+        if isRecapsVisible { hideRecapsPanel() }
         if isPreviousRecapsVisible { hidePreviousRecapsWindow() }
     }
     
@@ -201,6 +204,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     deinit {
         panel = nil
         settingsPanel = nil
+        recapsPanel = nil
     }
 }
 
@@ -227,11 +231,27 @@ extension MenuBarPanelManager: StatusBarDelegate {
     }
 
     func settingsRequested() {
+        // Hide main panel and show only settings panel
         if isVisible {
             hidePanel()
-        } else {
-            showPanel()
         }
+        toggleSidePanel(
+            isVisible: isSettingsVisible,
+            show: showSettingsPanel,
+            hide: hideSettingsPanel
+        )
+    }
+
+    func recapsRequested() {
+        // Hide main panel and show only recaps panel
+        if isVisible {
+            hidePanel()
+        }
+        toggleSidePanel(
+            isVisible: isRecapsVisible,
+            show: showRecapsPanel,
+            hide: hideRecapsPanel
+        )
     }
 
     func quitRequested() {
