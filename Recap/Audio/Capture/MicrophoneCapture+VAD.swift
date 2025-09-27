@@ -62,14 +62,17 @@ extension MicrophoneCapture {
         vadManager?.reset()
     }
 
+    @MainActor
     var isVADEnabled: Bool {
         return vadManager?.isVADEnabled ?? false
     }
 
+    @MainActor
     var currentSpeechProbability: Float {
         return vadManager?.speechProbability ?? 0.0
     }
 
+    @MainActor
     var isSpeaking: Bool {
         return vadManager?.isSpeaking ?? false
     }

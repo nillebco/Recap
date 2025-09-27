@@ -7,9 +7,9 @@ import FluidAudio
 final class VADManager: ObservableObject {
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: VADManager.self))
 
-    @Published nonisolated(unsafe) var isVADEnabled: Bool = false
-    @Published nonisolated(unsafe) var speechProbability: Float = 0.0
-    @Published nonisolated(unsafe) var isSpeaking: Bool = false
+    @Published var isVADEnabled: Bool = false
+    @Published var speechProbability: Float = 0.0
+    @Published var isSpeaking: Bool = false
 
     private var frameProcessor: FrameProcessor?
     private var configuration: VADConfiguration

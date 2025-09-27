@@ -7,7 +7,10 @@ extension RecapViewModel {
         guard let recordingID = currentRecordingID else { return }
         
         stopTimers()
-        
+
+        // Disable VAD before stopping recording
+        await recordingCoordinator.getCurrentRecordingCoordinator()?.disableVAD()
+
         if let recordedFiles = await recordingCoordinator.stopRecording() {
             await handleSuccessfulRecordingStop(
                 recordingID: recordingID,

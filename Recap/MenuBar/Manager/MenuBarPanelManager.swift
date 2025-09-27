@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Combine
 
 @MainActor
 final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
@@ -19,7 +20,9 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     let menuBarHeight: CGFloat = 24
     let panelOffset: CGFloat = 12
     let panelSpacing: CGFloat = 8
-    
+
+    private var cancellables = Set<AnyCancellable>()
+
     let audioProcessController: AudioProcessController
     let appSelectionViewModel: AppSelectionViewModel
     let previousRecapsViewModel: PreviousRecapsViewModel
@@ -61,6 +64,15 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     
     private func setupDelegates() {
         statusBarManager.delegate = self
+
+        // Observe recording state changes to update status bar icon
+        recapViewModel.$isRecording
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isRecording in
+                print("🔴 Recording state changed to: \(isRecording)")
+                self?.statusBarManager.setRecordingState(isRecording)
+            }
+            .store(in: &cancellables)
     }
     
     func createMainPanel() -> SlidingPanel {

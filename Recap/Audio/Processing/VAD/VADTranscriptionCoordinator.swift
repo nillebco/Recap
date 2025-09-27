@@ -117,11 +117,6 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
         pendingTranscriptionTasks.insert(task)
     }
 
-    deinit {
-        Task { @MainActor in
-            self.stopVADTranscription()
-        }
-    }
 }
 
 protocol VADTranscriptionCoordinatorDelegate: AnyObject {
