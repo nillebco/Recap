@@ -3,7 +3,8 @@ import AppKit
 
 extension MenuBarPanelManager {
     func createSettingsPanel() -> SlidingPanel? {
-        let contentView = SettingsView(
+        let contentView = LeftPaneView(
+            recapViewModel: recapViewModel,
             whisperModelsViewModel: whisperModelsViewModel,
             generalSettingsViewModel: generalSettingsViewModel,
             meetingDetectionService: meetingDetectionService,
@@ -61,6 +62,10 @@ extension MenuBarPanelManager {
 
 extension MenuBarPanelManager: RecapViewModelDelegate {
     func didRequestSettingsOpen() {
+        // Hide main panel and show only settings panel
+        if isVisible {
+            hidePanel()
+        }
         toggleSidePanel(
             isVisible: isSettingsVisible,
             show: showSettingsPanel,

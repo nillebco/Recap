@@ -7,6 +7,7 @@ protocol StatusBarDelegate: AnyObject {
     func startRecordingRequested()
     func stopRecordingRequested()
     func settingsRequested()
+    func recapsRequested()
 }
 
 final class StatusBarManager: StatusBarManagerType {
@@ -120,6 +121,10 @@ final class StatusBarManager: StatusBarManagerType {
         let recordingItem = NSMenuItem(title: recordingTitle, action: #selector(recordingMenuItemClicked), keyEquivalent: "")
         recordingItem.target = self
 
+        // Recaps menu item
+        let recapsItem = NSMenuItem(title: "Recaps", action: #selector(recapsMenuItemClicked), keyEquivalent: "")
+        recapsItem.target = self
+
         // Settings menu item
         let settingsItem = NSMenuItem(title: "Settings", action: #selector(settingsMenuItemClicked), keyEquivalent: "")
         settingsItem.target = self
@@ -129,6 +134,7 @@ final class StatusBarManager: StatusBarManagerType {
         quitItem.target = self
 
         mainMenu.addItem(recordingItem)
+        mainMenu.addItem(recapsItem)
         mainMenu.addItem(settingsItem)
         mainMenu.addItem(NSMenuItem.separator())
         mainMenu.addItem(quitItem)
@@ -165,6 +171,12 @@ final class StatusBarManager: StatusBarManagerType {
     @objc private func settingsMenuItemClicked() {
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.settingsRequested()
+        }
+    }
+
+    @objc private func recapsMenuItemClicked() {
+        DispatchQueue.main.async { [weak self] in
+            self?.delegate?.recapsRequested()
         }
     }
 

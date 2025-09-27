@@ -153,7 +153,10 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
                         
                         VStack(alignment: .leading, spacing: UIConstants.Spacing.cardInternalSpacing) {
                             if !transcriptionText.isEmpty {
-                                TranscriptDropdownButton(transcriptText: transcriptionText)
+                                TranscriptDropdownButton(
+                                    transcriptText: transcriptionText,
+                                    structuredTranscriptions: recording.structuredTranscriptions
+                                )
                             }
                             
                             Text("Summary")
