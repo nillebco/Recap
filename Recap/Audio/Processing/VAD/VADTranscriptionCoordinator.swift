@@ -57,6 +57,7 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
 
         case .speechEnd(let audioData):
             logger.info("VAD detected speech end, processing audio data: \(audioData.count) bytes")
+            print("🔥 VAD: Speech end detected! Audio data size: \(audioData.count) bytes")
             processAudioSegment(audioData)
 
         case .vadMisfire:
@@ -79,6 +80,9 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
 
     private func streamingTranscriptionDidCompleteInternal(_ segment: StreamingTranscriptionSegment) {
         realtimeTranscriptions.append(segment)
+
+        print("✅ VAD: Transcription result received: '\(segment.text)' (segment \(segment.id))")
+        print("✅ VAD: Total transcriptions collected: \(realtimeTranscriptions.count)")
 
         // Keep only the last 50 transcriptions to avoid memory issues
         if realtimeTranscriptions.count > 50 {
@@ -105,8 +109,23 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
     private func processAudioSegment(_ audioData: Data) {
         let segmentID = UUID().uuidString
 
+        print("🎙️ VAD: Processing audio segment \(segmentID), size: \(audioData.count) bytes")
+        
+        // Debug: Check if audio data looks like a valid WAV file
+        if audioData.count >= 44 {
+            let header = String(data: audioData.prefix(4), encoding: .ascii) ?? "unknown"
+            print("🎙️ VAD: Audio data header: '\(header)' (should be 'RIFF')")
+            
+            let waveHeader = String(data: audioData.subdata(in: 8..<12), encoding: .ascii) ?? "unknown"
+            print("🎙️ VAD: WAVE header: '\(waveHeader)' (should be 'WAVE')")
+        } else {
+            print("🎙️ VAD: Audio data too small to be valid WAV file")
+        }
+
         let task = Task {
+            print("🎙️ VAD: Starting transcription for segment \(segmentID)")
             await streamingTranscriptionService.transcribeAudioSegment(audioData, segmentID: segmentID)
+            print("🎙️ VAD: Completed transcription for segment \(segmentID)")
 
             // Remove completed task from pending set
             await MainActor.run {

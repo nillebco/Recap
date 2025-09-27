@@ -82,6 +82,10 @@ final class FrameProcessor {
         activeFrames.append(frame)
         speechFrameCount += 1
 
+        if speechFrameCount % 20 == 0 { // Log every 20th frame to avoid spam
+            print("🟢 VAD: Speech frame \(speechFrameCount), total active frames: \(activeFrames.count), frame size: \(frame.count)")
+        }
+
         if !realStartFired && speechFrameCount >= configuration.minSpeechFrames {
             realStartFired = true
             callbacks.onSpeechRealStart?()
@@ -114,6 +118,12 @@ final class FrameProcessor {
         let totalFrames = speechFrameCount
         let audioData = concatenateFramesToData(activeFrames)
 
+        print("🎯 VAD FrameProcessor: Finalizing segment")
+        print("🎯 Speech frame count: \(totalFrames)")
+        print("🎯 Active frames collected: \(activeFrames.count)")
+        print("🎯 Total samples in segment: \(activeFrames.flatMap { $0 }.count)")
+        print("🎯 Audio data size: \(audioData.count) bytes")
+
         activeFrames.removeAll()
         inSpeech = false
         speechFrameCount = 0
@@ -121,6 +131,7 @@ final class FrameProcessor {
         lowProbabilityStreak = 0
 
         if totalFrames < configuration.minSpeechFrames {
+            print("🎯 VAD misfire: \(totalFrames) < \(configuration.minSpeechFrames)")
             callbacks.onVADMisfire?()
             delegate?.vadDidDetectEvent(.vadMisfire)
             return

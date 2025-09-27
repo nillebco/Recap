@@ -16,7 +16,11 @@ extension MicrophoneCapture {
         // Process VAD if enabled
         Task { @MainActor in
             if isVADEnabled {
+                print("🎤 MicrophoneCapture: Processing VAD for buffer with \(buffer.frameLength) frames")
+                print("🎤 MicrophoneCapture: VAD Manager exists: \(vadManager != nil)")
                 vadManager?.processAudioBuffer(buffer)
+            } else {
+                print("🎤 MicrophoneCapture: VAD is disabled, isVADEnabled = \(isVADEnabled)")
             }
         }
         

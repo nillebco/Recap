@@ -225,6 +225,22 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
     }
     
     private func performTranscription(_ recording: RecordingInfo) async throws -> TranscriptionResult {
+        // TEMPORARILY DISABLED: End-of-recording transcription
+        // Now relying on VAD real-time transcription instead
+
+        print("🚫 End-of-recording transcription disabled - using VAD transcription only")
+
+        // Return empty transcription result to skip end-of-recording transcription
+        return TranscriptionResult(
+            systemAudioText: "VAD transcription in progress...",
+            microphoneText: nil,
+            combinedText: "VAD transcription in progress...",
+            transcriptionDuration: 0.0,
+            modelUsed: "VAD",
+            timestampedTranscription: nil
+        )
+
+        /* ORIGINAL CODE - TEMPORARILY COMMENTED OUT:
         do {
             let microphoneURL = recording.hasMicrophoneAudio ? recording.microphoneURL : nil
             return try await transcriptionService.transcribe(
@@ -236,6 +252,7 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         } catch {
             throw ProcessingError.transcriptionFailed(error.localizedDescription)
         }
+        */
     }
     
     private func handleProcessingError(_ error: ProcessingError, for recording: RecordingInfo) async {

@@ -15,7 +15,7 @@ struct VADConfiguration {
         negativeSpeechThreshold: 0.35,
         redemptionFrames: 8,
         preSpeechPadFrames: 4,
-        minSpeechFrames: 5,
+        minSpeechFrames: 20, // Increased from 5 to 20 (0.6 seconds at 16kHz)
         submitUserSpeechOnPause: true
     )
 
@@ -26,6 +26,16 @@ struct VADConfiguration {
         redemptionFrames: 6, // Less tolerance for gaps
         preSpeechPadFrames: 3,
         minSpeechFrames: 3, // Shorter minimum
+        submitUserSpeechOnPause: true
+    )
+    
+    static let conservative = VADConfiguration(
+        frameSamples: 512,
+        positiveSpeechThreshold: 0.7, // Higher threshold - less sensitive
+        negativeSpeechThreshold: 0.4, // Higher threshold for ending
+        redemptionFrames: 15, // More tolerance for gaps
+        preSpeechPadFrames: 8, // More pre-speech padding
+        minSpeechFrames: 30, // Much longer minimum (0.9 seconds at 16kHz)
         submitUserSpeechOnPause: true
     )
 }

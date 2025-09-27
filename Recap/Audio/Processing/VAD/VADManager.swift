@@ -13,8 +13,16 @@ final class VADManager: ObservableObject {
 
     private var frameProcessor: FrameProcessor?
     private var configuration: VADConfiguration
-    private var audioBufferAccumulator: [[Float]] = []
+    private var detectionBuffer: [Float] = []
+    private var recentSamplesBuffer: [Float] = []
+    private var currentSpeechSamples: [Float] = []
     private let targetFrameSize: Int = 4096 // ~256ms at 16kHz
+    private let contextDurationSeconds: Double = 2.0
+
+    private var maxRecentSampleCount: Int {
+        let desiredSampleCount = Int(AudioFormatConverter.vadTargetSampleRate * contextDurationSeconds)
+        return max(desiredSampleCount, targetFrameSize)
+    }
 
     weak var delegate: VADDelegate?
 
@@ -22,7 +30,7 @@ final class VADManager: ObservableObject {
     private var fluidAudioManager: VadManager?
     private var vadState: VadStreamState?
 
-    init(configuration: VADConfiguration = .default) {
+    init(configuration: VADConfiguration = .conservative) {
         self.configuration = configuration
         setupFrameProcessor()
     }
@@ -82,7 +90,9 @@ final class VADManager: ObservableObject {
     func disable() {
         isVADEnabled = false
         frameProcessor?.reset()
-        audioBufferAccumulator.removeAll()
+        detectionBuffer.removeAll()
+        recentSamplesBuffer.removeAll()
+        currentSpeechSamples.removeAll()
         speechProbability = 0.0
         isSpeaking = false
 
@@ -94,29 +104,48 @@ final class VADManager: ObservableObject {
     }
 
     func processAudioBuffer(_ buffer: AVAudioPCMBuffer) {
-        guard isVADEnabled else { return }
-
-        guard let vadFormat = AudioFormatConverter.convertToVADFormat(buffer) else {
-            logger.warning("Failed to convert audio buffer to VAD format")
+        print("🎤 VADManager.processAudioBuffer called with \(buffer.frameLength) frames")
+        guard isVADEnabled else {
+            print("🎤 VADManager: VAD is disabled, isVADEnabled = \(isVADEnabled)")
             return
         }
 
-        audioBufferAccumulator.append(vadFormat)
+        guard let vadFormat = AudioFormatConverter.convertToVADFormat(buffer) else {
+            logger.warning("Failed to convert audio buffer to VAD format")
+            print("🎤 VADManager: AudioFormatConverter.convertToVADFormat failed")
+            return
+        }
 
-        let totalSamples = audioBufferAccumulator.reduce(0) { $0 + $1.count }
+        print("🎤 VADManager: Converted buffer to VAD format, \(vadFormat.count) samples")
+        let isUsingFluidAudioBuffers = fluidAudioManager != nil
 
-        if totalSamples >= targetFrameSize {
-            let combinedFrame = audioBufferAccumulator.flatMap { $0 }
-            let chunk = Array(combinedFrame.prefix(targetFrameSize))
+        if isUsingFluidAudioBuffers {
+            appendToRecentSamplesBuffer(vadFormat)
+            print("🎤 VADManager: Recent samples buffer size: \(recentSamplesBuffer.count) (limit: \(maxRecentSampleCount))")
 
-            processVADChunk(chunk)
-
-            audioBufferAccumulator.removeAll()
-
-            if combinedFrame.count > targetFrameSize {
-                let remaining = Array(combinedFrame.dropFirst(targetFrameSize))
-                audioBufferAccumulator.append(remaining)
+            if isSpeaking {
+                currentSpeechSamples.append(contentsOf: vadFormat)
+                print("🎤 VADManager: Capturing speech audio, total samples collected: \(currentSpeechSamples.count)")
             }
+        }
+
+        detectionBuffer.append(contentsOf: vadFormat)
+        print("🎤 VADManager: Detection buffer size: \(detectionBuffer.count) samples (target frame: \(targetFrameSize))")
+
+        if detectionBuffer.count >= targetFrameSize {
+            print("🎤 VADManager: Detection buffer ready for chunk processing")
+
+            while detectionBuffer.count >= targetFrameSize {
+                let chunk = Array(detectionBuffer.prefix(targetFrameSize))
+                detectionBuffer.removeFirst(targetFrameSize)
+
+                print("🎤 VADManager: Processing VAD chunk with \(chunk.count) samples (remaining detection buffer: \(detectionBuffer.count))")
+                processVADChunk(chunk)
+            }
+        } else {
+            // Process the incoming samples to keep VAD probabilities updated
+            print("🎤 VADManager: Processing \(vadFormat.count) samples for interim VAD detection")
+            processVADChunk(vadFormat)
         }
     }
 
@@ -124,20 +153,27 @@ final class VADManager: ObservableObject {
         fluidAudioManager = try await VadManager()
         vadState = await fluidAudioManager?.makeStreamState()
         logger.info("FluidAudio VAD manager initialized successfully")
+        print("🎤 VAD: FluidAudio manager initialized: \(fluidAudioManager != nil), state: \(vadState != nil)")
     }
 
     private func processVADChunk(_ chunk: [Float]) {
+        print("🎤 VADManager: processVADChunk called with \(chunk.count) samples")
+        print("🎤 VADManager: FluidAudio available: \(fluidAudioManager != nil), VAD state: \(vadState != nil)")
+
         if let fluidAudioManager = fluidAudioManager,
            let vadState = vadState {
             // Use FluidAudio for VAD processing
+            print("🎤 VADManager: Using FluidAudio for processing")
             processWithFluidAudio(chunk: chunk, manager: fluidAudioManager, state: vadState)
         } else {
             // Fallback to energy-based processing
+            print("🎤 VADManager: Using energy-based processing (fallback)")
             processWithEnergyBased(chunk: chunk)
         }
     }
 
     private func processWithFluidAudio(chunk: [Float], manager: VadManager, state: VadStreamState) {
+        print("🎤 VADManager: FluidAudio processing chunk with \(chunk.count) samples")
         Task {
             do {
                 let result = try await manager.processStreamingChunk(
@@ -150,29 +186,33 @@ final class VADManager: ObservableObject {
 
                 await MainActor.run {
                     self.vadState = result.state
+                    print("🎤 VADManager: FluidAudio result - event: \(result.event != nil ? String(describing: result.event!.kind) : "none")")
 
                     if let event = result.event {
                         switch event.kind {
                         case .speechStart:
                             logger.info("FluidAudio detected speech start at \(event.time ?? 0)s")
                             isSpeaking = true
+                            beginSpeechCapture()
                             delegate?.vadDidDetectEvent(.speechStart)
 
                         case .speechEnd:
                             logger.info("FluidAudio detected speech end at \(event.time ?? 0)s")
                             isSpeaking = false
 
-                            // Create audio data from the accumulated frames
-                            // Note: FluidAudio doesn't return the actual audio, so we need to
-                            // use our accumulated frames for transcription
-                            let audioData = createAudioDataFromAccumulator()
+                            let audioData = finalizeSpeechCapture()
+                            print("🎤 VAD: Speech end - created audio data: \(audioData.count) bytes")
+
                             delegate?.vadDidDetectEvent(.speechEnd(audioData: audioData))
                         }
+                    } else {
+                        print("🎤 VADManager: FluidAudio - no event detected")
                     }
                 }
             } catch {
                 await MainActor.run {
                     logger.error("FluidAudio processing failed: \(error)")
+                    print("🎤 VADManager: FluidAudio error: \(error)")
                     // Fall back to energy-based processing for this chunk
                     processWithEnergyBased(chunk: chunk)
                 }
@@ -184,17 +224,71 @@ final class VADManager: ObservableObject {
         let frameSize = configuration.frameSamples
         var frameIndex = 0
 
+        print("🎤 VAD: Using energy-based processing with \(chunk.count) samples, frame size: \(frameSize)")
+
         while frameIndex + frameSize <= chunk.count {
             let frame = Array(chunk[frameIndex..<frameIndex + frameSize])
             frameProcessor?.process(frame: frame)
             frameIndex += frameSize
         }
+        
+        print("🎤 VAD: Processed \(frameIndex / frameSize) frames with energy-based VAD")
     }
 
-    private func createAudioDataFromAccumulator() -> Data {
-        // Convert accumulated audio buffers to audio data
-        let flatArray = audioBufferAccumulator.flatMap { $0 }
-        return AudioFormatConverter.vadFramesToAudioData([flatArray])
+    private func appendToRecentSamplesBuffer(_ samples: [Float]) {
+        guard !samples.isEmpty else { return }
+
+        recentSamplesBuffer.append(contentsOf: samples)
+
+        let overflow = recentSamplesBuffer.count - maxRecentSampleCount
+        if overflow > 0 {
+            recentSamplesBuffer.removeFirst(overflow)
+            print("🎤 VADManager: Trimmed recent samples buffer by \(overflow) samples (current size: \(recentSamplesBuffer.count))")
+        }
+    }
+
+    private func beginSpeechCapture() {
+        currentSpeechSamples = recentSamplesBuffer
+        print("🎤 VAD: Speech capture initialized with \(currentSpeechSamples.count) context samples")
+    }
+
+    private func finalizeSpeechCapture() -> Data {
+        var samples = currentSpeechSamples
+
+        if samples.isEmpty {
+            print("🎤 VAD: WARNING - No speech samples captured, falling back to recent buffer (\(recentSamplesBuffer.count) samples)")
+            samples = recentSamplesBuffer
+        }
+
+        let audioData = createAudioData(from: samples)
+
+        currentSpeechSamples.removeAll()
+        recentSamplesBuffer.removeAll()
+
+        return audioData
+    }
+
+    private func createAudioData(from samples: [Float]) -> Data {
+        print("🎤 VAD: Preparing audio data export with \(samples.count) samples")
+
+        if samples.isEmpty {
+            print("🎤 VAD: WARNING - Attempting to export empty speech buffer")
+            return Data()
+        }
+
+        if samples.count < 1000 {
+            print("🎤 VAD: WARNING - Very little audio data captured: \(samples.count) samples")
+        }
+
+        let audioData = AudioFormatConverter.vadFramesToAudioData([samples])
+
+        print("🎤 VAD: Created audio data: \(audioData.count) bytes from \(samples.count) samples")
+
+        if audioData.count < 1000 {
+            print("🎤 VAD: WARNING - Exported audio data is very small: \(audioData.count) bytes")
+        }
+
+        return audioData
     }
 
     // Temporary energy-based VAD until FluidAudio is integrated
@@ -220,7 +314,9 @@ final class VADManager: ObservableObject {
 
     func reset() {
         frameProcessor?.reset()
-        audioBufferAccumulator.removeAll()
+        detectionBuffer.removeAll()
+        recentSamplesBuffer.removeAll()
+        currentSpeechSamples.removeAll()
         speechProbability = 0.0
         isSpeaking = false
 
