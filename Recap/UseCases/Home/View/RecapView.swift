@@ -35,7 +35,7 @@ struct RecapHomeView: View {
                                 viewModel.closePanel()
                             }) {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(UIConstants.Colors.textSecondary)
                                     .font(.title2)
                             }
                             .buttonStyle(PlainButtonStyle())
