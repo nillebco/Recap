@@ -5,20 +5,20 @@ struct RecordingConfiguration {
     let audioProcess: AudioProcess
     let enableMicrophone: Bool
     let baseURL: URL
-    
+
     var expectedFiles: RecordedFiles {
         let applicationName = audioProcess.id == -1 ? "All Apps" : audioProcess.name
 
         if enableMicrophone {
             return RecordedFiles(
-                microphoneURL: baseURL.appendingPathExtension("microphone.wav"),
-                systemAudioURL: baseURL.appendingPathExtension("system.wav"),
+                microphoneURL: baseURL.appendingPathComponent("microphone_recording.wav"),
+                systemAudioURL: baseURL.appendingPathComponent("system_recording.wav"),
                 applicationName: applicationName
             )
         } else {
             return RecordedFiles(
                 microphoneURL: nil,
-                systemAudioURL: baseURL.appendingPathExtension("system.wav"),
+                systemAudioURL: baseURL.appendingPathComponent("system_recording.wav"),
                 applicationName: applicationName
             )
         }
