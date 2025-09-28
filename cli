@@ -18,6 +18,8 @@ SCHEME_NAME="Recap"
 PROJECT_FILE="Recap.xcodeproj"
 ARCHIVE_DIR="Archives"
 ARCHIVE_NAME="Recap-$(date +%Y-%m-%d-%H-%M-%S).xcarchive"
+DIST_DIR="dist"
+BUNDLE_NAME="Recap-$(date +%Y-%m-%d-%H-%M-%S)"
 
 # Resolve project root from this script's location (works from anywhere)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -131,10 +133,10 @@ run_tests() {
 # Function to archive the app
 archive_app() {
     print_status "Creating archive..."
-    
+
     # Create archives directory if it doesn't exist
     mkdir -p "$ARCHIVE_DIR"
-    
+
     # Archive the app
     xcodebuild archive \
         -project "$PROJECT_FILE" \
@@ -142,8 +144,70 @@ archive_app() {
         -configuration Release \
         -destination "platform=macOS" \
         -archivePath "$ARCHIVE_DIR/$ARCHIVE_NAME"
-    
+
     print_success "Archive created: $ARCHIVE_DIR/$ARCHIVE_NAME"
+}
+
+# Function to create a redistributable bundle
+bundle_app() {
+    print_status "Creating redistributable bundle..."
+
+    # Wipe out previous distributions
+    if [ -d "$DIST_DIR" ]; then
+        print_status "Cleaning previous distributions..."
+        rm -rf "$DIST_DIR"
+    fi
+
+    # Create dist directory
+    mkdir -p "$DIST_DIR"
+
+    # First, create archive if it doesn't exist or is outdated
+    if [ ! -d "$ARCHIVE_DIR/$ARCHIVE_NAME" ]; then
+        print_status "Archive not found, creating one first..."
+        archive_app
+    fi
+
+    # Export the archive to create the .app bundle
+    print_status "Exporting application bundle..."
+
+    # Create export options plist for ad-hoc distribution
+    EXPORT_PLIST="$DIST_DIR/ExportOptions.plist"
+    cat > "$EXPORT_PLIST" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>mac-application</string>
+    <key>destination</key>
+    <string>export</string>
+</dict>
+</plist>
+EOF
+
+    # Export the archive
+    xcodebuild -exportArchive \
+        -archivePath "$ARCHIVE_DIR/$ARCHIVE_NAME" \
+        -exportPath "$DIST_DIR/$BUNDLE_NAME" \
+        -exportOptionsPlist "$EXPORT_PLIST"
+
+    # Create the final distribution package
+    BUNDLE_PATH="$DIST_DIR/$BUNDLE_NAME.zip"
+    print_status "Creating distribution archive..."
+
+    cd "$DIST_DIR/$BUNDLE_NAME"
+    zip -r "../$BUNDLE_NAME.zip" . -x "*.DS_Store*" "__MACOSX*"
+    cd "$PROJECT_ROOT"
+
+    # Clean up intermediate files
+    rm -rf "$DIST_DIR/$BUNDLE_NAME"
+    rm -f "$EXPORT_PLIST"
+
+    print_success "Redistributable bundle created: $BUNDLE_PATH"
+    print_status "Bundle contents:"
+    unzip -l "$BUNDLE_PATH"
+
+    print_success "🎉 Distribution ready! Share $BUNDLE_NAME.zip with your friends!"
 }
 
 # Function to show help
@@ -157,12 +221,14 @@ show_help() {
     echo "  run       Run the app"
     echo "  test      Run tests"
     echo "  archive   Create archive"
+    echo "  bundle    Create redistributable bundle for sharing"
     echo "  all       Build, test, and archive (in that order)"
     echo "  clean     Clean build folder"
     echo "  help      Show this help message"
     echo ""
     echo "Examples:"
     echo "  $0 build"
+    echo "  $0 bundle"
     echo "  $0 all"
     echo "  $0 clean && $0 build"
 }
@@ -192,6 +258,10 @@ main() {
             ;;
         "archive")
             archive_app
+            ;;
+        "bundle")
+            clean_build
+            bundle_app
             ;;
         "all")
             clean_build
