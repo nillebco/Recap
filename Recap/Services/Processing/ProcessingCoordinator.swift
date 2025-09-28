@@ -13,6 +13,7 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
     private let summarizationService: SummarizationServiceType
     private let transcriptionService: TranscriptionServiceType
     private let userPreferencesRepository: UserPreferencesRepositoryType
+    private let eventFileManager: EventFileManaging
     private var systemLifecycleManager: SystemLifecycleManager?
     private var vadTranscriptionCoordinator: VADTranscriptionCoordinator?
     
@@ -25,12 +26,14 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         recordingRepository: RecordingRepositoryType,
         summarizationService: SummarizationServiceType,
         transcriptionService: TranscriptionServiceType,
-        userPreferencesRepository: UserPreferencesRepositoryType
+        userPreferencesRepository: UserPreferencesRepositoryType,
+        eventFileManager: EventFileManaging
     ) {
         self.recordingRepository = recordingRepository
         self.summarizationService = summarizationService
         self.transcriptionService = transcriptionService
         self.userPreferencesRepository = userPreferencesRepository
+        self.eventFileManager = eventFileManager
         
         startQueueProcessing()
     }
@@ -101,6 +104,9 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         let startTime = Date()
         
         do {
+            // Copy recorded files to organized event directory
+            try await copyRecordedFilesToEventDirectory(recording)
+            
             // Get VAD transcriptions for this recording if available
             let vadTranscriptions = vadTranscriptionsCache[recording.id]
             
@@ -166,6 +172,12 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
                 id: recording.id,
                 structuredTranscriptions: structuredTranscriptions
             )
+            
+            // Save structured transcriptions to markdown file
+            try eventFileManager.writeStructuredTranscription(structuredTranscriptions, for: recording.id)
+        } else {
+            // Save simple transcription to markdown file
+            try eventFileManager.writeTranscription(transcriptionResult.combinedText, for: recording.id)
         }
         
         try await updateRecordingState(recording.id, state: .transcribed)
@@ -187,6 +199,8 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
             id: recording.id,
             summaryText: summaryResult.summary
         )
+        
+        try eventFileManager.writeSummary(summaryResult.summary, for: recording.id)
         
         return summaryResult.summary
     }
@@ -422,6 +436,68 @@ extension ProcessingCoordinator: SystemLifecycleDelegate {
         Task {
             if let recording = try? await recordingRepository.fetchRecording(id: recordingID) {
                 await startProcessing(recordingInfo: recording)
+            }
+        }
+    }
+    
+    // MARK: - File Organization
+    
+    private func copyRecordedFilesToEventDirectory(_ recording: RecordingInfo) async throws {
+        // Create event directory
+        let eventDirectory = try eventFileManager.createEventDirectory(for: recording.id)
+        var newSystemAudioURL: URL?
+        var newMicrophoneURL: URL?
+        
+        // Copy system audio file if it exists
+        if FileManager.default.fileExists(atPath: recording.recordingURL.path) {
+            let systemAudioData = try Data(contentsOf: recording.recordingURL)
+            try eventFileManager.writeRecordingAudio(systemAudioData, for: recording.id, source: .systemAudio)
+            newSystemAudioURL = eventFileManager.createRecordingFileURL(for: recording.id, source: .systemAudio)
+            logger.info("Copied system audio to event directory: \(eventDirectory.path)")
+
+            do {
+                try FileManager.default.removeItem(at: recording.recordingURL)
+                logger.debug("Removed source system audio file at: \(recording.recordingURL.path)")
+            } catch {
+                logger.warning("Failed to remove source system audio file: \(error.localizedDescription)")
+            }
+        }
+        
+        // Copy microphone audio file if it exists
+        if let microphoneURL = recording.microphoneURL,
+           FileManager.default.fileExists(atPath: microphoneURL.path) {
+            let microphoneData = try Data(contentsOf: microphoneURL)
+            try eventFileManager.writeRecordingAudio(microphoneData, for: recording.id, source: .microphone)
+            newMicrophoneURL = eventFileManager.createRecordingFileURL(for: recording.id, source: .microphone)
+            logger.info("Copied microphone audio to event directory: \(eventDirectory.path)")
+
+            do {
+                try FileManager.default.removeItem(at: microphoneURL)
+                logger.debug("Removed source microphone audio file at: \(microphoneURL.path)")
+            } catch {
+                logger.warning("Failed to remove source microphone audio file: \(error.localizedDescription)")
+            }
+        }
+
+        // Copy VAD segments if they exist
+        let vadSegments = await getVADSegmentsForRecording(recording.id)
+        for segment in vadSegments {
+            try eventFileManager.writeAudioSegment(segment.audioData, for: recording.id, segmentID: segment.id)
+        }
+
+        if !vadSegments.isEmpty {
+            logger.info("Copied \(vadSegments.count) VAD segments to event directory: \(eventDirectory.path)")
+        }
+
+        if newSystemAudioURL != nil || newMicrophoneURL != nil {
+            do {
+                try await recordingRepository.updateRecordingURLs(
+                    id: recording.id,
+                    recordingURL: newSystemAudioURL,
+                    microphoneURL: newMicrophoneURL
+                )
+            } catch {
+                logger.warning("Failed to update recording URLs after moving files: \(error.localizedDescription)")
             }
         }
     }

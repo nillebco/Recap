@@ -144,6 +144,12 @@ struct LeftPaneView<GeneralViewModel: GeneralSettingsViewModelType>: View {
 
 // Just used for previews only!
 private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
+    var folderSettingsViewModel: FolderSettingsViewModelType
+    
+    init() {
+        self.folderSettingsViewModel = PreviewFolderSettingsViewModel()
+    }
+    
     var customPromptTemplate: Binding<String> = .constant("Hello")
 
     var showAPIKeyAlert: Bool = false
@@ -207,5 +213,23 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {
         globalShortcutKeyCode = keyCode
         globalShortcutModifiers = modifiers
+    }
+}
+
+// Preview implementation for FolderSettingsViewModel
+private final class PreviewFolderSettingsViewModel: FolderSettingsViewModelType {
+    @Published var currentFolderPath: String = "/Users/nilleb/Library/Containers/co.nilleb.Recap/Data/tmp/"
+    @Published var errorMessage: String?
+    
+    init() {
+        // Preview initializer - no setup needed
+    }
+    
+    func updateFolderPath(_ url: URL) async {
+        currentFolderPath = url.path
+    }
+    
+    func setErrorMessage(_ message: String?) {
+        errorMessage = message
     }
 }

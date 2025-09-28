@@ -8,6 +8,11 @@ protocol RecordingFileManaging {
 
 final class RecordingFileManager: RecordingFileManaging {
     private let recordingsDirectoryName = "Recordings"
+    private let eventFileManager: EventFileManaging?
+    
+    init(eventFileManager: EventFileManaging? = nil) {
+        self.eventFileManager = eventFileManager
+    }
     
     func createRecordingURL() -> URL {
         let timestamp = Date().timeIntervalSince1970
@@ -19,18 +24,35 @@ final class RecordingFileManager: RecordingFileManaging {
     }
     
     func createRecordingBaseURL(for recordingID: String) -> URL {
-        let timestamp = Date().timeIntervalSince1970
-        let filename = "\(recordingID)_\(Int(timestamp))"
-        
-        return recordingsDirectory
-            .appendingPathComponent(filename)
+        // If we have an event file manager, use it for organized storage
+        if let eventFileManager = eventFileManager {
+            do {
+                let eventDirectory = try eventFileManager.createEventDirectory(for: recordingID)
+                return eventDirectory
+            } catch {
+                // Fallback to old system if event file manager fails
+                let timestamp = Date().timeIntervalSince1970
+                let filename = "\(recordingID)_\(Int(timestamp))"
+                return recordingsDirectory.appendingPathComponent(filename)
+            }
+        } else {
+            // Use old system
+            let timestamp = Date().timeIntervalSince1970
+            let filename = "\(recordingID)_\(Int(timestamp))"
+            return recordingsDirectory.appendingPathComponent(filename)
+        }
     }
     
     func ensureRecordingsDirectoryExists() throws {
-        try FileManager.default.createDirectory(
-            at: recordingsDirectory,
-            withIntermediateDirectories: true
-        )
+        if let eventFileManager = eventFileManager {
+            // Event file manager handles directory creation
+            return
+        } else {
+            try FileManager.default.createDirectory(
+                at: recordingsDirectory,
+                withIntermediateDirectories: true
+            )
+        }
     }
     
     private var recordingsDirectory: URL {

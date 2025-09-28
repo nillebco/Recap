@@ -115,6 +115,10 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         GlobalShortcutSettingsView(viewModel: viewModel)
                     }
                     
+                    SettingsCard(title: "File Storage") {
+                        FolderSettingsView(viewModel: AnyFolderSettingsViewModel(viewModel.folderSettingsViewModel))
+                    }
+                    
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
@@ -182,6 +186,10 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
 }
 
 private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
+    init() {
+        // Preview initializer - no setup needed
+    }
+    
     func updateCustomPromptTemplate(_ template: String) async {}
     
     func resetToDefaultPrompt() async {}
@@ -224,6 +232,11 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
         selectedModel
     }
     
+    // Add the missing folderSettingsViewModel property
+    var folderSettingsViewModel: FolderSettingsViewModelType {
+        PreviewFolderSettingsViewModel()
+    }
+    
     func loadModels() async {}
     func selectModel(_ model: LLMModelInfo) async {
         selectedModel = model
@@ -244,5 +257,23 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {
         globalShortcutKeyCode = keyCode
         globalShortcutModifiers = modifiers
+    }
+}
+
+// Add a preview implementation for FolderSettingsViewModel
+private final class PreviewFolderSettingsViewModel: FolderSettingsViewModelType {
+    @Published var currentFolderPath: String = "/Users/nilleb/Library/Containers/co.nilleb.Recap/Data/tmp/"
+    @Published var errorMessage: String?
+    
+    init() {
+        // Preview initializer - no setup needed
+    }
+    
+    func updateFolderPath(_ url: URL) async {
+        currentFolderPath = url.path
+    }
+    
+    func setErrorMessage(_ message: String?) {
+        errorMessage = message
     }
 }

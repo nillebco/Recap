@@ -18,7 +18,8 @@ extension DependencyContainer {
             recordingRepository: recordingRepository,
             summarizationService: summarizationService,
             transcriptionService: transcriptionService,
-            userPreferencesRepository: userPreferencesRepository
+            userPreferencesRepository: userPreferencesRepository,
+            eventFileManager: eventFileManager
         )
     }
     

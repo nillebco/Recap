@@ -15,6 +15,7 @@ final class DependencyContainer {
     lazy var recordingRepository: RecordingRepositoryType = makeRecordingRepository()
     lazy var llmModelRepository: LLMModelRepositoryType = makeLLMModelRepository()
     lazy var userPreferencesRepository: UserPreferencesRepositoryType = makeUserPreferencesRepository()
+    lazy var eventFileManager: EventFileManaging = EventFileManager(userPreferencesRepository: userPreferencesRepository)
     lazy var llmService: LLMServiceType = makeLLMService()
     lazy var summarizationService: SummarizationServiceType = makeSummarizationService()
     lazy var processingCoordinator: ProcessingCoordinator = makeProcessingCoordinator()

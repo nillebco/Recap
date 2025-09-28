@@ -50,13 +50,14 @@ final class StatusBarManager: StatusBarManagerType {
             if isRecording {
                 // Create red-tinted version
                 let tintedImage = createTintedImage(from: image, tint: .systemRed)
+                tintedImage.isTemplate = false
                 button.image = tintedImage
                 button.contentTintColor = nil
                 print("🎨 Applied red tinted image")
             } else {
                 // Use original image
                 let workingImage = image.copy() as! NSImage
-                workingImage.isTemplate = false
+                workingImage.isTemplate = true
                 button.image = workingImage
                 button.contentTintColor = nil
                 print("🎨 Applied normal image")

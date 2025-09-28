@@ -15,7 +15,7 @@ extension DependencyContainer {
     }
     
     func makeRecordingFileManager() -> RecordingFileManaging {
-        RecordingFileManager()
+        RecordingFileManager(eventFileManager: eventFileManager)
     }
     
     func makeWarningManager() -> any WarningManagerType {
