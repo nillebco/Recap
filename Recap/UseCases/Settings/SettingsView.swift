@@ -22,13 +22,15 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
     @ObservedObject var whisperModelsViewModel: WhisperModelsViewModel
     @ObservedObject var generalSettingsViewModel: GeneralViewModel
     @StateObject private var meetingDetectionViewModel: MeetingDetectionSettingsViewModel
+    var recapViewModel: RecapViewModel?
     let onClose: () -> Void
-    
+
     init(
         whisperModelsViewModel: WhisperModelsViewModel,
         generalSettingsViewModel: GeneralViewModel,
         meetingDetectionService: any MeetingDetectionServiceType,
         userPreferencesRepository: UserPreferencesRepositoryType,
+        recapViewModel: RecapViewModel? = nil,
         onClose: @escaping () -> Void
     ) {
         self.whisperModelsViewModel = whisperModelsViewModel
@@ -38,6 +40,7 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
             userPreferencesRepository: userPreferencesRepository,
             permissionsHelper: PermissionsHelper()
         ))
+        self.recapViewModel = recapViewModel
         self.onClose = onClose
     }
     
@@ -108,7 +111,8 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
                         switch selectedTab {
                         case .general:
                             GeneralSettingsView<GeneralViewModel>(
-                                viewModel: generalSettingsViewModel
+                                viewModel: generalSettingsViewModel,
+                                recapViewModel: recapViewModel
                             )
                         case .meetingDetection:
                             MeetingDetectionView(viewModel: meetingDetectionViewModel)
