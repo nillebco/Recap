@@ -96,3 +96,5 @@ iOSInjectionProject/
 Archives/
 *.xcarchive
 Recap.app
+
+dist/
