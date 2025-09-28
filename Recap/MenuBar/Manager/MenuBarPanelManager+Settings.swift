@@ -3,12 +3,12 @@ import AppKit
 
 extension MenuBarPanelManager {
     func createSettingsPanel() -> SlidingPanel? {
-        let contentView = LeftPaneView(
-            recapViewModel: recapViewModel,
+        let contentView = SettingsView(
             whisperModelsViewModel: whisperModelsViewModel,
             generalSettingsViewModel: generalSettingsViewModel,
             meetingDetectionService: meetingDetectionService,
-            userPreferencesRepository: userPreferencesRepository
+            userPreferencesRepository: userPreferencesRepository,
+            recapViewModel: recapViewModel
         ) { [weak self] in
             self?.hideSettingsPanel()
         }

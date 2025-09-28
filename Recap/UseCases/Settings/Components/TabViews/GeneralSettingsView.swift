@@ -3,15 +3,43 @@ import Combine
 
 struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
     @ObservedObject private var viewModel: ViewModel
-    
-    init(viewModel: ViewModel) {
+    private var recapViewModel: RecapViewModel?
+
+    init(viewModel: ViewModel, recapViewModel: RecapViewModel? = nil) {
         self.viewModel = viewModel
+        self.recapViewModel = recapViewModel
     }
     
     var body: some View {
         GeometryReader { geometry in
             ScrollView() {
                 VStack(alignment: .leading, spacing: 16) {
+                    // Audio Sources Section (moved from LeftPaneView)
+                    if let recapViewModel = recapViewModel {
+                        SettingsCard(title: "Audio Sources") {
+                            HStack(spacing: UIConstants.Spacing.cardSpacing) {
+                                HeatmapCard(
+                                    title: "System Audio",
+                                    containerWidth: geometry.size.width,
+                                    isSelected: true,
+                                    audioLevel: recapViewModel.systemAudioHeatmapLevel,
+                                    isInteractionEnabled: !recapViewModel.isRecording,
+                                    onToggle: { }
+                                )
+                                HeatmapCard(
+                                    title: "Microphone",
+                                    containerWidth: geometry.size.width,
+                                    isSelected: recapViewModel.isMicrophoneEnabled,
+                                    audioLevel: recapViewModel.microphoneHeatmapLevel,
+                                    isInteractionEnabled: !recapViewModel.isRecording,
+                                    onToggle: {
+                                        recapViewModel.toggleMicrophone()
+                                    }
+                                )
+                            }
+                        }
+                    }
+
                     ForEach(viewModel.activeWarnings, id: \.id) { warning in
                         WarningCard(warning: warning, containerWidth: geometry.size.width)
                     }
