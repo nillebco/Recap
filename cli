@@ -109,12 +109,21 @@ build_app() {
 # Function to run the app
 run_app() {
     print_status "Running $PROJECT_NAME..."
-    # Find the built app
-    APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "Recap.app" -type d | head -1)
     
+    # First, try to find an existing built app
+    APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "Recap.app" -type d -exec test -f {}/Contents/MacOS/Recap \; -print | head -1)
+    
+    # If no app found, build it first
     if [ -z "$APP_PATH" ]; then
-        print_error "Could not find built Recap.app. Please build the app first."
-        exit 1
+        print_warning "No built app found. Building the app first..."
+        build_app
+        # Try to find the app again after building
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "Recap.app" -type d -exec test -f {}/Contents/MacOS/Recap \; -print | head -1)
+        
+        if [ -z "$APP_PATH" ]; then
+            print_error "Could not find built Recap.app even after building. Check build output for errors."
+            exit 1
+        fi
     fi
     
     print_status "Found app at: $APP_PATH"
