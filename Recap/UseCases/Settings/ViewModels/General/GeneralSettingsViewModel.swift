@@ -45,20 +45,30 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     private let keychainAPIValidator: KeychainAPIValidatorType
     private let keychainService: KeychainServiceType
     private let warningManager: any WarningManagerType
+    private let eventFileManager: EventFileManaging
     private var cancellables = Set<AnyCancellable>()
+    
+    lazy var folderSettingsViewModel: FolderSettingsViewModelType = {
+        FolderSettingsViewModel(
+            userPreferencesRepository: userPreferencesRepository,
+            eventFileManager: eventFileManager
+        )
+    }()
     
     init(
         llmService: LLMServiceType,
         userPreferencesRepository: UserPreferencesRepositoryType,
         keychainAPIValidator: KeychainAPIValidatorType,
         keychainService: KeychainServiceType,
-        warningManager: any WarningManagerType
+        warningManager: any WarningManagerType,
+        eventFileManager: EventFileManaging
     ) {
         self.llmService = llmService
         self.userPreferencesRepository = userPreferencesRepository
         self.keychainAPIValidator = keychainAPIValidator
         self.keychainService = keychainService
         self.warningManager = warningManager
+        self.eventFileManager = eventFileManager
         
         setupWarningObserver()
         

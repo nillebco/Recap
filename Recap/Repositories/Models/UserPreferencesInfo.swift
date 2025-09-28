@@ -13,6 +13,8 @@ struct UserPreferencesInfo: Identifiable {
     let microphoneEnabled: Bool
     let globalShortcutKeyCode: Int32
     let globalShortcutModifiers: Int32
+    let customTmpDirectoryPath: String?
+    let customTmpDirectoryBookmark: Data?
     let createdAt: Date
     let modifiedAt: Date
 
@@ -28,6 +30,8 @@ struct UserPreferencesInfo: Identifiable {
         self.microphoneEnabled = managedObject.microphoneEnabled
         self.globalShortcutKeyCode = managedObject.globalShortcutKeyCode
         self.globalShortcutModifiers = managedObject.globalShortcutModifiers
+        self.customTmpDirectoryPath = managedObject.customTmpDirectoryPath
+        self.customTmpDirectoryBookmark = managedObject.customTmpDirectoryBookmark
         self.createdAt = managedObject.createdAt ?? Date()
         self.modifiedAt = managedObject.modifiedAt ?? Date()
     }
@@ -45,6 +49,8 @@ struct UserPreferencesInfo: Identifiable {
         microphoneEnabled: Bool = false,
         globalShortcutKeyCode: Int32 = 15, // 'R' key
         globalShortcutModifiers: Int32 = 1048840, // Cmd key
+        customTmpDirectoryPath: String? = nil,
+        customTmpDirectoryBookmark: Data? = nil,
         createdAt: Date = Date(),
         modifiedAt: Date = Date()
     ) {
@@ -59,6 +65,8 @@ struct UserPreferencesInfo: Identifiable {
         self.microphoneEnabled = microphoneEnabled
         self.globalShortcutKeyCode = globalShortcutKeyCode
         self.globalShortcutModifiers = globalShortcutModifiers
+        self.customTmpDirectoryPath = customTmpDirectoryPath
+        self.customTmpDirectoryBookmark = customTmpDirectoryBookmark
         self.createdAt = createdAt
         self.modifiedAt = modifiedAt
     }

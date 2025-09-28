@@ -21,6 +21,7 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var existingAPIKey: String? { get }
     var globalShortcutKeyCode: Int32 { get }
     var globalShortcutModifiers: Int32 { get }
+    var folderSettingsViewModel: FolderSettingsViewModelType { get }
     
     func loadModels() async
     func selectModel(_ model: LLMModelInfo) async

@@ -44,7 +44,10 @@ extension RecapViewModel {
     }
     
     private func generateRecordingID() -> String {
-        UUID().uuidString
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss-SSS"
+        formatter.timeZone = TimeZone.current
+        return formatter.string(from: Date())
     }
     
     private func connectVADToProcessing(audioCoordinator: AudioRecordingCoordinatorType) async {

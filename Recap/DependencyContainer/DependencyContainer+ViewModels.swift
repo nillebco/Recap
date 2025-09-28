@@ -20,7 +20,8 @@ extension DependencyContainer {
             userPreferencesRepository: userPreferencesRepository,
             keychainAPIValidator: keychainAPIValidator,
             keychainService: keychainService,
-            warningManager: warningManager
+            warningManager: warningManager,
+            eventFileManager: eventFileManager
         )
     }
     
