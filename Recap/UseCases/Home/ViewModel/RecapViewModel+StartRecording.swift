@@ -21,13 +21,12 @@ extension RecapViewModel {
             let recordedFiles = try await recordingCoordinator.startRecording(configuration: configuration)
 
             // Enable VAD for real-time transcription if microphone is enabled
-            if isMicrophoneEnabled {
-                await recordingCoordinator.getCurrentRecordingCoordinator()?.enableVAD(configuration: nil, delegate: nil, recordingID: recordingID)
-                
-                // Connect VAD coordinator to processing coordinator
-                if let audioCoordinator = recordingCoordinator.getCurrentRecordingCoordinator() {
-                    await connectVADToProcessing(audioCoordinator: audioCoordinator)
-                }
+            // Enable VAD for both microphone and system audio to get real-time segment transcriptions
+            await recordingCoordinator.getCurrentRecordingCoordinator()?.enableVAD(configuration: nil, delegate: nil, recordingID: recordingID)
+
+            // Connect VAD coordinator to processing coordinator
+            if let audioCoordinator = recordingCoordinator.getCurrentRecordingCoordinator() {
+                await connectVADToProcessing(audioCoordinator: audioCoordinator)
             }
 
             try await createRecordingEntity(

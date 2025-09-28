@@ -44,8 +44,9 @@ final class RecordingFileManager: RecordingFileManaging {
     }
     
     func ensureRecordingsDirectoryExists() throws {
-        if let eventFileManager = eventFileManager {
-            // Event file manager handles directory creation
+        if eventFileManager != nil {
+            // Event file manager handles directory creation in createEventDirectory
+            // which is called in createRecordingBaseURL, so nothing needed here
             return
         } else {
             try FileManager.default.createDirectory(

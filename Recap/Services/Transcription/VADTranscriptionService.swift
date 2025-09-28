@@ -129,7 +129,7 @@ final class VADTranscriptionService: ObservableObject {
             
             // Create StreamingTranscriptionSegment
             // Clean the text by removing WhisperKit tags
-            let cleanedText = cleanWhisperKitText(result.systemAudioText)
+            let cleanedText = TranscriptionTextCleaner.cleanWhisperKitText(result.systemAudioText)
             
             let transcriptionSegment = StreamingTranscriptionSegment(
                 id: segment.id,
@@ -172,7 +172,7 @@ final class VADTranscriptionService: ObservableObject {
             let absoluteEndTime = segment.creationTime.addingTimeInterval(relativeEndTime)
             
             // Clean the text by removing WhisperKit tags
-            let cleanedText = cleanWhisperKitText(result.systemAudioText)
+            let cleanedText = TranscriptionTextCleaner.cleanWhisperKitText(result.systemAudioText)
             
             let structuredTranscription = StructuredTranscription(
                 segmentID: segment.id,
@@ -195,24 +195,6 @@ final class VADTranscriptionService: ObservableObject {
         }
     }
     
-    /// Clean WhisperKit text by removing structured tags
-    private func cleanWhisperKitText(_ text: String) -> String {
-        var cleanedText = text
-        
-        // Remove WhisperKit structured tags
-        cleanedText = cleanedText.replacingOccurrences(of: "<|startoftranscript|>", with: "")
-        cleanedText = cleanedText.replacingOccurrences(of: "<|endoftext|>", with: "")
-        cleanedText = cleanedText.replacingOccurrences(of: "<|en|>", with: "")
-        cleanedText = cleanedText.replacingOccurrences(of: "<|transcribe|>", with: "")
-        
-        // Remove timestamp patterns like <|0.00|> and <|2.00|>
-        cleanedText = cleanedText.replacingOccurrences(of: "<|\\d+\\.\\d+\\|>", with: "", options: .regularExpression)
-        
-        // Clean up extra whitespace
-        cleanedText = cleanedText.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        return cleanedText
-    }
     
     /// Clear temporary files
     func cleanup() {
