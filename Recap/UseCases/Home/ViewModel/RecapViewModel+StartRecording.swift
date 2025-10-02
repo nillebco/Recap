@@ -20,19 +20,6 @@ extension RecapViewModel {
             
             let recordedFiles = try await recordingCoordinator.startRecording(configuration: configuration)
 
-            // Check if transcription is enabled before enabling VAD
-            let preferences = try await userPreferencesRepository.getOrCreatePreferences()
-            if preferences.autoTranscribeEnabled {
-                // Enable VAD for real-time transcription if microphone is enabled
-                // Enable VAD for both microphone and system audio to get real-time segment transcriptions
-                await recordingCoordinator.getCurrentRecordingCoordinator()?.enableVAD(configuration: nil, delegate: nil, recordingID: recordingID)
-
-                // Connect VAD coordinator to processing coordinator
-                if let audioCoordinator = recordingCoordinator.getCurrentRecordingCoordinator() {
-                    await connectVADToProcessing(audioCoordinator: audioCoordinator)
-                }
-            }
-
             try await createRecordingEntity(
                 recordingID: recordingID,
                 recordedFiles: recordedFiles
@@ -51,15 +38,6 @@ extension RecapViewModel {
         formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss-SSS"
         formatter.timeZone = TimeZone.current
         return formatter.string(from: Date())
-    }
-    
-    private func connectVADToProcessing(audioCoordinator: AudioRecordingCoordinatorType) async {
-        if let vadCoordinator = audioCoordinator.getVADTranscriptionCoordinator() {
-            processingCoordinator.setVADTranscriptionCoordinator(vadCoordinator)
-            logger.info("Connected VAD coordinator to processing coordinator")
-        } else {
-            logger.warning("No VAD coordinator available to connect to processing coordinator")
-        }
     }
     
     private func createRecordingConfiguration(

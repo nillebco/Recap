@@ -9,14 +9,11 @@ final class RecordingSessionManager: RecordingSessionManaging {
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: RecordingSessionManager.self))
     private let microphoneCapture: any MicrophoneCaptureType
     private let permissionsHelper: PermissionsHelperType
-    private let streamingTranscriptionService: StreamingTranscriptionService?
 
     init(microphoneCapture: any MicrophoneCaptureType,
-         permissionsHelper: PermissionsHelperType,
-         streamingTranscriptionService: StreamingTranscriptionService? = nil) {
+         permissionsHelper: PermissionsHelperType) {
         self.microphoneCapture = microphoneCapture
         self.permissionsHelper = permissionsHelper
-        self.streamingTranscriptionService = streamingTranscriptionService
     }
     
     func startSession(configuration: RecordingConfiguration) async throws -> AudioRecordingCoordinatorType {
@@ -71,11 +68,6 @@ final class RecordingSessionManager: RecordingSessionManaging {
                 Recording session started for \(configuration.audioProcess.name)
                 with microphone: \(configuration.enableMicrophone)
                 """)
-        }
-        
-        // Configure streaming transcription service if available
-        if let streamingService = streamingTranscriptionService {
-            await coordinator.setStreamingTranscriptionService(streamingService)
         }
 
         try await coordinator.start()

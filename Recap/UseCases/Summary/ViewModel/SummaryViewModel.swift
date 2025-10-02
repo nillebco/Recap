@@ -139,21 +139,10 @@ final class SummaryViewModel: SummaryViewModelType {
     
     func copyTranscription() {
         guard let recording = currentRecording else { return }
-        
-        // Try to use structured transcriptions if available, otherwise fall back to regular transcription
-        let textToCopy: String
-        if let structuredTranscriptions = recording.structuredTranscriptions, !structuredTranscriptions.isEmpty {
-            // Use beautiful structured formatting
-            textToCopy = StructuredTranscriptionFormatter.formatForCopyingEnhanced(structuredTranscriptions)
-        } else if let transcriptionText = recording.transcriptionText {
-            // Fall back to regular transcription text
-            textToCopy = transcriptionText
-        } else {
-            return
-        }
-        
+        guard let transcriptionText = recording.transcriptionText else { return }
+
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(textToCopy, forType: .string)
+        NSPasteboard.general.setString(transcriptionText, forType: .string)
         
         showingCopiedToast = true
         

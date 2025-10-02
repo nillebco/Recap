@@ -17,10 +17,6 @@ extension DependencyContainer {
         TranscriptionService(whisperModelRepository: whisperModelRepository)
     }
 
-    func makeStreamingTranscriptionService() -> StreamingTranscriptionService {
-        StreamingTranscriptionService(transcriptionService: transcriptionService)
-    }
-    
     func makeMeetingDetectionService() -> any MeetingDetectionServiceType {
         MeetingDetectionService(audioProcessController: audioProcessController, permissionsHelper: makePermissionsHelper())
     }
@@ -32,8 +28,7 @@ extension DependencyContainer {
     func makeRecordingSessionManager() -> RecordingSessionManaging {
         RecordingSessionManager(
             microphoneCapture: microphoneCapture,
-            permissionsHelper: makePermissionsHelper(),
-            streamingTranscriptionService: streamingTranscriptionService
+            permissionsHelper: makePermissionsHelper()
         )
     }
     

@@ -7,15 +7,15 @@ final class FolderSettingsViewModel: FolderSettingsViewModelType {
     @Published private(set) var errorMessage: String?
     
     private let userPreferencesRepository: UserPreferencesRepositoryType
-    private let eventFileManager: EventFileManaging
-    
+    private let fileManagerHelper: RecordingFileManagerHelperType
+
     init(
         userPreferencesRepository: UserPreferencesRepositoryType,
-        eventFileManager: EventFileManaging
+        fileManagerHelper: RecordingFileManagerHelperType
     ) {
         self.userPreferencesRepository = userPreferencesRepository
-        self.eventFileManager = eventFileManager
-        
+        self.fileManagerHelper = fileManagerHelper
+
         loadCurrentFolderPath()
     }
     
@@ -26,10 +26,10 @@ final class FolderSettingsViewModel: FolderSettingsViewModelType {
                 if let customPath = preferences.customTmpDirectoryPath {
                     currentFolderPath = customPath
                 } else {
-                    currentFolderPath = eventFileManager.getBaseDirectory().path
+                    currentFolderPath = fileManagerHelper.getBaseDirectory().path
                 }
             } catch {
-                currentFolderPath = eventFileManager.getBaseDirectory().path
+                currentFolderPath = fileManagerHelper.getBaseDirectory().path
                 errorMessage = "Failed to load folder settings: \(error.localizedDescription)"
             }
         }
@@ -105,8 +105,8 @@ final class FolderSettingsViewModel: FolderSettingsViewModelType {
             return
         }
 
-        // Update the event file manager
-        try eventFileManager.setBaseDirectory(resolvedURL, bookmark: bookmark)
+        // Update the file manager helper
+        try fileManagerHelper.setBaseDirectory(resolvedURL, bookmark: bookmark)
 
         // Save to preferences
         try await userPreferencesRepository.updateCustomTmpDirectory(

@@ -8,54 +8,47 @@ protocol RecordingFileManaging {
 
 final class RecordingFileManager: RecordingFileManaging {
     private let recordingsDirectoryName = "Recordings"
-    private let eventFileManager: EventFileManaging?
-    
-    init(eventFileManager: EventFileManaging? = nil) {
-        self.eventFileManager = eventFileManager
+    private let fileManagerHelper: RecordingFileManagerHelperType?
+
+    init(fileManagerHelper: RecordingFileManagerHelperType? = nil) {
+        self.fileManagerHelper = fileManagerHelper
     }
-    
+
     func createRecordingURL() -> URL {
         let timestamp = Date().timeIntervalSince1970
         let filename = "recap_recording_\(Int(timestamp))"
-        
+
         return FileManager.default.temporaryDirectory
             .appendingPathComponent(filename)
             .appendingPathExtension("wav")
     }
-    
+
     func createRecordingBaseURL(for recordingID: String) -> URL {
-        // If we have an event file manager, use it for organized storage
-        if let eventFileManager = eventFileManager {
+        if let fileManagerHelper = fileManagerHelper {
             do {
-                let eventDirectory = try eventFileManager.createEventDirectory(for: recordingID)
-                return eventDirectory
+                let recordingDirectory = try fileManagerHelper.createRecordingDirectory(for: recordingID)
+                return recordingDirectory
             } catch {
-                // Fallback to old system if event file manager fails
+                // Fallback to default system
                 let timestamp = Date().timeIntervalSince1970
                 let filename = "\(recordingID)_\(Int(timestamp))"
                 return recordingsDirectory.appendingPathComponent(filename)
             }
         } else {
-            // Use old system
+            // Use default system
             let timestamp = Date().timeIntervalSince1970
             let filename = "\(recordingID)_\(Int(timestamp))"
             return recordingsDirectory.appendingPathComponent(filename)
         }
     }
-    
+
     func ensureRecordingsDirectoryExists() throws {
-        if eventFileManager != nil {
-            // Event file manager handles directory creation in createEventDirectory
-            // which is called in createRecordingBaseURL, so nothing needed here
-            return
-        } else {
-            try FileManager.default.createDirectory(
-                at: recordingsDirectory,
-                withIntermediateDirectories: true
-            )
-        }
+        try FileManager.default.createDirectory(
+            at: recordingsDirectory,
+            withIntermediateDirectories: true
+        )
     }
-    
+
     private var recordingsDirectory: URL {
         FileManager.default.temporaryDirectory
             .appendingPathComponent(recordingsDirectoryName)

@@ -21,7 +21,7 @@ extension DependencyContainer {
             keychainAPIValidator: keychainAPIValidator,
             keychainService: keychainService,
             warningManager: warningManager,
-            eventFileManager: eventFileManager
+            fileManagerHelper: recordingFileManagerHelper
         )
     }
     

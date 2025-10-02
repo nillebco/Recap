@@ -177,8 +177,6 @@ final class SystemWideTapRecorder: ObservableObject, AudioTapRecorderType {
     private weak var _tap: SystemWideTap?
 
     private(set) var isRecording = false
-    @ObservationIgnored
-    var vadBufferHandler: ((AVAudioPCMBuffer) -> Void)?
 
     init(fileURL: URL, tap: SystemWideTap) {
         self.fileURL = fileURL
@@ -247,7 +245,6 @@ final class SystemWideTapRecorder: ObservableObject, AudioTapRecorderType {
                 try currentFile.write(from: buffer)
 
                 self.updateAudioLevel(from: buffer)
-                self.handleVAD(for: buffer)
             } catch {
                 logger.error("\(error, privacy: .public)")
             }
@@ -267,7 +264,6 @@ final class SystemWideTapRecorder: ObservableObject, AudioTapRecorderType {
 
             currentFile = nil
             isRecording = false
-            vadBufferHandler = nil
 
             try tap.invalidate()
         } catch {
@@ -306,51 +302,5 @@ final class SystemWideTapRecorder: ObservableObject, AudioTapRecorderType {
         Task { @MainActor in
             self._tap?.setAudioLevel(min(max(normalizedLevel, 0), 1))
         }
-    }
-
-    private func handleVAD(for buffer: AVAudioPCMBuffer) {
-        guard let handler = vadBufferHandler,
-              let bufferCopy = copyBuffer(buffer) else { return }
-
-        handler(bufferCopy)
-    }
-
-    private func copyBuffer(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
-        guard let copy = AVAudioPCMBuffer(pcmFormat: buffer.format, frameCapacity: buffer.frameLength) else {
-            logger.warning("Failed to allocate buffer copy for VAD processing")
-            return nil
-        }
-
-        copy.frameLength = buffer.frameLength
-
-        let channelCount = Int(buffer.format.channelCount)
-        let frameLength = Int(buffer.frameLength)
-
-        if let sourcePointer = buffer.floatChannelData,
-           let destinationPointer = copy.floatChannelData {
-            if buffer.format.isInterleaved {
-                let sampleCount = frameLength * channelCount
-                destinationPointer[0].assign(from: sourcePointer[0], count: sampleCount)
-            } else {
-                for channel in 0..<channelCount {
-                    destinationPointer[channel].assign(from: sourcePointer[channel], count: frameLength)
-                }
-            }
-        } else if let sourceInt16 = buffer.int16ChannelData,
-                    let destinationInt16 = copy.int16ChannelData {
-            if buffer.format.isInterleaved {
-                let sampleCount = frameLength * channelCount
-                destinationInt16[0].assign(from: sourceInt16[0], count: sampleCount)
-            } else {
-                for channel in 0..<channelCount {
-                    destinationInt16[channel].assign(from: sourceInt16[channel], count: frameLength)
-                }
-            }
-        } else {
-            logger.warning("Unsupported audio format for buffer copy in VAD handler")
-            return nil
-        }
-
-        return copy
     }
 }

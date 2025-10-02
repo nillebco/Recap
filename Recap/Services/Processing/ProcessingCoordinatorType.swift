@@ -10,15 +10,10 @@ import Mockable
 protocol ProcessingCoordinatorType {
     var delegate: ProcessingCoordinatorDelegate? { get set }
     var currentProcessingState: ProcessingState { get }
-    
+
     func startProcessing(recordingInfo: RecordingInfo) async
-    func startProcessing(recordingInfo: RecordingInfo, vadTranscriptions: [StreamingTranscriptionSegment]?) async
     func cancelProcessing(recordingID: String) async
     func retryProcessing(recordingID: String) async
-    
-    // VAD segment access
-    func getVADSegments(for recordingID: String) async -> [VADAudioSegment]
-    func getStructuredTranscriptions(for recordingID: String) async -> [StructuredTranscription]
 }
 
 @MainActor

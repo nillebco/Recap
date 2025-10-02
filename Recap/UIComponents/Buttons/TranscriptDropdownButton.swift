@@ -3,22 +3,15 @@ import SwiftUI
 
 struct TranscriptDropdownButton: View {
     let transcriptText: String
-    let structuredTranscriptions: [StructuredTranscription]?
-    
+
     @State private var isCollapsed: Bool = true
-    
-    init(transcriptText: String, structuredTranscriptions: [StructuredTranscription]? = nil) {
+
+    init(transcriptText: String) {
         self.transcriptText = transcriptText
-        self.structuredTranscriptions = structuredTranscriptions
     }
-    
+
     private var displayText: String {
-        // Use pretty formatted version if structured transcriptions are available, otherwise fall back to raw text
-        if let structuredTranscriptions = structuredTranscriptions, !structuredTranscriptions.isEmpty {
-            return StructuredTranscriptionFormatter.formatForCopyingEnhanced(structuredTranscriptions)
-        } else {
-            return transcriptText
-        }
+        return transcriptText
     }
     
     var body: some View {
@@ -72,8 +65,7 @@ struct TranscriptDropdownButton: View {
     GeometryReader { geometry in
         VStack(spacing: 16) {
             TranscriptDropdownButton(
-                transcriptText: "Lorem ipsum dolor sit amet",
-                structuredTranscriptions: nil
+                transcriptText: "Lorem ipsum dolor sit amet"
             )
         }
         .padding(20)

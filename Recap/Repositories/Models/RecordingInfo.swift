@@ -13,7 +13,6 @@ struct RecordingInfo: Identifiable, Equatable {
     let transcriptionText: String?
     let summaryText: String?
     let timestampedTranscription: TimestampedTranscription?
-    let structuredTranscriptions: [StructuredTranscription]?
     let createdAt: Date
     let modifiedAt: Date
     
@@ -59,13 +58,7 @@ extension RecordingInfo {
         } else {
             self.timestampedTranscription = nil
         }
-        
-        // Decode structured transcription data if available
-        if let data = entity.structuredTranscriptionData {
-            self.structuredTranscriptions = try? JSONDecoder().decode([StructuredTranscription].self, from: data)
-        } else {
-            self.structuredTranscriptions = nil
-        }
+
         self.createdAt = entity.createdAt ?? Date()
         self.modifiedAt = entity.modifiedAt ?? Date()
     }

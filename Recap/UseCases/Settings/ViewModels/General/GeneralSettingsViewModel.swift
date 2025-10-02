@@ -10,8 +10,6 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var autoDetectMeetings: Bool = false
     @Published private(set) var isAutoStopRecording: Bool = false
     @Published private(set) var isAutoSummarizeEnabled: Bool = true
-    @Published private(set) var isAutoSummarizeDuringRecording: Bool = true
-    @Published private(set) var isAutoSummarizeAfterRecording: Bool = true
     @Published private(set) var isAutoTranscribeEnabled: Bool = true
     @Published private var customPromptTemplateValue: String = ""
     @Published private(set) var globalShortcutKeyCode: Int32 = 15 // 'R' key
@@ -49,13 +47,13 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     private let keychainAPIValidator: KeychainAPIValidatorType
     private let keychainService: KeychainServiceType
     private let warningManager: any WarningManagerType
-    private let eventFileManager: EventFileManaging
+    private let fileManagerHelper: RecordingFileManagerHelperType
     private var cancellables = Set<AnyCancellable>()
-    
+
     lazy var folderSettingsViewModel: FolderSettingsViewModelType = {
         FolderSettingsViewModel(
             userPreferencesRepository: userPreferencesRepository,
-            eventFileManager: eventFileManager
+            fileManagerHelper: fileManagerHelper
         )
     }()
     
@@ -65,17 +63,17 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
         keychainAPIValidator: KeychainAPIValidatorType,
         keychainService: KeychainServiceType,
         warningManager: any WarningManagerType,
-        eventFileManager: EventFileManaging
+        fileManagerHelper: RecordingFileManagerHelperType
     ) {
         self.llmService = llmService
         self.userPreferencesRepository = userPreferencesRepository
         self.keychainAPIValidator = keychainAPIValidator
         self.keychainService = keychainService
         self.warningManager = warningManager
-        self.eventFileManager = eventFileManager
-        
+        self.fileManagerHelper = fileManagerHelper
+
         setupWarningObserver()
-        
+
         Task {
             await loadInitialState()
         }
@@ -94,8 +92,6 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             autoDetectMeetings = preferences.autoDetectMeetings
             isAutoStopRecording = preferences.autoStopRecording
             isAutoSummarizeEnabled = preferences.autoSummarizeEnabled
-            isAutoSummarizeDuringRecording = preferences.autoSummarizeDuringRecording
-            isAutoSummarizeAfterRecording = preferences.autoSummarizeAfterRecording
             isAutoTranscribeEnabled = preferences.autoTranscribeEnabled
             customPromptTemplateValue = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
             globalShortcutKeyCode = preferences.globalShortcutKeyCode
@@ -105,8 +101,6 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             autoDetectMeetings = false
             isAutoStopRecording = false
             isAutoSummarizeEnabled = true
-            isAutoSummarizeDuringRecording = true
-            isAutoSummarizeAfterRecording = true
             isAutoTranscribeEnabled = true
             customPromptTemplateValue = UserPreferencesInfo.defaultPromptTemplate
             globalShortcutKeyCode = 15 // 'R' key
@@ -286,27 +280,4 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
         }
     }
 
-    func toggleAutoSummarizeDuringRecording(_ enabled: Bool) async {
-        errorMessage = nil
-        isAutoSummarizeDuringRecording = enabled
-
-        do {
-            try await userPreferencesRepository.updateAutoSummarizeDuringRecording(enabled)
-        } catch {
-            errorMessage = error.localizedDescription
-            isAutoSummarizeDuringRecording = !enabled
-        }
-    }
-
-    func toggleAutoSummarizeAfterRecording(_ enabled: Bool) async {
-        errorMessage = nil
-        isAutoSummarizeAfterRecording = enabled
-
-        do {
-            try await userPreferencesRepository.updateAutoSummarizeAfterRecording(enabled)
-        } catch {
-            errorMessage = error.localizedDescription
-            isAutoSummarizeAfterRecording = !enabled
-        }
-    }
 }

@@ -153,7 +153,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                 .toggleStyle(SwitchToggleStyle(tint: UIConstants.Colors.audioGreen))
                             }
 
-                            Text("When disabled, VAD and transcription will be skipped")
+                            Text("When disabled, transcription will be skipped")
                                 .font(.system(size: 11, weight: .regular))
                                 .foregroundColor(UIConstants.Colors.textSecondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -174,42 +174,6 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                 .font(.system(size: 11, weight: .regular))
                                 .foregroundColor(UIConstants.Colors.textSecondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-
-                            if viewModel.isAutoSummarizeEnabled {
-                                settingsRow(label: "  During Recording") {
-                                    Toggle("", isOn: Binding(
-                                        get: { viewModel.isAutoSummarizeDuringRecording },
-                                        set: { newValue in
-                                            Task {
-                                                await viewModel.toggleAutoSummarizeDuringRecording(newValue)
-                                            }
-                                        }
-                                    ))
-                                    .toggleStyle(SwitchToggleStyle(tint: UIConstants.Colors.audioGreen))
-                                }
-
-                                Text("  Save segment transcriptions in real-time during recording")
-                                    .font(.system(size: 11, weight: .regular))
-                                    .foregroundColor(UIConstants.Colors.textSecondary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                                settingsRow(label: "  After Recording") {
-                                    Toggle("", isOn: Binding(
-                                        get: { viewModel.isAutoSummarizeAfterRecording },
-                                        set: { newValue in
-                                            Task {
-                                                await viewModel.toggleAutoSummarizeAfterRecording(newValue)
-                                            }
-                                        }
-                                    ))
-                                    .toggleStyle(SwitchToggleStyle(tint: UIConstants.Colors.audioGreen))
-                                }
-
-                                Text("  Generate summary after recording ends")
-                                    .font(.system(size: 11, weight: .regular))
-                                    .foregroundColor(UIConstants.Colors.textSecondary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
                         }
                     }
 
@@ -309,8 +273,6 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     @Published var autoDetectMeetings: Bool = true
     @Published var isAutoStopRecording: Bool = false
     @Published var isAutoSummarizeEnabled: Bool = true
-    @Published var isAutoSummarizeDuringRecording: Bool = true
-    @Published var isAutoSummarizeAfterRecording: Bool = true
     @Published var isAutoTranscribeEnabled: Bool = true
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -358,12 +320,6 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     }
     func toggleAutoSummarize(_ enabled: Bool) async {
         isAutoSummarizeEnabled = enabled
-    }
-    func toggleAutoSummarizeDuringRecording(_ enabled: Bool) async {
-        isAutoSummarizeDuringRecording = enabled
-    }
-    func toggleAutoSummarizeAfterRecording(_ enabled: Bool) async {
-        isAutoSummarizeAfterRecording = enabled
     }
     func toggleAutoTranscribe(_ enabled: Bool) async {
         isAutoTranscribeEnabled = enabled

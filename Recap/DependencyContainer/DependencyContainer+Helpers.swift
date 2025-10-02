@@ -5,6 +5,8 @@ extension DependencyContainer {
     func makePermissionsHelper() -> PermissionsHelperType {
         PermissionsHelper()
     }
-    
-    func makeEventFileManager() -> EventFileManaging { eventFileManager }
+
+    func makeRecordingFileManagerHelper() -> RecordingFileManagerHelperType {
+        RecordingFileManagerHelper(userPreferencesRepository: userPreferencesRepository)
+    }
 }

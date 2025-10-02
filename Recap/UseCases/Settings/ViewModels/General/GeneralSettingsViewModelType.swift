@@ -10,8 +10,6 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var autoDetectMeetings: Bool { get }
     var isAutoStopRecording: Bool { get }
     var isAutoSummarizeEnabled: Bool { get }
-    var isAutoSummarizeDuringRecording: Bool { get }
-    var isAutoSummarizeAfterRecording: Bool { get }
     var isAutoTranscribeEnabled: Bool { get }
     var isLoading: Bool { get }
     var errorMessage: String? { get }
@@ -33,8 +31,6 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     func toggleAutoDetectMeetings(_ enabled: Bool) async
     func toggleAutoStopRecording(_ enabled: Bool) async
     func toggleAutoSummarize(_ enabled: Bool) async
-    func toggleAutoSummarizeDuringRecording(_ enabled: Bool) async
-    func toggleAutoSummarizeAfterRecording(_ enabled: Bool) async
     func toggleAutoTranscribe(_ enabled: Bool) async
     func updateCustomPromptTemplate(_ template: String) async
     func resetToDefaultPrompt() async
