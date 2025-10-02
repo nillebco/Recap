@@ -23,6 +23,9 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 // Sync to UserDefaults for synchronous access
                 if let customPath = existingPreferences.customTmpDirectoryPath {
                     UserDefaults.standard.set(customPath, forKey: "customTmpDirectoryPath")
+                    if let bookmark = existingPreferences.customTmpDirectoryBookmark {
+                        UserDefaults.standard.set(bookmark, forKey: "customTmpDirectoryBookmark")
+                    }
                 }
                 return UserPreferencesInfo(from: existingPreferences)
             } else {
@@ -359,8 +362,12 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 // Also save to UserDefaults for synchronous access
                 if let path = path {
                     UserDefaults.standard.set(path, forKey: "customTmpDirectoryPath")
+                    if let bookmark = bookmark {
+                        UserDefaults.standard.set(bookmark, forKey: "customTmpDirectoryBookmark")
+                    }
                 } else {
                     UserDefaults.standard.removeObject(forKey: "customTmpDirectoryPath")
+                    UserDefaults.standard.removeObject(forKey: "customTmpDirectoryBookmark")
                 }
 
                 return
@@ -374,8 +381,12 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             // Also save to UserDefaults for synchronous access
             if let path = path {
                 UserDefaults.standard.set(path, forKey: "customTmpDirectoryPath")
+                if let bookmark = bookmark {
+                    UserDefaults.standard.set(bookmark, forKey: "customTmpDirectoryBookmark")
+                }
             } else {
                 UserDefaults.standard.removeObject(forKey: "customTmpDirectoryPath")
+                UserDefaults.standard.removeObject(forKey: "customTmpDirectoryBookmark")
             }
         } catch {
             throw LLMError.dataAccessError(error.localizedDescription)

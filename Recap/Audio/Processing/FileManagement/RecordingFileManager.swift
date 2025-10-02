@@ -30,15 +30,11 @@ final class RecordingFileManager: RecordingFileManaging {
                 return recordingDirectory
             } catch {
                 // Fallback to default system
-                let timestamp = Date().timeIntervalSince1970
-                let filename = "\(recordingID)_\(Int(timestamp))"
-                return recordingsDirectory.appendingPathComponent(filename)
+                return recordingsDirectory.appendingPathComponent(recordingID)
             }
         } else {
             // Use default system
-            let timestamp = Date().timeIntervalSince1970
-            let filename = "\(recordingID)_\(Int(timestamp))"
-            return recordingsDirectory.appendingPathComponent(filename)
+            return recordingsDirectory.appendingPathComponent(recordingID)
         }
     }
 
