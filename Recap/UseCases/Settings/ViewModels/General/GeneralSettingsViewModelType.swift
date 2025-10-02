@@ -9,6 +9,10 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var selectedProvider: LLMProvider { get }
     var autoDetectMeetings: Bool { get }
     var isAutoStopRecording: Bool { get }
+    var isAutoSummarizeEnabled: Bool { get }
+    var isAutoSummarizeDuringRecording: Bool { get }
+    var isAutoSummarizeAfterRecording: Bool { get }
+    var isAutoTranscribeEnabled: Bool { get }
     var isLoading: Bool { get }
     var errorMessage: String? { get }
     var hasModels: Bool { get }
@@ -28,6 +32,10 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     func selectProvider(_ provider: LLMProvider) async
     func toggleAutoDetectMeetings(_ enabled: Bool) async
     func toggleAutoStopRecording(_ enabled: Bool) async
+    func toggleAutoSummarize(_ enabled: Bool) async
+    func toggleAutoSummarizeDuringRecording(_ enabled: Bool) async
+    func toggleAutoSummarizeAfterRecording(_ enabled: Bool) async
+    func toggleAutoTranscribe(_ enabled: Bool) async
     func updateCustomPromptTemplate(_ template: String) async
     func resetToDefaultPrompt() async
     func saveAPIKey(_ apiKey: String) async throws

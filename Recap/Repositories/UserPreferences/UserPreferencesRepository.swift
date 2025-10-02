@@ -27,10 +27,13 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 newPreferences.createdAt = Date()
                 newPreferences.modifiedAt = Date()
                 newPreferences.autoSummarizeEnabled = true
+                newPreferences.autoSummarizeDuringRecording = true
+                newPreferences.autoSummarizeAfterRecording = true
+                newPreferences.autoTranscribeEnabled = true
                 newPreferences.selectedProvider = LLMProvider.default.rawValue
                 newPreferences.autoDetectMeetings = false
                 newPreferences.autoStopRecording = false
-                
+
                 try context.save()
                 return UserPreferencesInfo(from: newPreferences)
             }
@@ -186,7 +189,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
         request.fetchLimit = 1
-        
+
         do {
             guard let preferences = try context.fetch(request).first else {
                 let newPreferences = UserPreferences(context: context)
@@ -200,8 +203,36 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 try context.save()
                 return
             }
-            
+
             preferences.autoSummarizeEnabled = enabled
+            preferences.modifiedAt = Date()
+            try context.save()
+        } catch {
+            throw LLMError.dataAccessError(error.localizedDescription)
+        }
+    }
+
+    func updateAutoTranscribe(_ enabled: Bool) async throws {
+        let context = coreDataManager.viewContext
+        let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
+        request.fetchLimit = 1
+
+        do {
+            guard let preferences = try context.fetch(request).first else {
+                let newPreferences = UserPreferences(context: context)
+                newPreferences.id = defaultPreferencesId
+                newPreferences.autoTranscribeEnabled = enabled
+                newPreferences.selectedProvider = LLMProvider.default.rawValue
+                newPreferences.autoDetectMeetings = false
+                newPreferences.autoStopRecording = false
+                newPreferences.createdAt = Date()
+                newPreferences.modifiedAt = Date()
+                try context.save()
+                return
+            }
+
+            preferences.autoTranscribeEnabled = enabled
             preferences.modifiedAt = Date()
             try context.save()
         } catch {
@@ -325,6 +356,64 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
 
             preferences.customTmpDirectoryPath = path
             preferences.customTmpDirectoryBookmark = bookmark
+            preferences.modifiedAt = Date()
+            try context.save()
+        } catch {
+            throw LLMError.dataAccessError(error.localizedDescription)
+        }
+    }
+
+    func updateAutoSummarizeDuringRecording(_ enabled: Bool) async throws {
+        let context = coreDataManager.viewContext
+        let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
+        request.fetchLimit = 1
+
+        do {
+            guard let preferences = try context.fetch(request).first else {
+                let newPreferences = UserPreferences(context: context)
+                newPreferences.id = defaultPreferencesId
+                newPreferences.autoSummarizeDuringRecording = enabled
+                newPreferences.selectedProvider = LLMProvider.default.rawValue
+                newPreferences.autoDetectMeetings = false
+                newPreferences.autoStopRecording = false
+                newPreferences.createdAt = Date()
+                newPreferences.modifiedAt = Date()
+                newPreferences.autoSummarizeEnabled = true
+                try context.save()
+                return
+            }
+
+            preferences.autoSummarizeDuringRecording = enabled
+            preferences.modifiedAt = Date()
+            try context.save()
+        } catch {
+            throw LLMError.dataAccessError(error.localizedDescription)
+        }
+    }
+
+    func updateAutoSummarizeAfterRecording(_ enabled: Bool) async throws {
+        let context = coreDataManager.viewContext
+        let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
+        request.fetchLimit = 1
+
+        do {
+            guard let preferences = try context.fetch(request).first else {
+                let newPreferences = UserPreferences(context: context)
+                newPreferences.id = defaultPreferencesId
+                newPreferences.autoSummarizeAfterRecording = enabled
+                newPreferences.selectedProvider = LLMProvider.default.rawValue
+                newPreferences.autoDetectMeetings = false
+                newPreferences.autoStopRecording = false
+                newPreferences.createdAt = Date()
+                newPreferences.modifiedAt = Date()
+                newPreferences.autoSummarizeEnabled = true
+                try context.save()
+                return
+            }
+
+            preferences.autoSummarizeAfterRecording = enabled
             preferences.modifiedAt = Date()
             try context.save()
         } catch {

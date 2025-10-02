@@ -47,6 +47,8 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         self.vadTranscriptionCoordinator = coordinator
         // Set the event file manager on the VAD coordinator for real-time segment transcription
         coordinator.setEventFileManager(eventFileManager)
+        // Set the user preferences repository for checking during-recording settings
+        coordinator.setUserPreferencesRepository(userPreferencesRepository)
     }
     
     func startProcessing(recordingInfo: RecordingInfo) async {
@@ -106,6 +108,18 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         let startTime = Date()
 
         do {
+            // Check if transcription is enabled
+            let autoTranscribeEnabled = await checkAutoTranscribeEnabled()
+
+            if !autoTranscribeEnabled {
+                // Skip all processing if transcription is disabled
+                await completeProcessingWithoutTranscription(
+                    recording: recording,
+                    startTime: startTime
+                )
+                return
+            }
+
             // Files are already in the correct location, just copy VAD segments if they exist
             try await copyVADSegmentsToEventDirectory(recording)
 
@@ -117,16 +131,16 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
 
             let transcriptionText = try await performTranscriptionPhase(recording, vadTranscriptions: vadTranscriptions, vadSegments: vadSegments)
             guard !Task.isCancelled else { throw ProcessingError.cancelled }
-            
+
             // Clear VAD transcriptions from cache after processing
             vadTranscriptionsCache.removeValue(forKey: recording.id)
-            
+
             let autoSummarizeEnabled = await checkAutoSummarizeEnabled()
-            
+
             if autoSummarizeEnabled {
                 let summaryText = try await performSummarizationPhase(recording, transcriptionText: transcriptionText)
                 guard !Task.isCancelled else { throw ProcessingError.cancelled }
-                
+
                 await completeProcessing(
                     recording: recording,
                     transcriptionText: transcriptionText,
@@ -363,9 +377,47 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
     private func checkAutoSummarizeEnabled() async -> Bool {
         do {
             let preferences = try await userPreferencesRepository.getOrCreatePreferences()
-            return preferences.autoSummarizeEnabled
+            return preferences.autoSummarizeEnabled && preferences.autoSummarizeAfterRecording
         } catch {
             return true
+        }
+    }
+
+    private func checkAutoSummarizeDuringRecordingEnabled() async -> Bool {
+        do {
+            let preferences = try await userPreferencesRepository.getOrCreatePreferences()
+            return preferences.autoSummarizeEnabled && preferences.autoSummarizeDuringRecording
+        } catch {
+            return true
+        }
+    }
+
+    private func checkAutoTranscribeEnabled() async -> Bool {
+        do {
+            let preferences = try await userPreferencesRepository.getOrCreatePreferences()
+            return preferences.autoTranscribeEnabled
+        } catch {
+            return true
+        }
+    }
+
+    private func completeProcessingWithoutTranscription(
+        recording: RecordingInfo,
+        startTime: Date
+    ) async {
+        do {
+            try await updateRecordingState(recording.id, state: .completed)
+
+            let result = ProcessingResult(
+                recordingID: recording.id,
+                transcriptionText: "",
+                summaryText: "",
+                processingDuration: Date().timeIntervalSince(startTime)
+            )
+
+            delegate?.processingDidComplete(recordingID: recording.id, result: result)
+        } catch {
+            await handleProcessingError(ProcessingError.coreDataError(error.localizedDescription), for: recording)
         }
     }
     

@@ -15,14 +15,16 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
     private var speechProbabilities: [VADAudioSource: Float] = [:]
     private var currentRecordingID: String?
     private var eventFileManager: EventFileManaging?
+    private var userPreferencesRepository: UserPreferencesRepositoryType?
 
     weak var delegate: VADTranscriptionCoordinatorDelegate?
 
-    init(streamingTranscriptionService: StreamingTranscriptionService, eventFileManager: EventFileManaging? = nil) {
+    init(streamingTranscriptionService: StreamingTranscriptionService, eventFileManager: EventFileManaging? = nil, userPreferencesRepository: UserPreferencesRepositoryType? = nil) {
         self.streamingTranscriptionService = streamingTranscriptionService
         self.segmentAccumulator = VADSegmentAccumulator()
         self.streamingTranscriptionService.delegate = self
         self.eventFileManager = eventFileManager
+        self.userPreferencesRepository = userPreferencesRepository
     }
 
     func startVADTranscription(for recordingID: String) {
@@ -59,6 +61,10 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
 
     func setEventFileManager(_ eventFileManager: EventFileManaging) {
         self.eventFileManager = eventFileManager
+    }
+
+    func setUserPreferencesRepository(_ repository: UserPreferencesRepositoryType) {
+        self.userPreferencesRepository = repository
     }
 
     // MARK: - VADDelegate
@@ -106,12 +112,17 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
         print("✅ VAD: Transcription result received: '\(segment.text)' (segment \(segment.id), source: \(segment.source.rawValue))")
         print("✅ VAD: Total transcriptions collected: \(realtimeTranscriptions.count)")
 
-        // Save segment transcription to disk if we have a recording ID and event file manager
-        if let recordingID = currentRecordingID, let eventFileManager = eventFileManager {
-            print("🔍 VAD: Saving segment transcription for segment \(segment.id) in recording \(recordingID)")
-            saveSegmentTranscription(segment, for: recordingID, eventFileManager: eventFileManager)
-        } else {
-            print("❌ VAD: Cannot save segment transcription - recordingID: \(currentRecordingID ?? "nil"), eventFileManager: \(eventFileManager != nil ? "present" : "nil")")
+        // Save segment transcription to disk if enabled and we have a recording ID and event file manager
+        Task {
+            let shouldSave = await checkShouldSaveSegmentTranscription()
+            if shouldSave, let recordingID = currentRecordingID, let eventFileManager = eventFileManager {
+                print("🔍 VAD: Saving segment transcription for segment \(segment.id) in recording \(recordingID)")
+                saveSegmentTranscription(segment, for: recordingID, eventFileManager: eventFileManager)
+            } else if !shouldSave {
+                print("⏭️ VAD: Skipping segment transcription save (disabled in settings)")
+            } else {
+                print("❌ VAD: Cannot save segment transcription - recordingID: \(currentRecordingID ?? "nil"), eventFileManager: \(eventFileManager != nil ? "present" : "nil")")
+            }
         }
 
         // Keep only the last 50 transcriptions to avoid memory issues
@@ -121,6 +132,18 @@ final class VADTranscriptionCoordinator: VADDelegate, StreamingTranscriptionDele
 
         delegate?.vadTranscriptionDidComplete(segment)
         logger.info("Streaming transcription completed: '\(segment.text.prefix(50))...'")
+    }
+
+    private func checkShouldSaveSegmentTranscription() async -> Bool {
+        guard let userPreferencesRepository = userPreferencesRepository else {
+            return true // Default to enabled if no repository available
+        }
+        do {
+            let preferences = try await userPreferencesRepository.getOrCreatePreferences()
+            return preferences.autoSummarizeEnabled && preferences.autoSummarizeDuringRecording
+        } catch {
+            return true // Default to enabled on error
+        }
     }
 
     nonisolated func streamingTranscriptionDidFail(segmentID: String, error: Error) {

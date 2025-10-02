@@ -12,6 +12,9 @@
         <attribute name="autoDetectMeetings" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="autoStopRecording" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="autoSummarizeEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="autoSummarizeDuringRecording" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="autoSummarizeAfterRecording" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="autoTranscribeEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="createdAt" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO"/>
         <attribute name="customTmpDirectoryPath" optional="YES" attributeType="String"/>
         <attribute name="customTmpDirectoryBookmark" optional="YES" attributeType="Binary"/>

@@ -6,6 +6,9 @@ struct UserPreferencesInfo: Identifiable {
     let selectedLLMModelID: String?
     let selectedProvider: LLMProvider
     let autoSummarizeEnabled: Bool
+    let autoSummarizeDuringRecording: Bool
+    let autoSummarizeAfterRecording: Bool
+    let autoTranscribeEnabled: Bool
     let autoDetectMeetings: Bool
     let autoStopRecording: Bool
     let onboarded: Bool
@@ -23,6 +26,9 @@ struct UserPreferencesInfo: Identifiable {
         self.selectedLLMModelID = managedObject.selectedLLMModelID
         self.selectedProvider = LLMProvider(rawValue: managedObject.selectedProvider ?? LLMProvider.default.rawValue) ?? LLMProvider.default
         self.autoSummarizeEnabled = managedObject.autoSummarizeEnabled
+        self.autoSummarizeDuringRecording = managedObject.autoSummarizeDuringRecording
+        self.autoSummarizeAfterRecording = managedObject.autoSummarizeAfterRecording
+        self.autoTranscribeEnabled = managedObject.autoTranscribeEnabled
         self.autoDetectMeetings = managedObject.autoDetectMeetings
         self.autoStopRecording = managedObject.autoStopRecording
         self.onboarded = managedObject.onboarded
@@ -42,6 +48,9 @@ struct UserPreferencesInfo: Identifiable {
         selectedLLMModelID: String? = nil,
         selectedProvider: LLMProvider = .default,
         autoSummarizeEnabled: Bool = true,
+        autoSummarizeDuringRecording: Bool = true,
+        autoSummarizeAfterRecording: Bool = true,
+        autoTranscribeEnabled: Bool = true,
         autoDetectMeetings: Bool = false,
         autoStopRecording: Bool = false,
         onboarded: Bool = false,
@@ -58,6 +67,9 @@ struct UserPreferencesInfo: Identifiable {
         self.selectedLLMModelID = selectedLLMModelID
         self.selectedProvider = selectedProvider
         self.autoSummarizeEnabled = autoSummarizeEnabled
+        self.autoSummarizeDuringRecording = autoSummarizeDuringRecording
+        self.autoSummarizeAfterRecording = autoSummarizeAfterRecording
+        self.autoTranscribeEnabled = autoTranscribeEnabled
         self.autoDetectMeetings = autoDetectMeetings
         self.autoStopRecording = autoStopRecording
         self.onboarded = onboarded

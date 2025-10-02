@@ -9,6 +9,10 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var selectedProvider: LLMProvider = .default
     @Published private(set) var autoDetectMeetings: Bool = false
     @Published private(set) var isAutoStopRecording: Bool = false
+    @Published private(set) var isAutoSummarizeEnabled: Bool = true
+    @Published private(set) var isAutoSummarizeDuringRecording: Bool = true
+    @Published private(set) var isAutoSummarizeAfterRecording: Bool = true
+    @Published private(set) var isAutoTranscribeEnabled: Bool = true
     @Published private var customPromptTemplateValue: String = ""
     @Published private(set) var globalShortcutKeyCode: Int32 = 15 // 'R' key
     @Published private(set) var globalShortcutModifiers: Int32 = 1048840 // Cmd key
@@ -89,6 +93,10 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             selectedProvider = preferences.selectedProvider
             autoDetectMeetings = preferences.autoDetectMeetings
             isAutoStopRecording = preferences.autoStopRecording
+            isAutoSummarizeEnabled = preferences.autoSummarizeEnabled
+            isAutoSummarizeDuringRecording = preferences.autoSummarizeDuringRecording
+            isAutoSummarizeAfterRecording = preferences.autoSummarizeAfterRecording
+            isAutoTranscribeEnabled = preferences.autoTranscribeEnabled
             customPromptTemplateValue = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
             globalShortcutKeyCode = preferences.globalShortcutKeyCode
             globalShortcutModifiers = preferences.globalShortcutModifiers
@@ -96,6 +104,10 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             selectedProvider = .default
             autoDetectMeetings = false
             isAutoStopRecording = false
+            isAutoSummarizeEnabled = true
+            isAutoSummarizeDuringRecording = true
+            isAutoSummarizeAfterRecording = true
+            isAutoTranscribeEnabled = true
             customPromptTemplateValue = UserPreferencesInfo.defaultPromptTemplate
             globalShortcutKeyCode = 15 // 'R' key
             globalShortcutModifiers = 1048840 // Cmd key
@@ -211,12 +223,36 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     func toggleAutoStopRecording(_ enabled: Bool) async {
         errorMessage = nil
         isAutoStopRecording = enabled
-        
+
         do {
             try await userPreferencesRepository.updateAutoStopRecording(enabled)
         } catch {
             errorMessage = error.localizedDescription
             isAutoStopRecording = !enabled
+        }
+    }
+
+    func toggleAutoSummarize(_ enabled: Bool) async {
+        errorMessage = nil
+        isAutoSummarizeEnabled = enabled
+
+        do {
+            try await userPreferencesRepository.updateAutoSummarize(enabled)
+        } catch {
+            errorMessage = error.localizedDescription
+            isAutoSummarizeEnabled = !enabled
+        }
+    }
+
+    func toggleAutoTranscribe(_ enabled: Bool) async {
+        errorMessage = nil
+        isAutoTranscribeEnabled = enabled
+
+        do {
+            try await userPreferencesRepository.updateAutoTranscribe(enabled)
+        } catch {
+            errorMessage = error.localizedDescription
+            isAutoTranscribeEnabled = !enabled
         }
     }
     
@@ -238,7 +274,7 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
         errorMessage = nil
         globalShortcutKeyCode = keyCode
         globalShortcutModifiers = modifiers
-        
+
         do {
             try await userPreferencesRepository.updateGlobalShortcut(keyCode: keyCode, modifiers: modifiers)
         } catch {
@@ -247,6 +283,30 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             let preferences = try? await userPreferencesRepository.getOrCreatePreferences()
             globalShortcutKeyCode = preferences?.globalShortcutKeyCode ?? 15
             globalShortcutModifiers = preferences?.globalShortcutModifiers ?? 1048840
+        }
+    }
+
+    func toggleAutoSummarizeDuringRecording(_ enabled: Bool) async {
+        errorMessage = nil
+        isAutoSummarizeDuringRecording = enabled
+
+        do {
+            try await userPreferencesRepository.updateAutoSummarizeDuringRecording(enabled)
+        } catch {
+            errorMessage = error.localizedDescription
+            isAutoSummarizeDuringRecording = !enabled
+        }
+    }
+
+    func toggleAutoSummarizeAfterRecording(_ enabled: Bool) async {
+        errorMessage = nil
+        isAutoSummarizeAfterRecording = enabled
+
+        do {
+            try await userPreferencesRepository.updateAutoSummarizeAfterRecording(enabled)
+        } catch {
+            errorMessage = error.localizedDescription
+            isAutoSummarizeAfterRecording = !enabled
         }
     }
 }

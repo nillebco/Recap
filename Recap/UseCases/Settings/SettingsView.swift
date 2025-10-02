@@ -158,21 +158,21 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
 // Just used for previews only!
 private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
     var folderSettingsViewModel: FolderSettingsViewModelType
-    
+
     init() {
         self.folderSettingsViewModel = PreviewFolderSettingsViewModel()
     }
-    
+
     var customPromptTemplate: Binding<String> = .constant("Hello")
 
     var showAPIKeyAlert: Bool = false
-    
+
     var existingAPIKey: String? = nil
-    
+
     func saveAPIKey(_ apiKey: String) async throws {}
-    
+
     func dismissAPIKeyAlert() {}
-    
+
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
         LLMModelInfo(name: "codellama", provider: "ollama")
@@ -181,6 +181,10 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     @Published var selectedProvider: LLMProvider = .ollama
     @Published var autoDetectMeetings: Bool = true
     @Published var isAutoStopRecording: Bool = false
+    @Published var isAutoSummarizeEnabled: Bool = false
+    @Published var isAutoSummarizeDuringRecording: Bool = true
+    @Published var isAutoSummarizeAfterRecording: Bool = true
+    @Published var isAutoTranscribeEnabled: Bool = false
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var showToast = false
@@ -196,15 +200,15 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
             severity: .warning
         )
     ]
-    
+
     var hasModels: Bool {
         !availableModels.isEmpty
     }
-    
+
     var currentSelection: LLMModelInfo? {
         selectedModel
     }
-    
+
     func loadModels() async {}
     func selectModel(_ model: LLMModelInfo) async {
         selectedModel = model
@@ -218,11 +222,23 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     func toggleAutoStopRecording(_ enabled: Bool) async {
         isAutoStopRecording = enabled
     }
-    
+    func toggleAutoSummarize(_ enabled: Bool) async {
+        isAutoSummarizeEnabled = enabled
+    }
+    func toggleAutoSummarizeDuringRecording(_ enabled: Bool) async {
+        isAutoSummarizeDuringRecording = enabled
+    }
+    func toggleAutoSummarizeAfterRecording(_ enabled: Bool) async {
+        isAutoSummarizeAfterRecording = enabled
+    }
+    func toggleAutoTranscribe(_ enabled: Bool) async {
+        isAutoTranscribeEnabled = enabled
+    }
+
     func updateCustomPromptTemplate(_ template: String) async {}
-    
+
     func resetToDefaultPrompt() async {}
-    
+
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {
         globalShortcutKeyCode = keyCode
         globalShortcutModifiers = modifiers

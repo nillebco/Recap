@@ -139,6 +139,80 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         }
                     }
                     
+                    SettingsCard(title: "Processing Options") {
+                        VStack(spacing: 16) {
+                            settingsRow(label: "Enable Transcription") {
+                                Toggle("", isOn: Binding(
+                                    get: { viewModel.isAutoTranscribeEnabled },
+                                    set: { newValue in
+                                        Task {
+                                            await viewModel.toggleAutoTranscribe(newValue)
+                                        }
+                                    }
+                                ))
+                                .toggleStyle(SwitchToggleStyle(tint: UIConstants.Colors.audioGreen))
+                            }
+
+                            Text("When disabled, VAD and transcription will be skipped")
+                                .font(.system(size: 11, weight: .regular))
+                                .foregroundColor(UIConstants.Colors.textSecondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            settingsRow(label: "Enable Summarization") {
+                                Toggle("", isOn: Binding(
+                                    get: { viewModel.isAutoSummarizeEnabled },
+                                    set: { newValue in
+                                        Task {
+                                            await viewModel.toggleAutoSummarize(newValue)
+                                        }
+                                    }
+                                ))
+                                .toggleStyle(SwitchToggleStyle(tint: UIConstants.Colors.audioGreen))
+                            }
+
+                            Text("When disabled, recordings will only be transcribed without summarization")
+                                .font(.system(size: 11, weight: .regular))
+                                .foregroundColor(UIConstants.Colors.textSecondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            if viewModel.isAutoSummarizeEnabled {
+                                settingsRow(label: "  During Recording") {
+                                    Toggle("", isOn: Binding(
+                                        get: { viewModel.isAutoSummarizeDuringRecording },
+                                        set: { newValue in
+                                            Task {
+                                                await viewModel.toggleAutoSummarizeDuringRecording(newValue)
+                                            }
+                                        }
+                                    ))
+                                    .toggleStyle(SwitchToggleStyle(tint: UIConstants.Colors.audioGreen))
+                                }
+
+                                Text("  Save segment transcriptions in real-time during recording")
+                                    .font(.system(size: 11, weight: .regular))
+                                    .foregroundColor(UIConstants.Colors.textSecondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                settingsRow(label: "  After Recording") {
+                                    Toggle("", isOn: Binding(
+                                        get: { viewModel.isAutoSummarizeAfterRecording },
+                                        set: { newValue in
+                                            Task {
+                                                await viewModel.toggleAutoSummarizeAfterRecording(newValue)
+                                            }
+                                        }
+                                    ))
+                                    .toggleStyle(SwitchToggleStyle(tint: UIConstants.Colors.audioGreen))
+                                }
+
+                                Text("  Generate summary after recording ends")
+                                    .font(.system(size: 11, weight: .regular))
+                                    .foregroundColor(UIConstants.Colors.textSecondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                    }
+
                     SettingsCard(title: "Global Shortcut") {
                         GlobalShortcutSettingsView(viewModel: viewModel)
                     }
@@ -234,6 +308,10 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     @Published var selectedProvider: LLMProvider = .ollama
     @Published var autoDetectMeetings: Bool = true
     @Published var isAutoStopRecording: Bool = false
+    @Published var isAutoSummarizeEnabled: Bool = true
+    @Published var isAutoSummarizeDuringRecording: Bool = true
+    @Published var isAutoSummarizeAfterRecording: Bool = true
+    @Published var isAutoTranscribeEnabled: Bool = true
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var showToast = false
@@ -277,6 +355,18 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     }
     func toggleAutoStopRecording(_ enabled: Bool) async {
         isAutoStopRecording = enabled
+    }
+    func toggleAutoSummarize(_ enabled: Bool) async {
+        isAutoSummarizeEnabled = enabled
+    }
+    func toggleAutoSummarizeDuringRecording(_ enabled: Bool) async {
+        isAutoSummarizeDuringRecording = enabled
+    }
+    func toggleAutoSummarizeAfterRecording(_ enabled: Bool) async {
+        isAutoSummarizeAfterRecording = enabled
+    }
+    func toggleAutoTranscribe(_ enabled: Bool) async {
+        isAutoTranscribeEnabled = enabled
     }
     func saveAPIKey(_ apiKey: String) async throws {}
     func dismissAPIKeyAlert() {

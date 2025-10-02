@@ -261,10 +261,13 @@ private class PreviewUserPreferencesRepository: UserPreferencesRepositoryType {
     func getOrCreatePreferences() async throws -> UserPreferencesInfo {
         UserPreferencesInfo()
     }
-    
+
     func updateSelectedLLMModel(id: String?) async throws {}
     func updateSelectedProvider(_ provider: LLMProvider) async throws {}
     func updateAutoSummarize(_ enabled: Bool) async throws {}
+    func updateAutoSummarizeDuringRecording(_ enabled: Bool) async throws {}
+    func updateAutoSummarizeAfterRecording(_ enabled: Bool) async throws {}
+    func updateAutoTranscribe(_ enabled: Bool) async throws {}
     func updateSummaryPromptTemplate(_ template: String?) async throws {}
     func updateAutoDetectMeetings(_ enabled: Bool) async throws {}
     func updateAutoStopRecording(_ enabled: Bool) async throws {}
