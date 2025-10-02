@@ -16,6 +16,10 @@ final class TranscriptionTextCleaner {
         // Remove timestamp patterns like <|0.00|> and <|2.00|>
         cleanedText = cleanedText.replacingOccurrences(of: "<|\\d+\\.\\d+\\|>", with: "", options: .regularExpression)
 
+        // Remove pipe characters at the beginning and end of text
+        cleanedText = cleanedText.replacingOccurrences(of: "^\\s*\\|\\s*", with: "", options: .regularExpression)
+        cleanedText = cleanedText.replacingOccurrences(of: "\\s*\\|\\s*$", with: "", options: .regularExpression)
+
         // Clean up extra whitespace and normalize line breaks
         cleanedText = cleanedText.trimmingCharacters(in: .whitespacesAndNewlines)
         cleanedText = cleanedText.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
