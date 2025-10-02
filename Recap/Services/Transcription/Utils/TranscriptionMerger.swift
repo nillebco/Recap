@@ -52,14 +52,12 @@ struct TranscriptionMerger {
     /// - Returns: Formatted transcript string
     static func getFormattedTranscript(_ transcription: TimestampedTranscription) -> String {
         let chronologicalSegments = getChronologicalView(transcription)
-        
+
         return chronologicalSegments.map { segment in
-            let startMinutes = Int(segment.startTime) / 60
-            let startSeconds = Int(segment.startTime) % 60
-            let endMinutes = Int(segment.endTime) / 60
-            let endSeconds = Int(segment.endTime) % 60
-            
-            return "[\(String(format: "%02d:%02d", startMinutes, startSeconds))-\(String(format: "%02d:%02d", endMinutes, endSeconds))] \(segment.speaker): \(segment.text)"
+            let duration = segment.endTime - segment.startTime
+            let source = segment.source == .microphone ? "Microphone" : "System Audio"
+
+            return "\(String(format: "%.2f", segment.startTime)) + \(String(format: "%.2f", duration)), [\(source)]: \(segment.text)"
         }.joined(separator: "\n")
     }
     

@@ -146,6 +146,12 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
                 id: recording.id,
                 timestampedTranscription: timestampedTranscription
             )
+
+            // Export transcription to markdown file
+            await exportTranscriptionToMarkdown(
+                recording: recording,
+                timestampedTranscription: timestampedTranscription
+            )
         }
 
         try await updateRecordingState(recording.id, state: .transcribed)
@@ -313,6 +319,33 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
             delegate?.processingDidComplete(recordingID: recording.id, result: result)
         } catch {
             await handleProcessingError(ProcessingError.coreDataError(error.localizedDescription), for: recording)
+        }
+    }
+
+    /// Export transcription to markdown file in the same directory as the recording
+    private func exportTranscriptionToMarkdown(
+        recording: RecordingInfo,
+        timestampedTranscription: TimestampedTranscription
+    ) async {
+        do {
+            // Get the directory containing the recording files
+            let recordingDirectory = recording.recordingURL.deletingLastPathComponent()
+
+            // Fetch the updated recording with timestamped transcription
+            guard let updatedRecording = try? await recordingRepository.fetchRecording(id: recording.id) else {
+                logger.warning("Could not fetch updated recording for markdown export")
+                return
+            }
+
+            // Export to markdown
+            let markdownURL = try TranscriptionMarkdownExporter.exportToMarkdown(
+                recording: updatedRecording,
+                destinationDirectory: recordingDirectory
+            )
+
+            logger.info("Exported transcription to markdown: \(markdownURL.path)")
+        } catch {
+            logger.error("Failed to export transcription to markdown: \(error.localizedDescription)")
         }
     }
 
