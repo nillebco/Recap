@@ -56,8 +56,9 @@ struct TranscriptionMerger {
         return chronologicalSegments.map { segment in
             let duration = segment.endTime - segment.startTime
             let source = segment.source == .microphone ? "Microphone" : "System Audio"
+            let cleanedText = TranscriptionTextCleaner.cleanWhisperKitText(segment.text)
 
-            return "\(String(format: "%.2f", segment.startTime)) + \(String(format: "%.2f", duration)), [\(source)]: \(segment.text)"
+            return "\(String(format: "%.2f", segment.startTime)) + \(String(format: "%.2f", duration)), [\(source)]: \(cleanedText)"
         }.joined(separator: "\n")
     }
     
