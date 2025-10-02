@@ -57,10 +57,15 @@ final class ProviderWarningCoordinator {
             case .ollama:
                 handleOllamaWarning(isAvailable: ollamaAvailable)
                 warningManager.removeWarning(withId: openRouterWarningId)
-                
+
             case .openRouter:
                 handleOpenRouterWarning(isAvailable: openRouterAvailable)
                 warningManager.removeWarning(withId: ollamaWarningId)
+
+            case .openAI:
+                // OpenAI warnings would be handled here if needed
+                warningManager.removeWarning(withId: ollamaWarningId)
+                warningManager.removeWarning(withId: openRouterWarningId)
             }
         } catch {
             warningManager.removeWarning(withId: ollamaWarningId)

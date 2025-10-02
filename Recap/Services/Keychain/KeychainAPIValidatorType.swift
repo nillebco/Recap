@@ -8,6 +8,7 @@ import Mockable
 #endif
 protocol KeychainAPIValidatorType {
     func validateOpenRouterAPI() -> APIValidationResult
+    func validateOpenAIAPI() -> APIValidationResult
 }
 
 enum APIValidationResult {

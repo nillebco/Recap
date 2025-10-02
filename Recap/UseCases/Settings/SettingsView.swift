@@ -157,13 +157,14 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
 
 // Just used for previews only!
 private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelType {
-    var folderSettingsViewModel: FolderSettingsViewModelType
+    var folderSettingsViewModel: any FolderSettingsViewModelType
 
     init() {
         self.folderSettingsViewModel = PreviewFolderSettingsViewModel()
     }
 
     var customPromptTemplate: Binding<String> = .constant("Hello")
+    var manualModelName: Binding<String> = .constant("")
 
     var showAPIKeyAlert: Bool = false
 
@@ -189,6 +190,9 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     @Published var errorMessage: String?
     @Published var showToast = false
     @Published var toastMessage = ""
+    @Published var showOpenAIAlert = false
+    @Published var existingOpenAIKey: String?
+    @Published var existingOpenAIEndpoint: String?
     @Published var globalShortcutKeyCode: Int32 = 15
     @Published var globalShortcutModifiers: Int32 = 1048840
     @Published var activeWarnings: [WarningItem] = [
@@ -213,6 +217,7 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     func selectModel(_ model: LLMModelInfo) async {
         selectedModel = model
     }
+    func selectManualModel(_ modelName: String) async {}
     func selectProvider(_ provider: LLMProvider) async {
         selectedProvider = provider
     }
@@ -238,6 +243,11 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     func updateCustomPromptTemplate(_ template: String) async {}
 
     func resetToDefaultPrompt() async {}
+
+    func saveOpenAIConfiguration(apiKey: String, endpoint: String) async throws {}
+    func dismissOpenAIAlert() {
+        showOpenAIAlert = false
+    }
 
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {
         globalShortcutKeyCode = keyCode

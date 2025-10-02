@@ -98,10 +98,41 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                     }
                                 }
                             } else {
-                                settingsRow(label: "Selected Model") {
-                                    Text("No models available")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(UIConstants.Colors.textSecondary)
+                                settingsRow(label: "Model Name") {
+                                    TextField("gpt-4o", text: viewModel.manualModelName)
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(UIConstants.Colors.textPrimary)
+                                        .textFieldStyle(PlainTextFieldStyle())
+                                        .frame(width: 285)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(
+                                                    LinearGradient(
+                                                        gradient: Gradient(stops: [
+                                                            .init(color: Color(hex: "2A2A2A").opacity(0.3), location: 0),
+                                                            .init(color: Color(hex: "1A1A1A").opacity(0.5), location: 1)
+                                                        ]),
+                                                        startPoint: .top,
+                                                        endPoint: .bottom
+                                                    )
+                                                )
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .stroke(
+                                                            LinearGradient(
+                                                                gradient: Gradient(stops: [
+                                                                    .init(color: Color(hex: "979797").opacity(0.2), location: 0),
+                                                                    .init(color: Color(hex: "C4C4C4").opacity(0.15), location: 1)
+                                                                ]),
+                                                                startPoint: .top,
+                                                                endPoint: .bottom
+                                                            ),
+                                                            lineWidth: 1
+                                                        )
+                                                )
+                                        )
                                 }
                             }
                             
@@ -200,8 +231,8 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                 title: viewModel.toastMessage
             )
         }
-        .blur(radius: viewModel.showAPIKeyAlert ? 2 : 0)
-        .animation(.easeInOut(duration: 0.3), value: viewModel.showAPIKeyAlert)
+        .blur(radius: viewModel.showAPIKeyAlert || viewModel.showOpenAIAlert ? 2 : 0)
+        .animation(.easeInOut(duration: 0.3), value: viewModel.showAPIKeyAlert || viewModel.showOpenAIAlert)
         .overlay(
             Group {
                 if viewModel.showAPIKeyAlert {
@@ -209,7 +240,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         Color.black.opacity(0.3)
                             .ignoresSafeArea()
                             .transition(.opacity)
-                        
+
                         OpenRouterAPIKeyAlert(
                             isPresented: Binding(
                                 get: { viewModel.showAPIKeyAlert },
@@ -223,8 +254,29 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                     }
                 }
+
+                if viewModel.showOpenAIAlert {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                            .transition(.opacity)
+
+                        OpenAIAPIKeyAlert(
+                            isPresented: Binding(
+                                get: { viewModel.showOpenAIAlert },
+                                set: { _ in viewModel.dismissOpenAIAlert() }
+                            ),
+                            existingKey: viewModel.existingOpenAIKey,
+                            existingEndpoint: viewModel.existingOpenAIEndpoint,
+                            onSave: { apiKey, endpoint in
+                                try await viewModel.saveOpenAIConfiguration(apiKey: apiKey, endpoint: endpoint)
+                            }
+                        )
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                    }
+                }
             }
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showAPIKeyAlert)
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showAPIKeyAlert || viewModel.showOpenAIAlert)
         )
     }
     
@@ -280,6 +332,9 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     @Published var toastMessage = ""
     @Published var showAPIKeyAlert = false
     @Published var existingAPIKey: String?
+    @Published var showOpenAIAlert = false
+    @Published var existingOpenAIKey: String?
+    @Published var existingOpenAIEndpoint: String?
     @Published var globalShortcutKeyCode: Int32 = 15
     @Published var globalShortcutModifiers: Int32 = 1048840
     @Published var activeWarnings: [WarningItem] = [
@@ -291,24 +346,29 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
             severity: .warning
         )
     ]
-    
+
     var hasModels: Bool {
         !availableModels.isEmpty
     }
-    
+
     var currentSelection: LLMModelInfo? {
         selectedModel
     }
-    
+
+    var manualModelName: Binding<String> {
+        .constant("")
+    }
+
     // Add the missing folderSettingsViewModel property
     var folderSettingsViewModel: FolderSettingsViewModelType {
         PreviewFolderSettingsViewModel()
     }
-    
+
     func loadModels() async {}
     func selectModel(_ model: LLMModelInfo) async {
         selectedModel = model
     }
+    func selectManualModel(_ modelName: String) async {}
     func selectProvider(_ provider: LLMProvider) async {
         selectedProvider = provider
     }
@@ -327,6 +387,10 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     func saveAPIKey(_ apiKey: String) async throws {}
     func dismissAPIKeyAlert() {
         showAPIKeyAlert = false
+    }
+    func saveOpenAIConfiguration(apiKey: String, endpoint: String) async throws {}
+    func dismissOpenAIAlert() {
+        showOpenAIAlert = false
     }
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {
         globalShortcutKeyCode = keyCode

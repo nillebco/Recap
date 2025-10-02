@@ -12,15 +12,27 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var isAutoSummarizeEnabled: Bool = true
     @Published private(set) var isAutoTranscribeEnabled: Bool = true
     @Published private var customPromptTemplateValue: String = ""
+    @Published private var manualModelNameValue: String = ""
     @Published private(set) var globalShortcutKeyCode: Int32 = 15 // 'R' key
     @Published private(set) var globalShortcutModifiers: Int32 = 1048840 // Cmd key
-    
+
     var customPromptTemplate: Binding<String> {
         Binding(
             get: { self.customPromptTemplateValue },
             set: { newValue in
                 Task {
                     await self.updateCustomPromptTemplate(newValue)
+                }
+            }
+        )
+    }
+
+    var manualModelName: Binding<String> {
+        Binding(
+            get: { self.manualModelNameValue },
+            set: { newValue in
+                Task {
+                    await self.selectManualModel(newValue)
                 }
             }
         )
@@ -33,6 +45,9 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var activeWarnings: [WarningItem] = []
     @Published private(set) var showAPIKeyAlert = false
     @Published private(set) var existingAPIKey: String?
+    @Published private(set) var showOpenAIAlert = false
+    @Published private(set) var existingOpenAIKey: String?
+    @Published private(set) var existingOpenAIEndpoint: String?
     
     var hasModels: Bool {
         !availableModels.isEmpty
@@ -130,9 +145,28 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     func selectModel(_ model: LLMModelInfo) async {
         errorMessage = nil
         selectedModel = model
-        
+
         do {
             try await llmService.selectModel(id: model.id)
+        } catch {
+            errorMessage = error.localizedDescription
+            selectedModel = nil
+        }
+    }
+
+    func selectManualModel(_ modelName: String) async {
+        guard !modelName.isEmpty else {
+            return
+        }
+
+        errorMessage = nil
+        manualModelNameValue = modelName
+
+        let manualModel = LLMModelInfo(name: modelName, provider: selectedProvider.rawValue)
+        selectedModel = manualModel
+
+        do {
+            try await llmService.selectModel(id: manualModel.id)
         } catch {
             errorMessage = error.localizedDescription
             selectedModel = nil
@@ -141,10 +175,10 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     
     func selectProvider(_ provider: LLMProvider) async {
         errorMessage = nil
-        
+
         if provider == .openRouter {
             let validation = keychainAPIValidator.validateOpenRouterAPI()
-            
+
             if !validation.isValid {
                 do {
                     existingAPIKey = try keychainService.retrieveOpenRouterAPIKey()
@@ -155,18 +189,34 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
                 return
             }
         }
-        
+
+        if provider == .openAI {
+            let validation = keychainAPIValidator.validateOpenAIAPI()
+
+            if !validation.isValid {
+                do {
+                    existingOpenAIKey = try keychainService.retrieveOpenAIAPIKey()
+                    existingOpenAIEndpoint = try keychainService.retrieveOpenAIEndpoint()
+                } catch {
+                    existingOpenAIKey = nil
+                    existingOpenAIEndpoint = nil
+                }
+                showOpenAIAlert = true
+                return
+            }
+        }
+
         selectedProvider = provider
-        
+
         do {
             try await llmService.selectProvider(provider)
-            
+
             let newModels = try await llmService.getAvailableModels()
             availableModels = newModels
-            
+
             let currentSelection = try await llmService.getSelectedModel()
             let isCurrentModelAvailable = newModels.contains { $0.id == currentSelection?.id }
-            
+
             if !isCurrentModelAvailable, let firstModel = newModels.first {
                 await selectModel(firstModel)
             } else {
@@ -252,16 +302,33 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     
     func saveAPIKey(_ apiKey: String) async throws {
         try keychainService.storeOpenRouterAPIKey(apiKey)
-        
+
         existingAPIKey = apiKey
         showAPIKeyAlert = false
-        
+
         await selectProvider(.openRouter)
     }
-    
+
     func dismissAPIKeyAlert() {
         showAPIKeyAlert = false
         existingAPIKey = nil
+    }
+
+    func saveOpenAIConfiguration(apiKey: String, endpoint: String) async throws {
+        try keychainService.storeOpenAIAPIKey(apiKey)
+        try keychainService.storeOpenAIEndpoint(endpoint)
+
+        existingOpenAIKey = apiKey
+        existingOpenAIEndpoint = endpoint
+        showOpenAIAlert = false
+
+        await selectProvider(.openAI)
+    }
+
+    func dismissOpenAIAlert() {
+        showOpenAIAlert = false
+        existingOpenAIKey = nil
+        existingOpenAIEndpoint = nil
     }
     
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {

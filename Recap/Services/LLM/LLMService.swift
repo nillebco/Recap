@@ -33,8 +33,18 @@ final class LLMService: LLMServiceType {
     func initializeProviders() {
         let ollamaProvider = OllamaProvider()
         let openRouterProvider = OpenRouterProvider()
-        availableProviders = [ollamaProvider, openRouterProvider]
-        
+
+        // Get OpenAI credentials from keychain
+        let keychainService = KeychainService()
+        let openAIApiKey = try? keychainService.retrieveOpenAIAPIKey()
+        let openAIEndpoint = try? keychainService.retrieveOpenAIEndpoint()
+        let openAIProvider = OpenAIProvider(
+            apiKey: openAIApiKey,
+            endpoint: openAIEndpoint ?? "https://api.openai.com/v1"
+        )
+
+        availableProviders = [ollamaProvider, openRouterProvider, openAIProvider]
+
         Task {
             do {
                 let preferences = try await userPreferencesRepository.getOrCreatePreferences()
@@ -43,19 +53,20 @@ final class LLMService: LLMServiceType {
                 setCurrentProvider(.default)
             }
         }
-        
-        Publishers.CombineLatest(
+
+        Publishers.CombineLatest3(
             ollamaProvider.availabilityPublisher,
-            openRouterProvider.availabilityPublisher
+            openRouterProvider.availabilityPublisher,
+            openAIProvider.availabilityPublisher
         )
-        .map { ollamaAvailable, openRouterAvailable in
-            ollamaAvailable || openRouterAvailable
+        .map { ollamaAvailable, openRouterAvailable, openAIAvailable in
+            ollamaAvailable || openRouterAvailable || openAIAvailable
         }
         .sink { [weak self] isAnyProviderAvailable in
             self?.isProviderAvailable = isAnyProviderAvailable
         }
         .store(in: &cancellables)
-        
+
         Task {
             try? await Task.sleep(nanoseconds: 2_000_000_000)
             try? await refreshModelsFromProviders()

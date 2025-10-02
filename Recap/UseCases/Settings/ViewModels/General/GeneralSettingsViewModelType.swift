@@ -21,12 +21,17 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     var customPromptTemplate: Binding<String> { get }
     var showAPIKeyAlert: Bool { get }
     var existingAPIKey: String? { get }
+    var showOpenAIAlert: Bool { get }
+    var existingOpenAIKey: String? { get }
+    var existingOpenAIEndpoint: String? { get }
     var globalShortcutKeyCode: Int32 { get }
     var globalShortcutModifiers: Int32 { get }
     var folderSettingsViewModel: FolderSettingsViewModelType { get }
-    
+    var manualModelName: Binding<String> { get }
+
     func loadModels() async
     func selectModel(_ model: LLMModelInfo) async
+    func selectManualModel(_ modelName: String) async
     func selectProvider(_ provider: LLMProvider) async
     func toggleAutoDetectMeetings(_ enabled: Bool) async
     func toggleAutoStopRecording(_ enabled: Bool) async
@@ -36,5 +41,7 @@ protocol GeneralSettingsViewModelType: ObservableObject {
     func resetToDefaultPrompt() async
     func saveAPIKey(_ apiKey: String) async throws
     func dismissAPIKeyAlert()
+    func saveOpenAIConfiguration(apiKey: String, endpoint: String) async throws
+    func dismissOpenAIAlert()
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async
 }

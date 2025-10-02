@@ -13,6 +13,7 @@
 		A7BF55C92E38BF40003536FB /* Ollama in Frameworks */ = {isa = PBXBuildFile; productRef = A7BF55C82E38BF40003536FB /* Ollama */; };
 		A7C35B112E3DFD2700F9261F /* Mockable in Frameworks */ = {isa = PBXBuildFile; productRef = A7C35B102E3DFD2700F9261F /* Mockable */; };
 		A7C35B192E3DFDB500F9261F /* Mockable in Frameworks */ = {isa = PBXBuildFile; productRef = A7C35B182E3DFDB500F9261F /* Mockable */; };
+		E72FA4FF2E8EC8A300BA8587 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = E72FA4FE2E8EC8A300BA8587 /* OpenAI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -148,6 +149,7 @@
 				A73F0CBD2E350D2700B07BB2 /* WhisperKit in Frameworks */,
 				A73F0CBF2E350D2700B07BB2 /* whisperkit-cli in Frameworks */,
 				A743B08B2E3D479600785BFF /* MarkdownUI in Frameworks */,
+				E72FA4FF2E8EC8A300BA8587 /* OpenAI in Frameworks */,
 				A7C35B112E3DFD2700F9261F /* Mockable in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -206,6 +208,7 @@
 				A7BF55C82E38BF40003536FB /* Ollama */,
 				A743B08A2E3D479600785BFF /* MarkdownUI */,
 				A7C35B102E3DFD2700F9261F /* Mockable */,
+				E72FA4FE2E8EC8A300BA8587 /* OpenAI */,
 			);
 			productName = Recap;
 			productReference = A72106522E3016590073C515 /* Recap.app */;
@@ -268,6 +271,7 @@
 				A7BF55C72E38BF40003536FB /* XCRemoteSwiftPackageReference "ollama-swift" */,
 				A743B0892E3D479600785BFF /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				A7C35B0F2E3DFD2700F9261F /* XCRemoteSwiftPackageReference "Mockable" */,
+				E72FA4FD2E8EC8A300BA8587 /* XCRemoteSwiftPackageReference "OpenAI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A72106532E3016590073C515 /* Products */;
@@ -645,6 +649,14 @@
 				minimumVersion = 0.4.0;
 			};
 		};
+		E72FA4FD2E8EC8A300BA8587 /* XCRemoteSwiftPackageReference "OpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MacPaw/OpenAI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.6;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -677,6 +689,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A7C35B0F2E3DFD2700F9261F /* XCRemoteSwiftPackageReference "Mockable" */;
 			productName = Mockable;
+		};
+		E72FA4FE2E8EC8A300BA8587 /* OpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E72FA4FD2E8EC8A300BA8587 /* XCRemoteSwiftPackageReference "OpenAI" */;
+			productName = OpenAI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
