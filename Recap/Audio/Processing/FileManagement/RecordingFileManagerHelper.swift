@@ -28,26 +28,33 @@ final class RecordingFileManagerHelper: RecordingFileManagerHelperType {
                     bookmarkDataIsStale: &isStale
                 )
 
+                print("📂 Resolved bookmark to: \(url.path), isStale: \(isStale)")
+
                 // Start accessing the security-scoped resource
                 guard url.startAccessingSecurityScopedResource() else {
+                    print("❌ Failed to start accessing security-scoped resource")
                     // Fall through to default if we can't access
                     return defaultDirectory()
                 }
 
+                print("✅ Successfully started accessing security-scoped resource")
                 return url
             } catch {
+                print("❌ Bookmark resolution failed: \(error)")
                 // Fall through to default if bookmark resolution fails
             }
         }
 
         // Fallback: try the path string (won't work for sandboxed access but kept for backwards compatibility)
         if let customPath = defaults.string(forKey: "customTmpDirectoryPath") {
+            print("📂 Trying fallback path: \(customPath)")
             let url = URL(fileURLWithPath: customPath)
             if FileManager.default.fileExists(atPath: url.path) {
                 return url
             }
         }
 
+        print("📂 Using default directory")
         return defaultDirectory()
     }
 
