@@ -15,11 +15,15 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
         request.fetchLimit = 1
-        
+
         do {
             let preferences = try context.fetch(request).first
-            
+
             if let existingPreferences = preferences {
+                // Sync to UserDefaults for synchronous access
+                if let customPath = existingPreferences.customTmpDirectoryPath {
+                    UserDefaults.standard.set(customPath, forKey: "customTmpDirectoryPath")
+                }
                 return UserPreferencesInfo(from: existingPreferences)
             } else {
                 let newPreferences = UserPreferences(context: context)
@@ -351,6 +355,14 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 newPreferences.autoSummarizeEnabled = true
                 newPreferences.onboarded = false
                 try context.save()
+
+                // Also save to UserDefaults for synchronous access
+                if let path = path {
+                    UserDefaults.standard.set(path, forKey: "customTmpDirectoryPath")
+                } else {
+                    UserDefaults.standard.removeObject(forKey: "customTmpDirectoryPath")
+                }
+
                 return
             }
 
@@ -358,6 +370,13 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             preferences.customTmpDirectoryBookmark = bookmark
             preferences.modifiedAt = Date()
             try context.save()
+
+            // Also save to UserDefaults for synchronous access
+            if let path = path {
+                UserDefaults.standard.set(path, forKey: "customTmpDirectoryPath")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "customTmpDirectoryPath")
+            }
         } catch {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
