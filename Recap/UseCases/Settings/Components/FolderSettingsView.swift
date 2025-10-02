@@ -74,10 +74,19 @@ struct FolderSettingsView<ViewModel: FolderSettingsViewModelType>: View {
         panel.prompt = "Choose"
         panel.message = "Select a folder where Recap will store recordings and segments."
 
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            Task {
-                await viewModel.updateFolderPath(url)
+        if let window = NSApp.keyWindow {
+            panel.beginSheetModal(for: window) { response in
+                guard response == .OK, let url = panel.url else { return }
+                Task {
+                    await viewModel.updateFolderPath(url)
+                }
+            }
+        } else {
+            panel.begin { response in
+                guard response == .OK, let url = panel.url else { return }
+                Task {
+                    await viewModel.updateFolderPath(url)
+                }
             }
         }
 #endif
