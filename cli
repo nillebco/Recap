@@ -94,38 +94,53 @@ check_xcode() {
 
 # Function to clean build folder
 clean_build() {
-    print_status "Cleaning build folder..."
-    xcodebuild clean -project "$PROJECT_FILE" -scheme "$SCHEME_NAME" -configuration Debug
-    print_success "Build folder cleaned"
+    local configuration="${1:-Debug}"  # Optional argument, defaults to Debug
+    print_status "Cleaning $configuration build folder..."
+    xcodebuild clean -project "$PROJECT_FILE" -scheme "$SCHEME_NAME" -configuration $configuration
+    print_success "$configuration Build folder cleaned"
 }
 
 # Function to build the app
 build_app() {
-    print_status "Building $PROJECT_NAME..."
-    xcodebuild build -project "$PROJECT_FILE" -scheme "$SCHEME_NAME" -configuration Debug -destination "platform=macOS"
-    print_success "Build completed successfully"
+    local configuration="${1:-Debug}"  # Optional argument, defaults to Debug
+
+    print_status "Building $PROJECT_NAME with configuration $configuration..."
+    xcodebuild build \
+        -project "$PROJECT_FILE" \
+        -scheme "$SCHEME_NAME" \
+        -configuration "$configuration" \
+        -destination "platform=macOS"
+    print_success "$configuration Build completed successfully"
 }
 
 # Function to run the app
 run_app() {
-    print_status "Running $PROJECT_NAME..."
-    
-    # First, try to find an existing built app
-    APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "Recap.app" -type d -exec test -f {}/Contents/MacOS/Recap \; -print | head -1)
-    
-    # If no app found, build it first
+    local configuration="${1:-Debug}"  # Optional arg, defaults to Debug
+
+    print_status "Running $PROJECT_NAME (configuration: $configuration)..."
+
+    # Look for the app in DerivedData under the given configuration
+    APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData \
+        -type d \
+        -path "*/Build/Products/$configuration*/Recap.app" \
+        -exec test -f {}/Contents/MacOS/Recap \; -print | head -1)
+
+    # If no app found, build it first with the given configuration
     if [ -z "$APP_PATH" ]; then
         print_warning "No built app found. Building the app first..."
-        build_app
+        build_app "$configuration"
         # Try to find the app again after building
-        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "Recap.app" -type d -exec test -f {}/Contents/MacOS/Recap \; -print | head -1)
-        
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData \
+            -type d \
+            -path "*/Build/Products/$configuration*/Recap.app" \
+            -exec test -f {}/Contents/MacOS/Recap \; -print | head -1)
+
         if [ -z "$APP_PATH" ]; then
             print_error "Could not find built Recap.app even after building. Check build output for errors."
             exit 1
         fi
     fi
-    
+
     print_status "Found app at: $APP_PATH"
     open "$APP_PATH"
     print_success "App launched successfully"
@@ -249,18 +264,18 @@ main() {
         print_error "Project file $PROJECT_FILE not found in $PROJECT_ROOT."
         exit 1
     fi
-    
+
     # Check Xcode installation
     check_xcode
-    
+
     # Parse command line arguments
     case "${1:-all}" in
         "build")
-            clean_build
-            build_app
+            clean_build ${@:2}
+            build_app ${@:2}
             ;;
         "run")
-            run_app
+            run_app ${@:2}
             ;;
         "test")
             run_tests
@@ -269,18 +284,18 @@ main() {
             archive_app
             ;;
         "bundle")
-            clean_build
+            clean_build ${@:2}
             bundle_app
             ;;
         "all")
-            clean_build
-            build_app
+            clean_build ${@:2}
+            build_app ${@:2}
             run_tests
             archive_app
             print_success "All operations completed successfully!"
             ;;
         "clean")
-            clean_build
+            clean_build ${@:2}
             ;;
         "help"|"-h"|"--help")
             show_help
