@@ -10,9 +10,11 @@ final class MeetingDetectionSettingsViewModel: MeetingDetectionSettingsViewModel
     private let userPreferencesRepository: UserPreferencesRepositoryType
     private let permissionsHelper: any PermissionsHelperType
 
-    init(detectionService: any MeetingDetectionServiceType,
-         userPreferencesRepository: UserPreferencesRepositoryType,
-         permissionsHelper: any PermissionsHelperType) {
+    init(
+        detectionService: any MeetingDetectionServiceType,
+        userPreferencesRepository: UserPreferencesRepositoryType,
+        permissionsHelper: any PermissionsHelperType
+    ) {
         self.detectionService = detectionService
         self.userPreferencesRepository = userPreferencesRepository
         self.permissionsHelper = permissionsHelper
@@ -63,7 +65,9 @@ final class MeetingDetectionSettingsViewModel: MeetingDetectionSettingsViewModel
     }
 
     func openScreenRecordingPreferences() {
-        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
+        if let url = URL(
+            string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")
+        {
             NSWorkspace.shared.open(url)
         }
     }

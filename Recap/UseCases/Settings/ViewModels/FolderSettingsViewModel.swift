@@ -39,48 +39,49 @@ final class FolderSettingsViewModel: FolderSettingsViewModelType {
         errorMessage = nil
 
         do {
-#if os(macOS)
-            var resolvedURL = url
-            var bookmarkData: Data
+            #if os(macOS)
+                var resolvedURL = url
+                var bookmarkData: Data
 
-            do {
-                bookmarkData = try url.bookmarkData(
-                    options: [.withSecurityScope],
-                    includingResourceValuesForKeys: nil,
-                    relativeTo: nil
-                )
-
-                var isStale = false
-                resolvedURL = try URL(
-                    resolvingBookmarkData: bookmarkData,
-                    options: [.withSecurityScope],
-                    relativeTo: nil,
-                    bookmarkDataIsStale: &isStale
-                )
-
-                if isStale {
-                    bookmarkData = try resolvedURL.bookmarkData(
+                do {
+                    bookmarkData = try url.bookmarkData(
                         options: [.withSecurityScope],
                         includingResourceValuesForKeys: nil,
                         relativeTo: nil
                     )
-                }
-            } catch {
-                errorMessage = "Failed to prepare folder access: \(error.localizedDescription)"
-                return
-            }
 
-            let hasSecurityScope = resolvedURL.startAccessingSecurityScopedResource()
-            defer {
-                if hasSecurityScope {
-                    resolvedURL.stopAccessingSecurityScopedResource()
-                }
-            }
+                    var isStale = false
+                    resolvedURL = try URL(
+                        resolvingBookmarkData: bookmarkData,
+                        options: [.withSecurityScope],
+                        relativeTo: nil,
+                        bookmarkDataIsStale: &isStale
+                    )
 
-            try await validateAndPersistSelection(resolvedURL: resolvedURL, bookmark: bookmarkData)
-#else
-            try await validateAndPersistSelection(resolvedURL: url, bookmark: nil)
-#endif
+                    if isStale {
+                        bookmarkData = try resolvedURL.bookmarkData(
+                            options: [.withSecurityScope],
+                            includingResourceValuesForKeys: nil,
+                            relativeTo: nil
+                        )
+                    }
+                } catch {
+                    errorMessage = "Failed to prepare folder access: \(error.localizedDescription)"
+                    return
+                }
+
+                let hasSecurityScope = resolvedURL.startAccessingSecurityScopedResource()
+                defer {
+                    if hasSecurityScope {
+                        resolvedURL.stopAccessingSecurityScopedResource()
+                    }
+                }
+
+                try await validateAndPersistSelection(
+                    resolvedURL: resolvedURL, bookmark: bookmarkData)
+            #else
+                try await validateAndPersistSelection(resolvedURL: url, bookmark: nil)
+            #endif
         } catch {
             errorMessage = "Failed to update folder path: \(error.localizedDescription)"
         }
@@ -90,7 +91,8 @@ final class FolderSettingsViewModel: FolderSettingsViewModelType {
         // Check if the directory exists and is writable
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: resolvedURL.path, isDirectory: &isDirectory),
-              isDirectory.boolValue else {
+            isDirectory.boolValue
+        else {
             errorMessage = "Selected path does not exist or is not a directory"
             return
         }

@@ -16,7 +16,8 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                             warning: WarningItem(
                                 id: "screen-recording",
                                 title: "Permission Required",
-                                message: "Screen Recording permission needed to detect meeting windows",
+                                message:
+                                    "Screen Recording permission needed to detect meeting windows",
                                 icon: "exclamationmark.shield",
                                 severity: .warning
                             ),
@@ -25,7 +26,8 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                             buttonAction: {
                                 viewModel.openScreenRecordingPreferences()
                             },
-                            footerText: "This permission allows Recap to read window titles only. No screen content is captured or recorded."
+                            footerText:
+                                "This permission allows Recap to read window titles only. No screen content is captured or recorded."
                         )
                         .transition(.opacity.combined(with: .move(edge: .top)))
                     }
@@ -34,16 +36,20 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                         VStack(spacing: 16) {
                             settingsRow(
                                 label: "Auto-detect meetings",
-                                description: "Get notified in console when Teams, Zoom, or Meet meetings begin"
+                                description:
+                                    "Get notified in console when Teams, Zoom, or Meet meetings begin"
                             ) {
-                                Toggle("", isOn: Binding(
-                                    get: { viewModel.autoDetectMeetings },
-                                    set: { newValue in
-                                        Task {
-                                            await viewModel.handleAutoDetectToggle(newValue)
+                                Toggle(
+                                    "",
+                                    isOn: Binding(
+                                        get: { viewModel.autoDetectMeetings },
+                                        set: { newValue in
+                                            Task {
+                                                await viewModel.handleAutoDetectToggle(newValue)
+                                            }
                                         }
-                                    }
-                                ))
+                                    )
+                                )
                                 .toggleStyle(CustomToggleStyle())
                                 .labelsHidden()
                             }
@@ -52,10 +58,12 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                                 VStack(spacing: 12) {
                                     if !viewModel.hasScreenRecordingPermission {
                                         HStack {
-                                            Text("Please enable Screen Recording permission above to continue.")
-                                                .font(.system(size: 10))
-                                                .foregroundColor(.secondary)
-                                                .multilineTextAlignment(.leading)
+                                            Text(
+                                                "Please enable Screen Recording permission above to continue."
+                                            )
+                                            .font(.system(size: 10))
+                                            .foregroundColor(.secondary)
+                                            .multilineTextAlignment(.leading)
                                             Spacer()
                                         }
                                     }
@@ -67,8 +75,13 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.autoDetectMeetings)
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.hasScreenRecordingPermission)
+                .animation(
+                    .spring(response: 0.4, dampingFraction: 0.8),
+                    value: viewModel.autoDetectMeetings
+                )
+                .animation(
+                    .spring(response: 0.4, dampingFraction: 0.8),
+                    value: viewModel.hasScreenRecordingPermission)
             }
         }
         .onAppear {

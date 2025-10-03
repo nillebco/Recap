@@ -64,11 +64,13 @@ struct OpenRouterAPIKeyAlert: View {
             )
 
             HStack {
-                Text("Your API key is stored securely in the system keychain and never leaves your device.")
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundColor(UIConstants.Colors.textSecondary)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
+                Text(
+                    "Your API key is stored securely in the system keychain and never leaves your device."
+                )
+                .font(.system(size: 11, weight: .regular))
+                .foregroundColor(UIConstants.Colors.textSecondary)
+                .multilineTextAlignment(.leading)
+                .lineLimit(2)
                 Spacer()
             }
         }

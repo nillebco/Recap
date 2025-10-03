@@ -1,5 +1,5 @@
-import Foundation
 import CoreData
+import Foundation
 
 final class RecordingRepository: RecordingRepositoryType {
     private let coreDataManager: CoreDataManagerType
@@ -8,17 +8,17 @@ final class RecordingRepository: RecordingRepositoryType {
         self.coreDataManager = coreDataManager
     }
 
-    func createRecording(id: String, startDate: Date, recordingURL: URL, microphoneURL: URL?, hasMicrophoneAudio: Bool, applicationName: String?) async throws -> RecordingInfo {
+    func createRecording(_ parameters: RecordingCreationParameters) async throws -> RecordingInfo {
         try await withCheckedThrowingContinuation { continuation in
             coreDataManager.performBackgroundTask { context in
                 do {
                     let recording = UserRecording(context: context)
-                    recording.id = id
-                    recording.startDate = startDate
-                    recording.recordingURL = recordingURL.path
-                    recording.microphoneURL = microphoneURL?.path
-                    recording.hasMicrophoneAudio = hasMicrophoneAudio
-                    recording.applicationName = applicationName
+                    recording.id = parameters.id
+                    recording.startDate = parameters.startDate
+                    recording.recordingURL = parameters.recordingURL.path
+                    recording.microphoneURL = parameters.microphoneURL?.path
+                    recording.hasMicrophoneAudio = parameters.hasMicrophoneAudio
+                    recording.applicationName = parameters.applicationName
                     recording.state = RecordingProcessingState.recording.rawValue
                     recording.createdAt = Date()
                     recording.modifiedAt = Date()
@@ -69,7 +69,8 @@ final class RecordingRepository: RecordingRepositoryType {
         }
     }
 
-    func fetchRecordings(withState state: RecordingProcessingState) async throws -> [RecordingInfo] {
+    func fetchRecordings(withState state: RecordingProcessingState) async throws -> [RecordingInfo]
+    {
         try await withCheckedThrowingContinuation { continuation in
             coreDataManager.performBackgroundTask { context in
                 let request = UserRecording.fetchRequest()
@@ -87,7 +88,9 @@ final class RecordingRepository: RecordingRepositoryType {
         }
     }
 
-    func updateRecordingState(id: String, state: RecordingProcessingState, errorMessage: String?) async throws {
+    func updateRecordingState(id: String, state: RecordingProcessingState, errorMessage: String?)
+        async throws
+    {
         try await withCheckedThrowingContinuation { continuation in
             coreDataManager.performBackgroundTask { context in
                 do {
@@ -139,7 +142,9 @@ final class RecordingRepository: RecordingRepositoryType {
         }
     }
 
-    func updateRecordingTimestampedTranscription(id: String, timestampedTranscription: TimestampedTranscription) async throws {
+    func updateRecordingTimestampedTranscription(
+        id: String, timestampedTranscription: TimestampedTranscription
+    ) async throws {
         try await withCheckedThrowingContinuation { continuation in
             coreDataManager.performBackgroundTask { context in
                 do {
@@ -231,7 +236,9 @@ final class RecordingRepository: RecordingRepositoryType {
         }
     }
 
-    private func fetchRecordingEntity(id: String, context: NSManagedObjectContext) throws -> UserRecording {
+    private func fetchRecordingEntity(id: String, context: NSManagedObjectContext) throws
+        -> UserRecording
+    {
         let request = UserRecording.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id)
         request.fetchLimit = 1

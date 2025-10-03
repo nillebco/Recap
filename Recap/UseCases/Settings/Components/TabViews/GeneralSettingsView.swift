@@ -1,5 +1,5 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
     @ObservedObject private var viewModel: ViewModel
@@ -24,7 +24,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                     isSelected: true,
                                     audioLevel: recapViewModel.systemAudioHeatmapLevel,
                                     isInteractionEnabled: !recapViewModel.isRecording,
-                                    onToggle: { }
+                                    onToggle: {}
                                 )
                                 HeatmapCard(
                                     title: "Microphone",
@@ -111,8 +111,12 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                                 .fill(
                                                     LinearGradient(
                                                         gradient: Gradient(stops: [
-                                                            .init(color: Color(hex: "2A2A2A").opacity(0.3), location: 0),
-                                                            .init(color: Color(hex: "1A1A1A").opacity(0.5), location: 1)
+                                                            .init(
+                                                                color: Color(hex: "2A2A2A").opacity(
+                                                                    0.3), location: 0),
+                                                            .init(
+                                                                color: Color(hex: "1A1A1A").opacity(
+                                                                    0.5), location: 1),
                                                         ]),
                                                         startPoint: .top,
                                                         endPoint: .bottom
@@ -123,8 +127,14 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                                         .stroke(
                                                             LinearGradient(
                                                                 gradient: Gradient(stops: [
-                                                                    .init(color: Color(hex: "979797").opacity(0.2), location: 0),
-                                                                    .init(color: Color(hex: "C4C4C4").opacity(0.15), location: 1)
+                                                                    .init(
+                                                                        color: Color(hex: "979797")
+                                                                            .opacity(0.2),
+                                                                        location: 0),
+                                                                    .init(
+                                                                        color: Color(hex: "C4C4C4")
+                                                                            .opacity(0.15),
+                                                                        location: 1),
                                                                 ]),
                                                                 startPoint: .top,
                                                                 endPoint: .bottom
@@ -173,14 +183,17 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                     SettingsCard(title: "Processing Options") {
                         VStack(spacing: 16) {
                             settingsRow(label: "Enable Transcription") {
-                                Toggle("", isOn: Binding(
-                                    get: { viewModel.isAutoTranscribeEnabled },
-                                    set: { newValue in
-                                        Task {
-                                            await viewModel.toggleAutoTranscribe(newValue)
+                                Toggle(
+                                    "",
+                                    isOn: Binding(
+                                        get: { viewModel.isAutoTranscribeEnabled },
+                                        set: { newValue in
+                                            Task {
+                                                await viewModel.toggleAutoTranscribe(newValue)
+                                            }
                                         }
-                                    }
-                                ))
+                                    )
+                                )
                                 .toggleStyle(SwitchToggleStyle(tint: UIConstants.Colors.audioGreen))
                             }
 
@@ -190,21 +203,26 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             settingsRow(label: "Enable Summarization") {
-                                Toggle("", isOn: Binding(
-                                    get: { viewModel.isAutoSummarizeEnabled },
-                                    set: { newValue in
-                                        Task {
-                                            await viewModel.toggleAutoSummarize(newValue)
+                                Toggle(
+                                    "",
+                                    isOn: Binding(
+                                        get: { viewModel.isAutoSummarizeEnabled },
+                                        set: { newValue in
+                                            Task {
+                                                await viewModel.toggleAutoSummarize(newValue)
+                                            }
                                         }
-                                    }
-                                ))
+                                    )
+                                )
                                 .toggleStyle(SwitchToggleStyle(tint: UIConstants.Colors.audioGreen))
                             }
 
-                            Text("When disabled, recordings will only be transcribed without summarization")
-                                .font(.system(size: 11, weight: .regular))
-                                .foregroundColor(UIConstants.Colors.textSecondary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text(
+                                "When disabled, recordings will only be transcribed without summarization"
+                            )
+                            .font(.system(size: 11, weight: .regular))
+                            .foregroundColor(UIConstants.Colors.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
 
@@ -213,7 +231,9 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                     }
 
                     SettingsCard(title: "File Storage") {
-                        FolderSettingsView(viewModel: AnyFolderSettingsViewModel(viewModel.folderSettingsViewModel))
+                        FolderSettingsView(
+                            viewModel: AnyFolderSettingsViewModel(viewModel.folderSettingsViewModel)
+                        )
                     }
 
                 }
@@ -221,10 +241,12 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                 .padding(.vertical, 20)
             }
         }
-        .toast(isPresenting: Binding(
-            get: { viewModel.showToast },
-            set: { _ in }
-        )) {
+        .toast(
+            isPresenting: Binding(
+                get: { viewModel.showToast },
+                set: { _ in }
+            )
+        ) {
             AlertToast(
                 displayMode: .hud,
                 type: .error(.red),
@@ -232,7 +254,9 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
             )
         }
         .blur(radius: viewModel.showAPIKeyAlert || viewModel.showOpenAIAlert ? 2 : 0)
-        .animation(.easeInOut(duration: 0.3), value: viewModel.showAPIKeyAlert || viewModel.showOpenAIAlert)
+        .animation(
+            .easeInOut(duration: 0.3), value: viewModel.showAPIKeyAlert || viewModel.showOpenAIAlert
+        )
         .overlay(
             Group {
                 if viewModel.showAPIKeyAlert {
@@ -269,14 +293,17 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                             existingKey: viewModel.existingOpenAIKey,
                             existingEndpoint: viewModel.existingOpenAIEndpoint,
                             onSave: { apiKey, endpoint in
-                                try await viewModel.saveOpenAIConfiguration(apiKey: apiKey, endpoint: endpoint)
+                                try await viewModel.saveOpenAIConfiguration(
+                                    apiKey: apiKey, endpoint: endpoint)
                             }
                         )
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                     }
                 }
             }
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showAPIKeyAlert || viewModel.showOpenAIAlert)
+            .animation(
+                .spring(response: 0.4, dampingFraction: 0.8),
+                value: viewModel.showAPIKeyAlert || viewModel.showOpenAIAlert)
         )
     }
 
@@ -317,7 +344,7 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
 
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
-        LLMModelInfo(name: "codellama", provider: "ollama")
+        LLMModelInfo(name: "codellama", provider: "ollama"),
     ]
     @Published var selectedModel: LLMModelInfo?
     @Published var selectedProvider: LLMProvider = .ollama
@@ -335,7 +362,7 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     @Published var existingOpenAIKey: String?
     @Published var existingOpenAIEndpoint: String?
     @Published var globalShortcutKeyCode: Int32 = 15
-    @Published var globalShortcutModifiers: Int32 = 1048840
+    @Published var globalShortcutModifiers: Int32 = 1_048_840
     @Published var activeWarnings: [WarningItem] = [
         WarningItem(
             id: "ollama",
@@ -399,7 +426,8 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
 
 // Add a preview implementation for FolderSettingsViewModel
 private final class PreviewFolderSettingsViewModel: FolderSettingsViewModelType {
-    @Published var currentFolderPath: String = "/Users/nilleb/Library/Containers/co.nilleb.Recap/Data/tmp/"
+    @Published var currentFolderPath: String =
+        "/Users/nilleb/Library/Containers/co.nilleb.Recap/Data/tmp/"
     @Published var errorMessage: String?
 
     init() {

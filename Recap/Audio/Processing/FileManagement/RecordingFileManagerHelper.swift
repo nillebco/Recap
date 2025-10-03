@@ -9,7 +9,9 @@ protocol RecordingFileManagerHelperType {
 
 final class RecordingFileManagerHelper: RecordingFileManagerHelperType {
     private let userPreferencesRepository: UserPreferencesRepositoryType
-    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: RecordingFileManagerHelper.self))
+    private let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem,
+        category: String(describing: RecordingFileManagerHelper.self))
 
     init(userPreferencesRepository: UserPreferencesRepositoryType) {
         self.userPreferencesRepository = userPreferencesRepository
@@ -30,7 +32,9 @@ final class RecordingFileManagerHelper: RecordingFileManagerHelperType {
                     bookmarkDataIsStale: &isStale
                 )
 
-                logger.info("📂 Resolved bookmark to: \(url.path, privacy: .public), isStale: \(isStale, privacy: .public)")
+                logger.info(
+                    "📂 Resolved bookmark to: \(url.path, privacy: .public), isStale: \(isStale, privacy: .public)"
+                )
 
                 // Start accessing the security-scoped resource
                 guard url.startAccessingSecurityScopedResource() else {
@@ -42,7 +46,8 @@ final class RecordingFileManagerHelper: RecordingFileManagerHelperType {
                 logger.info("✅ Successfully started accessing security-scoped resource")
                 return url
             } catch {
-                logger.error("❌ Bookmark resolution failed: \(error.localizedDescription, privacy: .public)")
+                logger.error(
+                    "❌ Bookmark resolution failed: \(error.localizedDescription, privacy: .public)")
                 // Fall through to default if bookmark resolution fails
             }
         }
@@ -69,8 +74,9 @@ final class RecordingFileManagerHelper: RecordingFileManagerHelperType {
         // This will be handled by UserPreferencesRepository
         // Just validate the URL is accessible
         guard FileManager.default.isWritableFile(atPath: url.path) else {
-            throw NSError(domain: "RecordingFileManagerHelper", code: 1,
-                         userInfo: [NSLocalizedDescriptionKey: "Directory is not writable"])
+            throw NSError(
+                domain: "RecordingFileManagerHelper", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Directory is not writable"])
         }
     }
 

@@ -14,7 +14,9 @@ extension AudioProcessGroup {
             byKind[process.kind, default: .init(for: process.kind)].processes.append(process)
         }
 
-        return byKind.values.sorted(by: { $0.title.localizedStandardCompare($1.title) == .orderedAscending })
+        return byKind.values.sorted(by: {
+            $0.title.localizedStandardCompare($1.title) == .orderedAscending
+        })
     }
 
     init(for kind: AudioProcess.Kind) {

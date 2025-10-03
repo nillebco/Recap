@@ -1,11 +1,12 @@
-import Foundation
 import AVFoundation
+import Foundation
+
 #if MOCKING
-import Mockable
+    import Mockable
 #endif
 
 #if MOCKING
-@Mockable
+    @Mockable
 #endif
 @MainActor
 protocol PermissionsHelperType: AnyObject {

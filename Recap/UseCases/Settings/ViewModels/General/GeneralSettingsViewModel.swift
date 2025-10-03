@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 import SwiftUI
 
 @MainActor
@@ -13,8 +13,8 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var isAutoTranscribeEnabled: Bool = true
     @Published private var customPromptTemplateValue: String = ""
     @Published private var manualModelNameValue: String = ""
-    @Published private(set) var globalShortcutKeyCode: Int32 = 15 // 'R' key
-    @Published private(set) var globalShortcutModifiers: Int32 = 1048840 // Cmd key
+    @Published private(set) var globalShortcutKeyCode: Int32 = 15  // 'R' key
+    @Published private(set) var globalShortcutModifiers: Int32 = 1_048_840  // Cmd key
 
     var customPromptTemplate: Binding<String> {
         Binding(
@@ -108,7 +108,8 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             isAutoStopRecording = preferences.autoStopRecording
             isAutoSummarizeEnabled = preferences.autoSummarizeEnabled
             isAutoTranscribeEnabled = preferences.autoTranscribeEnabled
-            customPromptTemplateValue = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
+            customPromptTemplateValue =
+                preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
             globalShortcutKeyCode = preferences.globalShortcutKeyCode
             globalShortcutModifiers = preferences.globalShortcutModifiers
         } catch {
@@ -118,8 +119,8 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             isAutoSummarizeEnabled = true
             isAutoTranscribeEnabled = true
             customPromptTemplateValue = UserPreferencesInfo.defaultPromptTemplate
-            globalShortcutKeyCode = 15 // 'R' key
-            globalShortcutModifiers = 1048840 // Cmd key
+            globalShortcutKeyCode = 15  // 'R' key
+            globalShortcutModifiers = 1_048_840  // Cmd key
         }
         await loadModels()
     }
@@ -337,13 +338,14 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
         globalShortcutModifiers = modifiers
 
         do {
-            try await userPreferencesRepository.updateGlobalShortcut(keyCode: keyCode, modifiers: modifiers)
+            try await userPreferencesRepository.updateGlobalShortcut(
+                keyCode: keyCode, modifiers: modifiers)
         } catch {
             errorMessage = error.localizedDescription
             // Revert on error - we'd need to reload from preferences
             let preferences = try? await userPreferencesRepository.getOrCreatePreferences()
             globalShortcutKeyCode = preferences?.globalShortcutKeyCode ?? 15
-            globalShortcutModifiers = preferences?.globalShortcutModifiers ?? 1048840
+            globalShortcutModifiers = preferences?.globalShortcutModifiers ?? 1_048_840
         }
     }
 

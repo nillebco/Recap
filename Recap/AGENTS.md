@@ -4,3 +4,7 @@ Using temporary security exceptions in production should be avoided. This entitl
 Avoid useless comments. A comment is useless when it does not add context about the code. Make explicit the why if you add a comment, not the how.
 Check also the tests output, once you are done with the implementation of an increment.
 Add missing files to membershipExceptions for the RecapTests in case of test failures related to missing types.
+Function should have 5 parameters or less.
+Line should be 120 characters or less.
+Function parameters should be aligned vertically if they're in multiple lines in a declaration.
+Files should have less than 400 lines.

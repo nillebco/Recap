@@ -26,7 +26,8 @@ final class RecordingFileManager: RecordingFileManaging {
     func createRecordingBaseURL(for recordingID: String) -> URL {
         if let fileManagerHelper = fileManagerHelper {
             do {
-                let recordingDirectory = try fileManagerHelper.createRecordingDirectory(for: recordingID)
+                let recordingDirectory = try fileManagerHelper.createRecordingDirectory(
+                    for: recordingID)
                 return recordingDirectory
             } catch {
                 // Fallback to default system

@@ -3,7 +3,9 @@ import AudioToolbox
 import OSLog
 
 final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
-    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: AudioRecordingCoordinator.self))
+    private let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem,
+        category: String(describing: AudioRecordingCoordinator.self))
 
     private let configuration: RecordingConfiguration
     private let microphoneCapture: (any MicrophoneCaptureType)?
@@ -38,7 +40,8 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
                 try await MainActor.run {
                     try recorder.start()
                 }
-                logger.info("System-wide audio recording started: \(systemAudioURL.lastPathComponent)")
+                logger.info(
+                    "System-wide audio recording started: \(systemAudioURL.lastPathComponent)")
             } else if let processTap = processTap {
                 let recorder = ProcessTapRecorder(fileURL: systemAudioURL, tap: processTap)
                 self.tapRecorder = recorder
@@ -46,12 +49,14 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
                 try await MainActor.run {
                     try recorder.start()
                 }
-                logger.info("Process-specific audio recording started: \(systemAudioURL.lastPathComponent)")
+                logger.info(
+                    "Process-specific audio recording started: \(systemAudioURL.lastPathComponent)")
             }
         }
 
         if let microphoneURL = expectedFiles.microphoneURL,
-           let microphoneCapture = microphoneCapture {
+            let microphoneCapture = microphoneCapture
+        {
 
             let tapStreamDescription: AudioStreamBasicDescription
             if let systemWideTap = systemWideTap {
@@ -59,7 +64,8 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
                     systemWideTap.activate()
                 }
                 guard let streamDesc = systemWideTap.tapStreamDescription else {
-                    throw AudioCaptureError.coreAudioError("System-wide tap stream description not available")
+                    throw AudioCaptureError.coreAudioError(
+                        "System-wide tap stream description not available")
                 }
                 tapStreamDescription = streamDesc
             } else if let processTap = processTap {
@@ -67,14 +73,16 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
                     processTap.activate()
                 }
                 guard let streamDesc = processTap.tapStreamDescription else {
-                    throw AudioCaptureError.coreAudioError("Process tap stream description not available")
+                    throw AudioCaptureError.coreAudioError(
+                        "Process tap stream description not available")
                 }
                 tapStreamDescription = streamDesc
             } else {
                 throw AudioCaptureError.coreAudioError("No audio tap available")
             }
 
-            try microphoneCapture.start(outputURL: microphoneURL, targetFormat: tapStreamDescription)
+            try microphoneCapture.start(
+                outputURL: microphoneURL, targetFormat: tapStreamDescription)
             logger.info("Microphone recording started: \(microphoneURL.lastPathComponent)")
         }
 

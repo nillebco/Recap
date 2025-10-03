@@ -1,7 +1,7 @@
-import Foundation
 import AVFoundation
-import UserNotifications
+import Foundation
 import ScreenCaptureKit
+import UserNotifications
 
 @MainActor
 final class PermissionsHelper: PermissionsHelperType {

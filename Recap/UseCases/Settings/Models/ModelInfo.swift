@@ -15,11 +15,11 @@ struct ModelInfo {
 
     var helpText: String {
         return """
-        \(displayName)
-        Size: \(parameters) parameters
-        Required VRAM: \(vram)
-        Relative Speed: \(relativeSpeed)
-        """
+            \(displayName)
+            Size: \(parameters) parameters
+            Required VRAM: \(vram)
+            Relative Speed: \(relativeSpeed)
+            """
     }
 }
 
@@ -60,6 +60,6 @@ extension String {
             parameters: "809M",
             vram: "~6 GB",
             relativeSpeed: "~8x"
-        )
+        ),
     ]
 }

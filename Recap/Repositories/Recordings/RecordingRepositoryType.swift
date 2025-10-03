@@ -1,5 +1,14 @@
 import Foundation
 
+struct RecordingCreationParameters {
+    let id: String
+    let startDate: Date
+    let recordingURL: URL
+    let microphoneURL: URL?
+    let hasMicrophoneAudio: Bool
+    let applicationName: String?
+}
+
 #if MOCKING
     import Mockable
 #endif
@@ -8,10 +17,7 @@ import Foundation
     @Mockable
 #endif
 protocol RecordingRepositoryType {
-    func createRecording(
-        id: String, startDate: Date, recordingURL: URL, microphoneURL: URL?,
-        hasMicrophoneAudio: Bool, applicationName: String?
-    ) async throws -> RecordingInfo
+    func createRecording(_ parameters: RecordingCreationParameters) async throws -> RecordingInfo
     func fetchRecording(id: String) async throws -> RecordingInfo?
     func fetchAllRecordings() async throws -> [RecordingInfo]
     func fetchRecordings(withState state: RecordingProcessingState) async throws -> [RecordingInfo]

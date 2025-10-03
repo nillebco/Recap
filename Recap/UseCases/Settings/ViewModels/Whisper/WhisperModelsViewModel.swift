@@ -69,7 +69,9 @@ final class WhisperModelsViewModel: WhisperModelsViewModelType {
                     download: true,
                     progressCallback: { [weak self] progress in
                         Task { @MainActor in
-                            guard let self = self, self.downloadingModels.contains(modelName) else { return }
+                            guard let self = self, self.downloadingModels.contains(modelName) else {
+                                return
+                            }
                             self.downloadProgress[modelName] = progress.fractionCompleted
                         }
                     }
@@ -102,7 +104,8 @@ final class WhisperModelsViewModel: WhisperModelsViewModelType {
     }
 
     func getModelInfo(_ name: String) -> ModelInfo? {
-        let baseModelName = name.replacingOccurrences(of: "-v2", with: "").replacingOccurrences(of: "-v3", with: "")
+        let baseModelName = name.replacingOccurrences(of: "-v2", with: "").replacingOccurrences(
+            of: "-v3", with: "")
         return String.modelInfoData[baseModelName]
     }
 

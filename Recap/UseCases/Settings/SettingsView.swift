@@ -35,11 +35,12 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
     ) {
         self.whisperModelsViewModel = whisperModelsViewModel
         self.generalSettingsViewModel = generalSettingsViewModel
-        self._meetingDetectionViewModel = StateObject(wrappedValue: MeetingDetectionSettingsViewModel(
-            detectionService: meetingDetectionService,
-            userPreferencesRepository: userPreferencesRepository,
-            permissionsHelper: PermissionsHelper()
-        ))
+        self._meetingDetectionViewModel = StateObject(
+            wrappedValue: MeetingDetectionSettingsViewModel(
+                detectionService: meetingDetectionService,
+                userPreferencesRepository: userPreferencesRepository,
+                permissionsHelper: PermissionsHelper()
+            ))
         self.recapViewModel = recapViewModel
         self.onClose = onClose
     }
@@ -73,8 +74,12 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
                                             .stroke(
                                                 LinearGradient(
                                                     gradient: Gradient(stops: [
-                                                        .init(color: Color(hex: "979797").opacity(0.6), location: 0),
-                                                        .init(color: Color(hex: "979797").opacity(0.4), location: 1)
+                                                        .init(
+                                                            color: Color(hex: "979797").opacity(
+                                                                0.6), location: 0),
+                                                        .init(
+                                                            color: Color(hex: "979797").opacity(
+                                                                0.4), location: 1),
                                                     ]),
                                                     startPoint: .top,
                                                     endPoint: .bottom
@@ -120,10 +125,12 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
                             WhisperModelsView(viewModel: whisperModelsViewModel)
                         }
                     }
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .move(edge: .trailing)),
-                        removal: .opacity.combined(with: .move(edge: .leading))
-                    ))
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.combined(with: .move(edge: .trailing)),
+                            removal: .opacity.combined(with: .move(edge: .leading))
+                        )
+                    )
                     .id(selectedTab)
                 }
             }
@@ -148,7 +155,9 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
     SettingsView(
         whisperModelsViewModel: whisperModelsViewModel,
         generalSettingsViewModel: generalSettingsViewModel,
-        meetingDetectionService: MeetingDetectionService(audioProcessController: AudioProcessController(), permissionsHelper: PermissionsHelper()),
+        meetingDetectionService: MeetingDetectionService(
+            audioProcessController: AudioProcessController(), permissionsHelper: PermissionsHelper()
+        ),
         userPreferencesRepository: UserPreferencesRepository(coreDataManager: coreDataManager),
         onClose: {}
     )
@@ -176,7 +185,7 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
 
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
-        LLMModelInfo(name: "codellama", provider: "ollama")
+        LLMModelInfo(name: "codellama", provider: "ollama"),
     ]
     @Published var selectedModel: LLMModelInfo?
     @Published var selectedProvider: LLMProvider = .ollama
@@ -194,7 +203,7 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     @Published var existingOpenAIKey: String?
     @Published var existingOpenAIEndpoint: String?
     @Published var globalShortcutKeyCode: Int32 = 15
-    @Published var globalShortcutModifiers: Int32 = 1048840
+    @Published var globalShortcutModifiers: Int32 = 1_048_840
     @Published var activeWarnings: [WarningItem] = [
         WarningItem(
             id: "ollama",
@@ -257,7 +266,8 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
 
 // Preview implementation for FolderSettingsViewModel
 private final class PreviewFolderSettingsViewModel: FolderSettingsViewModelType {
-    @Published var currentFolderPath: String = "/Users/nilleb/Library/Containers/co.nilleb.Recap/Data/tmp/"
+    @Published var currentFolderPath: String =
+        "/Users/nilleb/Library/Containers/co.nilleb.Recap/Data/tmp/"
     @Published var errorMessage: String?
 
     init() {

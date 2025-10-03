@@ -31,7 +31,8 @@ final class MeetingPatternMatcher {
 
         for pattern in patterns {
             let searchText = pattern.caseSensitive ? title : processedTitle
-            let searchKeyword = pattern.caseSensitive ? pattern.keyword : pattern.keyword.lowercased()
+            let searchKeyword =
+                pattern.caseSensitive ? pattern.keyword : pattern.keyword.lowercased()
 
             if searchText.contains(searchKeyword) {
                 let shouldExclude = pattern.excludePatterns.contains { excludePattern in
@@ -57,7 +58,7 @@ extension MeetingPatternMatcher {
             MeetingPattern(keyword: "retro", confidence: .high),
             MeetingPattern(keyword: "retrospective", confidence: .high),
             MeetingPattern(keyword: "meeting", confidence: .medium),
-            MeetingPattern(keyword: "call", confidence: .medium)
+            MeetingPattern(keyword: "call", confidence: .medium),
         ]
     }
 
@@ -73,7 +74,7 @@ extension MeetingPatternMatcher {
                 caseSensitive: true,
                 excludePatterns: ["chat", "activity", "microsoft teams"]
             ),
-            MeetingPattern(keyword: "screen sharing", confidence: .medium)
+            MeetingPattern(keyword: "screen sharing", confidence: .medium),
         ] + commonMeetingPatterns
     }
 
@@ -81,7 +82,7 @@ extension MeetingPatternMatcher {
         return [
             MeetingPattern(keyword: "zoom meeting", confidence: .high),
             MeetingPattern(keyword: "zoom webinar", confidence: .high),
-            MeetingPattern(keyword: "screen share", confidence: .medium)
+            MeetingPattern(keyword: "screen share", confidence: .medium),
         ] + commonMeetingPatterns
     }
 
@@ -89,7 +90,7 @@ extension MeetingPatternMatcher {
         return [
             MeetingPattern(keyword: "meet.google.com", confidence: .high),
             MeetingPattern(keyword: "google meet", confidence: .high),
-            MeetingPattern(keyword: "meet -", confidence: .medium)
+            MeetingPattern(keyword: "meet -", confidence: .medium),
         ] + commonMeetingPatterns
     }
 }

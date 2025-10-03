@@ -18,7 +18,8 @@ extension RecapViewModel {
                 audioProcess: selectedApp
             )
 
-            let recordedFiles = try await recordingCoordinator.startRecording(configuration: configuration)
+            let recordedFiles = try await recordingCoordinator.startRecording(
+                configuration: configuration)
 
             try await createRecordingEntity(
                 recordingID: recordingID,
@@ -27,7 +28,9 @@ extension RecapViewModel {
 
             updateRecordingUIState(started: true)
 
-            logger.info("Recording started successfully - System: \(recordedFiles.systemAudioURL?.path ?? "none"), Microphone: \(recordedFiles.microphoneURL?.path ?? "none")")
+            logger.info(
+                "Recording started successfully - System: \(recordedFiles.systemAudioURL?.path ?? "none"), Microphone: \(recordedFiles.microphoneURL?.path ?? "none")"
+            )
         } catch {
             handleRecordingStartError(error)
         }
@@ -60,14 +63,16 @@ extension RecapViewModel {
         recordingID: String,
         recordedFiles: RecordedFiles
     ) async throws {
-        let recordingInfo = try await recordingRepository.createRecording(
+        let parameters = RecordingCreationParameters(
             id: recordingID,
             startDate: Date(),
-            recordingURL: recordedFiles.systemAudioURL ?? fileManager.createRecordingBaseURL(for: recordingID),
+            recordingURL: recordedFiles.systemAudioURL
+                ?? fileManager.createRecordingBaseURL(for: recordingID),
             microphoneURL: recordedFiles.microphoneURL,
             hasMicrophoneAudio: isMicrophoneEnabled,
             applicationName: recordedFiles.applicationName ?? selectedApp?.name
         )
+        let recordingInfo = try await recordingRepository.createRecording(parameters)
         currentRecordings.insert(recordingInfo, at: 0)
     }
 

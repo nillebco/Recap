@@ -1,6 +1,6 @@
 import Foundation
-import WhisperKit
 import Hub
+import WhisperKit
 
 struct ModelSizeInfo {
     let modelName: String
@@ -18,7 +18,8 @@ extension WhisperKit {
             let repo = Hub.Repo(id: "argmaxinc/whisperkit-coreml", type: .models)
             let modelSearchPath = "*\(modelName)*/*"
 
-            let fileMetadata = try await hubApi.getFileMetadata(from: repo, matching: [modelSearchPath])
+            let fileMetadata = try await hubApi.getFileMetadata(
+                from: repo, matching: [modelSearchPath])
 
             let totalBytes = fileMetadata.reduce(0) { total, metadata in
                 total + (metadata.size ?? 0)
@@ -56,7 +57,8 @@ extension WhisperKit {
 
         if actualModelFolder == nil && download {
             let repo = modelRepo ?? "argmaxinc/whisperkit-coreml"
-            let modelSupport = await WhisperKit.recommendedRemoteModels(from: repo, downloadBase: downloadBase)
+            let modelSupport = await WhisperKit.recommendedRemoteModels(
+                from: repo, downloadBase: downloadBase)
             let modelVariant = model ?? modelSupport.default
 
             do {
@@ -70,10 +72,11 @@ extension WhisperKit {
                 )
                 actualModelFolder = downloadedFolder.path
             } catch {
-                throw WhisperError.modelsUnavailable("""
-                Model not found. Please check the model or repo name and try again.
-                Error: \(error)
-                """)
+                throw WhisperError.modelsUnavailable(
+                    """
+                    Model not found. Please check the model or repo name and try again.
+                    Error: \(error)
+                    """)
             }
         }
 
@@ -90,8 +93,8 @@ extension WhisperKit {
     }
 }
 
-private extension WhisperKit {
-    enum Constants {
+extension WhisperKit {
+    fileprivate enum Constants {
         // estimates from official repo
         static let fallbackModelSizes: [String: Double] = [
             "tiny": 218,
@@ -100,7 +103,7 @@ private extension WhisperKit {
             "medium": 2917,
             "large-v2": 7812,
             "large-v3": 16793,
-            "distil-whisper_distil-large-v3_turbo": 2035
+            "distil-whisper_distil-large-v3_turbo": 2035,
         ]
 
         static let defaultModelSizeMB: Double = 500.0

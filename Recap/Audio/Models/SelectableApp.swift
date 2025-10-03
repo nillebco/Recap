@@ -1,5 +1,5 @@
-import Foundation
 import AppKit
+import Foundation
 
 struct SelectableApp: Identifiable, Hashable {
     let id: pid_t

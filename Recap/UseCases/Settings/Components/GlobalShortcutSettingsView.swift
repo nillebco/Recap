@@ -1,11 +1,11 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
     @ObservedObject private var viewModel: ViewModel
     @State private var isRecordingShortcut = false
     @State private var currentKeyCode: Int32 = 15
-    @State private var currentModifiers: Int32 = 1048840
+    @State private var currentModifiers: Int32 = 1_048_840
 
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
@@ -41,17 +41,15 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
                         .padding(.vertical, 8)
                         .background(
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(isRecordingShortcut ?
-                                    Color.blue.opacity(0.2) :
-                                    Color.gray.opacity(0.1)
+                                .fill(
+                                    isRecordingShortcut
+                                        ? Color.blue.opacity(0.2) : Color.gray.opacity(0.1)
                                 )
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(
-                                    isRecordingShortcut ?
-                                        Color.blue :
-                                        Color.gray.opacity(0.3),
+                                    isRecordingShortcut ? Color.blue : Color.gray.opacity(0.3),
                                     lineWidth: 1
                                 )
                         )
@@ -204,7 +202,7 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
         case .return: return 36
         case .escape: return 53
         case .delete: return 51
-        default: return 15 // Default to 'R'
+        default: return 15  // Default to 'R'
         }
     }
 

@@ -13,10 +13,12 @@ extension URL {
     }
 
     var isBundle: Bool {
-        (try? resourceValues(forKeys: [.contentTypeKey]))?.contentType?.conforms(to: .bundle) == true
+        (try? resourceValues(forKeys: [.contentTypeKey]))?.contentType?.conforms(to: .bundle)
+            == true
     }
 
     var isApp: Bool {
-        (try? resourceValues(forKeys: [.contentTypeKey]))?.contentType?.conforms(to: .application) == true
+        (try? resourceValues(forKeys: [.contentTypeKey]))?.contentType?.conforms(to: .application)
+            == true
     }
 }

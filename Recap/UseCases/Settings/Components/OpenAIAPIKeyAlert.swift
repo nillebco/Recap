@@ -68,11 +68,13 @@ struct OpenAIAPIKeyAlert: View {
                 text: $endpoint
             )
 
-            Text("For Azure OpenAI, use: https://YOUR-RESOURCE.openai.azure.com/openai/deployments/YOUR-DEPLOYMENT")
-                .font(.system(size: 10, weight: .regular))
-                .foregroundColor(UIConstants.Colors.textSecondary)
-                .multilineTextAlignment(.leading)
-                .lineLimit(3)
+            Text(
+                "For Azure OpenAI, use: https://YOUR-RESOURCE.openai.azure.com/openai/deployments/YOUR-DEPLOYMENT"
+            )
+            .font(.system(size: 10, weight: .regular))
+            .foregroundColor(UIConstants.Colors.textSecondary)
+            .multilineTextAlignment(.leading)
+            .lineLimit(3)
 
             CustomPasswordField(
                 label: "API Key",
@@ -81,11 +83,13 @@ struct OpenAIAPIKeyAlert: View {
             )
 
             HStack {
-                Text("Your credentials are stored securely in the system keychain and never leave your device.")
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundColor(UIConstants.Colors.textSecondary)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
+                Text(
+                    "Your credentials are stored securely in the system keychain and never leave your device."
+                )
+                .font(.system(size: 11, weight: .regular))
+                .foregroundColor(UIConstants.Colors.textSecondary)
+                .multilineTextAlignment(.leading)
+                .lineLimit(2)
                 Spacer()
             }
         }

@@ -8,7 +8,7 @@ struct WhisperModelsView: View {
             let mainCardBackground = LinearGradient(
                 gradient: Gradient(stops: [
                     .init(color: Color(hex: "232222").opacity(0.2), location: 0),
-                    .init(color: Color(hex: "0F0F0F").opacity(0.3), location: 1)
+                    .init(color: Color(hex: "0F0F0F").opacity(0.3), location: 1),
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -17,7 +17,7 @@ struct WhisperModelsView: View {
             let mainCardBorder = LinearGradient(
                 gradient: Gradient(stops: [
                     .init(color: Color(hex: "979797").opacity(0.1), location: 0),
-                    .init(color: Color(hex: "C4C4C4").opacity(0.2), location: 1)
+                    .init(color: Color(hex: "C4C4C4").opacity(0.2), location: 1),
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -62,7 +62,8 @@ struct WhisperModelsView: View {
                 .overlay(
                     Group {
                         if let tooltipModel = viewModel.showingTooltipForModel,
-                           let modelInfo = viewModel.getModelInfo(tooltipModel) {
+                            let modelInfo = viewModel.getModelInfo(tooltipModel)
+                        {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(modelInfo.displayName)
                                     .font(.system(size: 10, weight: .semibold))
@@ -83,7 +84,9 @@ struct WhisperModelsView: View {
                                     .fill(Color.black.opacity(0.95))
                                     .shadow(radius: 4)
                             )
-                            .position(x: viewModel.tooltipPosition.x + 60, y: viewModel.tooltipPosition.y - 40)
+                            .position(
+                                x: viewModel.tooltipPosition.x + 60,
+                                y: viewModel.tooltipPosition.y - 40)
                         }
                     }
                 )
@@ -190,8 +193,14 @@ struct ModelRowView: View {
 
                     if isDownloaded {
                         Circle()
-                            .stroke(UIConstants.Colors.selectionStroke, lineWidth: UIConstants.Sizing.strokeWidth)
-                            .frame(width: UIConstants.Sizing.selectionCircleSize, height: UIConstants.Sizing.selectionCircleSize)
+                            .stroke(
+                                UIConstants.Colors.selectionStroke,
+                                lineWidth: UIConstants.Sizing.strokeWidth
+                            )
+                            .frame(
+                                width: UIConstants.Sizing.selectionCircleSize,
+                                height: UIConstants.Sizing.selectionCircleSize
+                            )
                             .overlay {
                                 if isSelected {
                                     Image(systemName: "checkmark")
