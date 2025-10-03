@@ -58,14 +58,16 @@ final class TranscriptionTextCleaner {
         // Replace user audio note markers with cleaner formatting
         formattedText = formattedText.replacingOccurrences(
             of:
-                "\\[User Audio Note: The following was spoken by the user during this recording\\. Please incorporate this context when creating the meeting summary:\\]",
+                "\\[User Audio Note: The following was spoken by the user during this recording\\."
+                + " Please incorporate this context when creating the meeting summary:\\]",
             with: "\n**User Input:**",
             options: .regularExpression
         )
 
         formattedText = formattedText.replacingOccurrences(
             of:
-                "\\[End of User Audio Note\\. Please align the above user input with the meeting content for a comprehensive summary\\.\\]",
+                "\\[End of User Audio Note\\. Please align the above user input with "
+                + "the meeting content for a comprehensive summary\\.\\]",
             with: "\n**System Audio:**",
             options: .regularExpression
         )

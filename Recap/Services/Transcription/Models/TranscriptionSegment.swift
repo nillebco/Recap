@@ -75,7 +75,9 @@ struct TimestampedTranscription: Equatable, Codable {
             let endMinutes = Int(segment.endTime) / 60
             let endSeconds = Int(segment.endTime) % 60
 
-            return "[\(String(format: "%02d:%02d", startMinutes, startSeconds))-\(String(format: "%02d:%02d", endMinutes, endSeconds))] [\(segment.source.rawValue)] \(segment.text)"
+            return "[\(String(format: "%02d:%02d", startMinutes, startSeconds))-"
+                + "\(String(format: "%02d:%02d", endMinutes, endSeconds))] "
+                + "[\(segment.source.rawValue)] \(segment.text)"
         }.joined(separator: "\n")
     }
 

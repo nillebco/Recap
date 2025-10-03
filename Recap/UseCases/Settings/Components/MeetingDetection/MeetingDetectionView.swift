@@ -27,7 +27,8 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                                 viewModel.openScreenRecordingPreferences()
                             },
                             footerText:
-                                "This permission allows Recap to read window titles only. No screen content is captured or recorded."
+                                "This permission allows Recap to read window titles only. "
+                                + "No screen content is captured or recorded."
                         )
                         .transition(.opacity.combined(with: .move(edge: .top)))
                     }

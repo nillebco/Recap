@@ -1,7 +1,7 @@
-import Foundation
-import ScreenCaptureKit
 import Combine
+import Foundation
 import OSLog
+import ScreenCaptureKit
 
 private struct DetectorResult {
     let detector: any MeetingDetectorType
@@ -32,11 +32,15 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
     private var monitoringTask: Task<Void, Never>?
     private var detectors: [any MeetingDetectorType] = []
     private let checkInterval: TimeInterval = 1.0
-    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: "MeetingDetectionService")
+    private let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem, category: "MeetingDetectionService")
     private let audioProcessController: any AudioProcessControllerType
     private let permissionsHelper: any PermissionsHelperType
 
-    init(audioProcessController: any AudioProcessControllerType, permissionsHelper: any PermissionsHelperType) {
+    init(
+        audioProcessController: any AudioProcessControllerType,
+        permissionsHelper: any PermissionsHelperType
+    ) {
         self.audioProcessController = audioProcessController
         self.permissionsHelper = permissionsHelper
         setupDetectors()
@@ -46,7 +50,7 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
         detectors = [
             TeamsMeetingDetector(),
             ZoomMeetingDetector(),
-            GoogleMeetDetector()
+            GoogleMeetDetector(),
         ]
     }
 
@@ -91,10 +95,13 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
 
                     if result.isActive {
                         if highestConfidenceResult == nil {
-                            highestConfidenceResult = DetectorResult(detector: detector, result: result)
+                            highestConfidenceResult = DetectorResult(
+                                detector: detector, result: result)
                         } else if let currentResult = highestConfidenceResult {
-                            if result.confidence.rawValue > currentResult.result.confidence.rawValue {
-                                highestConfidenceResult = DetectorResult(detector: detector, result: result)
+                            if result.confidence.rawValue > currentResult.result.confidence.rawValue
+                            {
+                                highestConfidenceResult = DetectorResult(
+                                    detector: detector, result: result)
                             }
                         }
                     }
@@ -107,7 +114,9 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
                     title: detectorResult.result.title ?? "Meeting in progress",
                     confidence: detectorResult.result.confidence
                 )
-                let matchedApp = findMatchingAudioProcess(bundleIdentifiers: detectorResult.detector.supportedBundleIdentifiers)
+                let matchedApp = findMatchingAudioProcess(
+                    bundleIdentifiers: detectorResult.detector.supportedBundleIdentifiers
+                )
 
                 activeMeetingInfo = meetingInfo
                 detectedMeetingApp = matchedApp

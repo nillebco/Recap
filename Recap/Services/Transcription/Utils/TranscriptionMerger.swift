@@ -61,7 +61,8 @@ struct TranscriptionMerger {
             let cleanedText = TranscriptionTextCleaner.cleanWhisperKitText(segment.text)
 
             return
-                "\(String(format: "%.2f", segment.startTime)) + \(String(format: "%.2f", duration)), [\(source)]: \(cleanedText)"
+                "\(String(format: "%.2f", segment.startTime)) + "
+                + "\(String(format: "%.2f", duration)), [\(source)]: \(cleanedText)"
         }.joined(separator: "\n")
     }
 
