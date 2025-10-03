@@ -27,7 +27,9 @@ extension MicrophoneCapture {
         self.inputFormat = inputFormat
         self.inputNode = inputNode
 
-        logger.info("Hardware input format: \(inputFormat.sampleRate)Hz, \(inputFormat.channelCount)ch, format: \(inputFormat)")
+        logger.info(
+            "Hardware input format: \(inputFormat.sampleRate)Hz, \(inputFormat.channelCount)ch, format: \(inputFormat)"
+        )
 
         let mixerNode = AVAudioMixerNode()
         engine.attach(mixerNode)
@@ -36,10 +38,14 @@ extension MicrophoneCapture {
         engine.connect(inputNode, to: mixerNode, format: inputFormat)
 
         let mixerOutputFormat = inputFormat
-        logger.info("Mixer output format set to match input: \(mixerOutputFormat.sampleRate)Hz, \(mixerOutputFormat.channelCount)ch")
+        logger.info(
+            "Mixer output format set to match input: \(mixerOutputFormat.sampleRate)Hz, \(mixerOutputFormat.channelCount)ch"
+        )
 
         if let targetFormat = targetFormat {
-            logger.info("Target format requested: \(targetFormat.sampleRate)Hz, \(targetFormat.channelCount)ch")
+            logger.info(
+                "Target format requested: \(targetFormat.sampleRate)Hz, \(targetFormat.channelCount)ch"
+            )
             logger.info("Format conversion will be applied during buffer processing")
         }
 
@@ -63,12 +69,19 @@ extension MicrophoneCapture {
         }
 
         let inputFormat = inputNode.inputFormat(forBus: 0)
-        logger.info("Starting audio engine with input format: \(inputFormat.sampleRate)Hz, \(inputFormat.channelCount)ch")
+        // Update cached inputFormat to reflect current hardware state (may have changed since preparation)
+        self.inputFormat = inputFormat
+        logger.info(
+            "Starting audio engine with input format: \(inputFormat.sampleRate)Hz, \(inputFormat.channelCount)ch"
+        )
 
         // Check if input node has audio input available
         if inputFormat.channelCount == 0 {
-            logger.warning("Input node has no audio channels available - microphone may not be connected or permission denied")
-            throw AudioCaptureError.coreAudioError("No audio input channels available - check microphone connection and permissions")
+            logger.warning(
+                "Input node has no audio channels available - microphone may not be connected or permission denied"
+            )
+            throw AudioCaptureError.coreAudioError(
+                "No audio input channels available - check microphone connection and permissions")
         }
 
         // Verify microphone permission before starting
@@ -86,7 +99,8 @@ extension MicrophoneCapture {
             logger.info("AVAudioEngine started successfully")
         } catch {
             logger.error("Failed to start AVAudioEngine: \(error)")
-            throw AudioCaptureError.coreAudioError("Failed to start audio engine: \(error.localizedDescription)")
+            throw AudioCaptureError.coreAudioError(
+                "Failed to start audio engine: \(error.localizedDescription)")
         }
 
         isRecording = true
@@ -103,11 +117,14 @@ extension MicrophoneCapture {
 
         let tapFormat = inputFormat
 
-        converterNode.installTap(onBus: 0, bufferSize: 1024, format: tapFormat) { [weak self] buffer, time in
+        converterNode.installTap(onBus: 0, bufferSize: 1024, format: tapFormat) {
+            [weak self] buffer, time in
             self?.processAudioBuffer(buffer, at: time)
         }
 
-        logger.info("Audio tap installed with input format: \(tapFormat.sampleRate)Hz, \(tapFormat.channelCount)ch")
+        logger.info(
+            "Audio tap installed with input format: \(tapFormat.sampleRate)Hz, \(tapFormat.channelCount)ch"
+        )
         logger.info("Format consistency ensured: Hardware -> Mixer -> Tap all use same format")
     }
 
@@ -127,9 +144,13 @@ extension MicrophoneCapture {
         self.audioFile = file
 
         if let targetFormat = targetFormat {
-            logger.info("AVAudioFile created with target format: \(targetFormat.sampleRate)Hz, \(targetFormat.channelCount)ch")
+            logger.info(
+                "AVAudioFile created with target format: \(targetFormat.sampleRate)Hz, \(targetFormat.channelCount)ch"
+            )
         } else {
-            logger.info("AVAudioFile created with input format: \(finalFormat.sampleRate)Hz, \(finalFormat.channelCount)ch")
+            logger.info(
+                "AVAudioFile created with input format: \(finalFormat.sampleRate)Hz, \(finalFormat.channelCount)ch"
+            )
         }
     }
 
