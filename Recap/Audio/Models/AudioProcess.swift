@@ -6,9 +6,8 @@ struct AudioProcess: Identifiable, Hashable, Sendable {
     enum Kind: String, Sendable {
         case process
         case app
-//        case system
     }
-    
+
     var id: pid_t
     var kind: Kind
     var name: String
@@ -16,12 +15,12 @@ struct AudioProcess: Identifiable, Hashable, Sendable {
     var bundleID: String?
     var bundleURL: URL?
     var objectID: AudioObjectID
-    
+
     var isMeetingApp: Bool {
         guard let bundleID = bundleID else { return false }
         return Self.meetingAppBundleIDs.contains(bundleID)
     }
-    
+
     // to be used for auto meeting detection
     static let meetingAppBundleIDs = [
         "us.zoom.xos",
@@ -52,15 +51,13 @@ extension AudioProcess.Kind {
         switch self {
         case .process: NSWorkspace.shared.icon(for: .unixExecutable)
         case .app: NSWorkspace.shared.icon(for: .applicationBundle)
-//        case .system: NSWorkspace.shared.icon(for: .systemPreferencesPane)
         }
     }
-    
+
     var groupTitle: String {
         switch self {
         case .process: "Processes"
         case .app: "Apps"
-//        case .system: "System"
         }
     }
 }
