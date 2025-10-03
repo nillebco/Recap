@@ -70,7 +70,9 @@ final class SlidingPanel: NSPanel, SlidingPanelType {
     }
 
     private func setupEventMonitoring() {
-        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [
+            .leftMouseDown, .rightMouseDown,
+        ]) { [weak self] event in
             self?.handleGlobalClick(event)
         }
     }
@@ -90,14 +92,16 @@ final class SlidingPanel: NSPanel, SlidingPanelType {
 }
 
 extension SlidingPanel {
-    private func setupVisualEffectConstraints(_ visualEffect: NSVisualEffectView, in container: NSView) {
+    private func setupVisualEffectConstraints(
+        _ visualEffect: NSVisualEffectView, in container: NSView
+    ) {
         visualEffect.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
             visualEffect.topAnchor.constraint(equalTo: container.topAnchor),
             visualEffect.bottomAnchor.constraint(equalTo: container.bottomAnchor),
             visualEffect.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            visualEffect.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+            visualEffect.trailingAnchor.constraint(equalTo: container.trailingAnchor),
         ])
     }
 
@@ -109,7 +113,7 @@ extension SlidingPanel {
             contentView.topAnchor.constraint(equalTo: container.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+            contentView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
         ])
     }
 }

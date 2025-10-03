@@ -1,7 +1,7 @@
-import SwiftUI
 import AppKit
 import Combine
 import OSLog
+import SwiftUI
 
 @MainActor
 final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
@@ -36,7 +36,9 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     let generalSettingsViewModel: GeneralSettingsViewModel
     let userPreferencesRepository: UserPreferencesRepositoryType
     let meetingDetectionService: any MeetingDetectionServiceType
-    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: MenuBarPanelManager.self))
+    private let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem,
+        category: String(describing: MenuBarPanelManager.self))
 
     init(
         statusBarManager: StatusBarManagerType,
@@ -93,8 +95,9 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
 
     func positionPanel(_ panel: NSPanel, size: CGSize? = nil) {
         guard let statusButton = statusBarManager.statusButton,
-              let statusWindow = statusButton.window,
-              let screen = statusWindow.screen else { return }
+            let statusWindow = statusButton.window,
+            let screen = statusWindow.screen
+        else { return }
 
         let panelSize = size ?? initialSize
         let screenFrame = screen.frame

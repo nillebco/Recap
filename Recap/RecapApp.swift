@@ -5,8 +5,8 @@
 //  Created by Rawand Ahmad on 22/07/2025.
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 import UserNotifications
 
 @main
@@ -46,7 +46,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard let dependencyContainer = dependencyContainer else { return }
 
         do {
-            let preferences = try await dependencyContainer.userPreferencesRepository.getOrCreatePreferences()
+            let preferences = try await dependencyContainer.userPreferencesRepository
+                .getOrCreatePreferences()
             await globalShortcutManager?.registerShortcut(
                 keyCode: UInt32(preferences.globalShortcutKeyCode),
                 modifiers: UInt32(preferences.globalShortcutModifiers)
@@ -59,7 +60,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
         Task { @MainActor in
             if response.notification.request.content.userInfo["action"] as? String == "open_app" {
                 panelManager?.showMainPanel()
@@ -68,7 +72,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         completionHandler()
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter, willPresent notification: UNNotification,
+        withCompletionHandler completionHandler:
+            @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
         completionHandler([.banner, .sound])
     }
 }

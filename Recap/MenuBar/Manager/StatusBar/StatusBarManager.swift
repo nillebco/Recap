@@ -16,7 +16,9 @@ final class StatusBarManager: StatusBarManagerType {
     weak var delegate: StatusBarDelegate?
     private var themeObserver: NSObjectProtocol?
     private var isRecording = false
-    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: StatusBarManager.self))
+    private let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem,
+        category: String(describing: StatusBarManager.self))
 
     init() {
         setupStatusItem()
@@ -45,7 +47,9 @@ final class StatusBarManager: StatusBarManagerType {
     private func updateIconForCurrentTheme() {
         guard let button = statusItem?.button else { return }
 
-        logger.debug("🎨 updateIconForCurrentTheme called, isRecording: \(self.isRecording, privacy: .public)")
+        logger.debug(
+            "🎨 updateIconForCurrentTheme called, isRecording: \(self.isRecording, privacy: .public)"
+        )
 
         // Always use the black icon, regardless of theme
         if let image = NSImage(named: "barIcon-dark") {
@@ -101,7 +105,8 @@ final class StatusBarManager: StatusBarManagerType {
     }
 
     func setRecordingState(_ recording: Bool) {
-        logger.info("🎯 StatusBarManager.setRecordingState called with: \(recording, privacy: .public)")
+        logger.info(
+            "🎯 StatusBarManager.setRecordingState called with: \(recording, privacy: .public)")
         isRecording = recording
         updateIconForCurrentTheme()
         logger.info("🎯 Icon updated, isRecording = \(self.isRecording, privacy: .public)")
@@ -121,20 +126,24 @@ final class StatusBarManager: StatusBarManagerType {
 
         // Recording menu item (toggles between Start/Stop)
         let recordingTitle = isRecording ? "Stop recording" : "Start recording"
-        let recordingItem = NSMenuItem(title: recordingTitle, action: #selector(recordingMenuItemClicked), keyEquivalent: "r")
+        let recordingItem = NSMenuItem(
+            title: recordingTitle, action: #selector(recordingMenuItemClicked), keyEquivalent: "r")
         recordingItem.keyEquivalentModifierMask = .command
         recordingItem.target = self
 
         // Recaps menu item
-        let recapsItem = NSMenuItem(title: "Recaps", action: #selector(recapsMenuItemClicked), keyEquivalent: "")
+        let recapsItem = NSMenuItem(
+            title: "Recaps", action: #selector(recapsMenuItemClicked), keyEquivalent: "")
         recapsItem.target = self
 
         // Settings menu item
-        let settingsItem = NSMenuItem(title: "Settings", action: #selector(settingsMenuItemClicked), keyEquivalent: "")
+        let settingsItem = NSMenuItem(
+            title: "Settings", action: #selector(settingsMenuItemClicked), keyEquivalent: "")
         settingsItem.target = self
 
         // Quit menu item
-        let quitItem = NSMenuItem(title: "Quit Recap", action: #selector(quitMenuItemClicked), keyEquivalent: "q")
+        let quitItem = NSMenuItem(
+            title: "Quit Recap", action: #selector(quitMenuItemClicked), keyEquivalent: "q")
         quitItem.target = self
 
         mainMenu.addItem(recordingItem)
@@ -151,13 +160,15 @@ final class StatusBarManager: StatusBarManagerType {
     private func showContextMenu() {
         let contextMenu = NSMenu()
 
-        let quitItem = NSMenuItem(title: "Quit Recap", action: #selector(quitMenuItemClicked), keyEquivalent: "q")
+        let quitItem = NSMenuItem(
+            title: "Quit Recap", action: #selector(quitMenuItemClicked), keyEquivalent: "q")
         quitItem.target = self
 
         contextMenu.addItem(quitItem)
 
         if let button = statusItem?.button {
-            contextMenu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.maxY), in: button)
+            contextMenu.popUp(
+                positioning: nil, at: NSPoint(x: 0, y: button.bounds.maxY), in: button)
         }
     }
 
