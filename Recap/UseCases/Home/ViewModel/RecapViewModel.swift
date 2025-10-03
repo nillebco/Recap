@@ -21,7 +21,7 @@ final class RecapViewModel: ObservableObject {
     @Published var isMicrophoneEnabled = false
     @Published var currentRecordings: [RecordingInfo] = []
     @Published var showErrorToast = false
-    
+
     @Published private(set) var processingState: ProcessingState = .idle
     @Published private(set) var activeWarnings: [WarningItem] = []
     @Published private(set) var selectedApp: AudioProcess?
@@ -46,7 +46,7 @@ final class RecapViewModel: ObservableObject {
 
     var currentRecordingID: String?
     var lastNotifiedMeetingKey: String?
-    
+
     var cancellables = Set<AnyCancellable>()
     init(
         recordingCoordinator: RecordingCoordinator,
@@ -72,47 +72,47 @@ final class RecapViewModel: ObservableObject {
         self.notificationService = notificationService
         self.appSelectionCoordinator = appSelectionCoordinator
         self.permissionsHelper = permissionsHelper
-        
+
         setupBindings()
         setupWarningObserver()
         setupMeetingDetection()
         setupDelegates()
-        
+
         Task {
             await loadRecordings()
             await loadMicrophonePreference()
         }
     }
-    
+
     func selectApp(_ app: AudioProcess) {
         selectedApp = app
     }
-    
+
     func clearError() {
         errorMessage = nil
     }
-    
+
     func refreshApps() {
         appSelectionViewModel.refreshAvailableApps()
     }
-    
+
     private func setupDelegates() {
         appSelectionCoordinator.delegate = self
         processingCoordinator.delegate = self
     }
-    
+
     var currentRecordingLevel: Float {
         recordingCoordinator.currentAudioLevel
     }
-    
+
     var hasAvailableApps: Bool {
         !appSelectionViewModel.availableApps.isEmpty
     }
-    
+
     var canStartRecording: Bool {
         selectedApp != nil
     }
-    
+
     func toggleMicrophone() {
         isMicrophoneEnabled.toggle()
 
@@ -125,27 +125,27 @@ final class RecapViewModel: ObservableObject {
             }
         }
     }
-    
+
     var systemAudioHeatmapLevel: Float {
         guard isRecording else { return 0 }
         return systemAudioLevel
     }
-    
+
     var microphoneHeatmapLevel: Float {
         guard isRecording && isMicrophoneEnabled else { return 0 }
         return microphoneLevel
     }
-    
+
     private func setupBindings() {
         appSelectionViewModel.refreshAvailableApps()
     }
-    
+
     private func setupWarningObserver() {
         warningManager.activeWarningsPublisher
             .assign(to: \.activeWarnings, on: self)
             .store(in: &cancellables)
     }
-    
+
     private func loadRecordings() async {
         do {
             currentRecordings = try await recordingRepository.fetchAllRecordings()
@@ -164,11 +164,11 @@ final class RecapViewModel: ObservableObject {
             logger.error("Failed to load microphone preference: \(error)")
         }
     }
-    
+
     func retryProcessing(for recordingID: String) async {
         await processingCoordinator.retryProcessing(recordingID: recordingID)
     }
-    
+
     func updateRecordingUIState(started: Bool) {
         isRecording = started
         if started {
@@ -181,7 +181,7 @@ final class RecapViewModel: ObservableObject {
             systemAudioLevel = 0.0
         }
     }
-    
+
     func syncRecordingStateWithCoordinator() {
         let coordinatorIsRecording = recordingCoordinator.isRecording
         if isRecording != coordinatorIsRecording {
@@ -191,7 +191,7 @@ final class RecapViewModel: ObservableObject {
             }
         }
     }
-    
+
     deinit {
         Task { [weak self] in
             await self?.stopTimers()
@@ -203,7 +203,7 @@ extension RecapViewModel: AppSelectionCoordinatorDelegate {
     func didSelectApp(_ app: AudioProcess) {
         selectApp(app)
     }
-    
+
     func didClearAppSelection() {
         selectedApp = nil
     }
@@ -213,11 +213,11 @@ extension RecapViewModel {
     func openSettings() {
         delegate?.didRequestSettingsOpen()
     }
-    
+
     func openView() {
         delegate?.didRequestViewOpen()
     }
-    
+
     func openPreviousRecaps() {
         delegate?.didRequestPreviousRecapsOpen()
     }

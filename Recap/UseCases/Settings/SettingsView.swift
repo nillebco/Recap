@@ -4,7 +4,7 @@ enum SettingsTab: CaseIterable {
     case general
     case meetingDetection
     case whisperModels
-    
+
     var title: String {
         switch self {
         case .general:
@@ -43,13 +43,13 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
         self.recapViewModel = recapViewModel
         self.onClose = onClose
     }
-    
+
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             ZStack {
                 UIConstants.Gradients.backgroundGradient
                     .ignoresSafeArea()
-                
+
                 VStack(spacing: UIConstants.Spacing.sectionSpacing) {
                     HStack {
                         Text("Settings")
@@ -57,9 +57,9 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
                             .font(UIConstants.Typography.appTitle)
                             .padding(.leading, UIConstants.Spacing.contentPadding)
                             .padding(.top, UIConstants.Spacing.sectionSpacing)
-                        
+
                         Spacer()
-                        
+
                         Text("Close")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.white)
@@ -91,7 +91,7 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
                             .padding(.trailing, UIConstants.Spacing.contentPadding)
                             .padding(.top, UIConstants.Spacing.sectionSpacing)
                     }
-                    
+
                     HStack(spacing: 8) {
                         ForEach(SettingsTab.allCases, id: \.self) { tab in
                             TabButton(
@@ -106,7 +106,7 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
                         Spacer()
                     }
                     .padding(.horizontal, UIConstants.Spacing.contentPadding)
-                    
+
                     Group {
                         switch selectedTab {
                         case .general:
@@ -144,9 +144,9 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
     let repository = WhisperModelRepository(coreDataManager: coreDataManager)
     let whisperModelsViewModel = WhisperModelsViewModel(repository: repository)
     let generalSettingsViewModel = PreviewGeneralSettingsViewModel()
-    
+
     SettingsView(
-        whisperModelsViewModel: whisperModelsViewModel, 
+        whisperModelsViewModel: whisperModelsViewModel,
         generalSettingsViewModel: generalSettingsViewModel,
         meetingDetectionService: MeetingDetectionService(audioProcessController: AudioProcessController(), permissionsHelper: PermissionsHelper()),
         userPreferencesRepository: UserPreferencesRepository(coreDataManager: coreDataManager),
@@ -168,7 +168,7 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
 
     var showAPIKeyAlert: Bool = false
 
-    var existingAPIKey: String? = nil
+    var existingAPIKey: String?
 
     func saveAPIKey(_ apiKey: String) async throws {}
 
@@ -259,15 +259,15 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
 private final class PreviewFolderSettingsViewModel: FolderSettingsViewModelType {
     @Published var currentFolderPath: String = "/Users/nilleb/Library/Containers/co.nilleb.Recap/Data/tmp/"
     @Published var errorMessage: String?
-    
+
     init() {
         // Preview initializer - no setup needed
     }
-    
+
     func updateFolderPath(_ url: URL) async {
         currentFolderPath = url.path
     }
-    
+
     func setErrorMessage(_ message: String?) {
         errorMessage = message
     }

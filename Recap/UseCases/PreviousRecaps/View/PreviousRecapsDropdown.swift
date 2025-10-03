@@ -4,7 +4,7 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
     @ObservedObject private var viewModel: ViewModel
     let onRecordingSelected: (RecordingInfo) -> Void
     let onClose: () -> Void
-    
+
     init(
         viewModel: ViewModel,
         onRecordingSelected: @escaping (RecordingInfo) -> Void,
@@ -14,7 +14,7 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
         self.onRecordingSelected = onRecordingSelected
         self.onClose = onClose
     }
-    
+
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             contentView
@@ -37,11 +37,11 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
             viewModel.stopAutoRefresh()
         }
     }
-    
+
     private var contentView: some View {
         VStack(alignment: .leading, spacing: 0) {
             dropdownHeader
-            
+
             if viewModel.isLoading {
                 loadingView
             } else if let errorMessage = viewModel.errorMessage {
@@ -58,15 +58,15 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
         .padding(.top, UIConstants.Spacing.contentPadding)
         .padding(.bottom, UIConstants.Spacing.cardPadding)
     }
-    
+
     private var dropdownHeader: some View {
         HStack {
             Text("Previous Recaps")
                 .foregroundColor(UIConstants.Colors.textPrimary)
                 .font(UIConstants.Typography.appTitle)
-            
+
             Spacer()
-            
+
             PillButton(text: "Close", icon: "xmark") {
                 onClose()
             }
@@ -74,7 +74,7 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
         .padding(.horizontal, UIConstants.Spacing.contentPadding)
         .padding(.bottom, UIConstants.Spacing.sectionSpacing)
     }
-    
+
     private var recordingsContent: some View {
         VStack(alignment: .leading, spacing: 4) {
             if !viewModel.groupedRecordings.todayRecordings.isEmpty {
@@ -94,12 +94,12 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
                         removal: .move(edge: .leading).combined(with: .opacity)
                     ))
                 }
-                
+
                 if !viewModel.groupedRecordings.thisWeekRecordings.isEmpty || !viewModel.groupedRecordings.allRecordings.isEmpty {
                     sectionDivider
                 }
             }
-            
+
             if !viewModel.groupedRecordings.thisWeekRecordings.isEmpty {
                 sectionHeader("This Week")
                 ForEach(viewModel.groupedRecordings.thisWeekRecordings) { recording in
@@ -117,12 +117,12 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
                         removal: .move(edge: .leading).combined(with: .opacity)
                     ))
                 }
-                
+
                 if !viewModel.groupedRecordings.allRecordings.isEmpty {
                     sectionDivider
                 }
             }
-            
+
             if !viewModel.groupedRecordings.allRecordings.isEmpty {
                 sectionHeader("All Recaps")
                 ForEach(viewModel.groupedRecordings.allRecordings) { recording in
@@ -143,7 +143,7 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
             }
         }
     }
-    
+
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
             .font(.system(size: 14, weight: .semibold))
@@ -152,7 +152,7 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
             .padding(.bottom, UIConstants.Spacing.gridCellSpacing)
             .padding(.all, 6)
     }
-    
+
     private var sectionDivider: some View {
         Rectangle()
             .fill(UIConstants.Colors.textTertiary.opacity(0.1))
@@ -160,13 +160,13 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
             .padding(.horizontal, UIConstants.Spacing.cardPadding)
             .padding(.vertical, UIConstants.Spacing.gridSpacing)
     }
-    
+
     private var loadingView: some View {
         VStack(spacing: 16) {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle())
                 .scaleEffect(0.8)
-            
+
             Text("Loading recordings...")
                 .font(UIConstants.Typography.bodyText)
                 .foregroundColor(UIConstants.Colors.textSecondary)
@@ -174,17 +174,17 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
     }
-    
+
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.title2)
                 .foregroundColor(.orange)
-            
+
             Text("Error Loading Recordings")
                 .font(UIConstants.Typography.bodyText)
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             Text(message)
                 .font(.caption)
                 .foregroundColor(UIConstants.Colors.textSecondary)
@@ -194,17 +194,17 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
         .padding(.vertical, 40)
         .padding(.horizontal, UIConstants.Spacing.cardPadding)
     }
-    
+
     private var emptyStateView: some View {
         VStack(spacing: 16) {
             Image(systemName: "doc.text")
                 .font(.title)
                 .foregroundColor(UIConstants.Colors.textTertiary)
-            
+
             Text("No Recordings Yet")
                 .font(UIConstants.Typography.bodyText)
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             Text("Start recording to see your previous recaps here")
                 .font(.caption)
                 .foregroundColor(UIConstants.Colors.textSecondary)
@@ -260,10 +260,10 @@ private class MockPreviousRecapsViewModel: ObservableObject, PreviousRecapsViewM
         ],
         allRecordings: []
     )
-    
+
     @Published var isLoading = false
     @Published var errorMessage: String?
-    
+
     func loadRecordings() async {}
     func startAutoRefresh() {}
     func stopAutoRefresh() {}

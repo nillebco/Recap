@@ -10,7 +10,7 @@ import SwiftUI
 struct TranscriptionCard: View {
     let containerWidth: CGFloat
     let onViewTap: () -> Void
-    
+
     var body: some View {
         CardBackground(
             width: UIConstants.Layout.fullCardWidth(containerWidth: containerWidth),
@@ -21,7 +21,7 @@ struct TranscriptionCard: View {
         .overlay(
             VStack(spacing: 12) {
                 HStack {
-                    VStack(alignment: .leading, spacing: UIConstants.Spacing.cardInternalSpacing)  {
+                    VStack(alignment: .leading, spacing: UIConstants.Spacing.cardInternalSpacing) {
                         Text("Latest Meeting Summary")
                             .font(UIConstants.Typography.transcriptionTitle)
                             .foregroundColor(UIConstants.Colors.textPrimary)
@@ -30,7 +30,7 @@ struct TranscriptionCard: View {
                             .foregroundColor(UIConstants.Colors.textTertiary)
                     }
                     Spacer()
-                    
+
                     PillButton(text: "View", icon: "square.arrowtriangle.4.outward") {
                         onViewTap()
                     }

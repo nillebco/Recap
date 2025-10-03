@@ -12,7 +12,7 @@ protocol WhisperModelsViewModelType: ObservableObject {
     var showingError: Bool { get }
     var recommendedModels: [String] { get }
     var otherModels: [String] { get }
-    
+
     func selectModel(_ modelName: String)
     func downloadModel(_ modelName: String)
     func toggleTooltip(for modelName: String, at position: CGPoint)

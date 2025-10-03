@@ -9,7 +9,7 @@ extension MenuBarPanelManager {
         let hostingController = NSHostingController(rootView: contentView)
         hostingController.view.wantsLayer = true
         hostingController.view.layer?.cornerRadius = 12
-        
+
         let newPanel = SlidingPanel(contentViewController: hostingController)
         newPanel.panelDelegate = self
         return newPanel

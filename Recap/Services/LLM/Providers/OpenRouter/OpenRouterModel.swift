@@ -6,7 +6,7 @@ struct OpenRouterModel: LLMModelType {
     let provider: String = "openrouter"
     let contextLength: Int32?
     let maxCompletionTokens: Int32?
-    
+
     init(apiModelId: String, displayName: String, contextLength: Int?, maxCompletionTokens: Int?) {
         self.id = "openrouter-\(apiModelId)"
         self.name = apiModelId

@@ -11,12 +11,12 @@ extension LLMTaskManageable {
         currentTask?.cancel()
         currentTask = nil
     }
-    
+
     func executeWithTaskManagement<T>(
         operation: @escaping () async throws -> T
     ) async throws -> T {
         cancelCurrentTask()
-        
+
         return try await withTaskCancellationHandler {
             try await operation()
         } onCancel: {

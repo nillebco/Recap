@@ -12,7 +12,7 @@ struct InformationCard: View {
     let title: String
     let description: String
     let containerWidth: CGFloat
-    
+
     var body: some View {
         CardBackground(
             width: UIConstants.Layout.infoCardWidth(containerWidth: containerWidth),
@@ -25,12 +25,12 @@ struct InformationCard: View {
                 Image(systemName: icon)
                     .font(UIConstants.Typography.infoIconFont)
                     .foregroundStyle(UIConstants.Gradients.iconGradient)
-                
+
                 Text(title)
                     .font(UIConstants.Typography.infoCardTitle)
                     .foregroundColor(UIConstants.Colors.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
+
                 Text(description)
                     .font(UIConstants.Typography.bodyText)
                     .foregroundColor(UIConstants.Colors.textTertiary)

@@ -15,7 +15,7 @@ enum LLMError: Error, LocalizedError {
     case unsupportedModel(String)
     case dataAccessError(String)
     case apiError(String)
-    
+
     var errorDescription: String? {
         switch self {
         case .providerNotAvailable:

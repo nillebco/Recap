@@ -9,7 +9,7 @@ struct LLMOptions {
     let keepAliveMinutes: Int?
     let seed: Int?
     let stopSequences: [String]?
-    
+
     init(
         temperature: Double = 0.7,
         maxTokens: Int? = 8192,
@@ -29,7 +29,7 @@ struct LLMOptions {
         self.seed = seed
         self.stopSequences = stopSequences
     }
-    
+
     static var defaultSummarization: LLMOptions {
         LLMOptions(
             temperature: 0.3,

@@ -5,10 +5,10 @@ struct CustomTextEditor: View {
     let textBinding: Binding<String>
     let placeholder: String
     let height: CGFloat
-    
+
     @State private var isEditing = false
     @FocusState private var isFocused: Bool
-    
+
     init(
         title: String,
         text: Binding<String>,
@@ -20,13 +20,13 @@ struct CustomTextEditor: View {
         self.placeholder = placeholder
         self.height = height
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(UIConstants.Colors.textSecondary)
-            
+
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color(hex: "2A2A2A").opacity(0.3))
@@ -45,7 +45,7 @@ struct CustomTextEditor: View {
                             )
                     )
                     .frame(height: height)
-                
+
                 if textBinding.wrappedValue.isEmpty && !isFocused {
                     Text(placeholder)
                         .font(.system(size: 12, weight: .medium))
@@ -54,7 +54,7 @@ struct CustomTextEditor: View {
                         .padding(.vertical, 8)
                         .allowsHitTesting(false)
                 }
-                
+
                 TextEditor(text: textBinding)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(UIConstants.Colors.textPrimary)
@@ -65,7 +65,7 @@ struct CustomTextEditor: View {
                     .focused($isFocused)
                     .lineLimit(nil)
                     .textSelection(.enabled)
-                    .onChange(of: isFocused) { oldValue, focused in
+                    .onChange(of: isFocused) { _, focused in
                         withAnimation(.easeInOut(duration: 0.2)) {
                             isEditing = focused
                         }
@@ -83,7 +83,7 @@ struct CustomTextEditor: View {
             placeholder: "Enter your custom prompt template here...",
             height: 120
         )
-        
+
         CustomTextEditor(
             title: "With Content",
             text: .constant(UserPreferencesInfo.defaultPromptTemplate),

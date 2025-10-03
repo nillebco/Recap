@@ -14,9 +14,9 @@ struct CustomReflectionCard: View {
     let recordingDuration: TimeInterval
     let canStartRecording: Bool
     let onToggleRecording: () -> Void
-    
+
     init(
-        containerWidth: CGFloat, 
+        containerWidth: CGFloat,
         appSelectionViewModel: AppSelectionViewModel,
         isRecording: Bool,
         recordingDuration: TimeInterval,
@@ -42,9 +42,9 @@ struct CustomReflectionCard: View {
             HStack {
                 AppSelectionButton(viewModel: appSelectionViewModel)
                     .padding(.leading, UIConstants.Spacing.cardSpacing)
-                
+
                 Spacer()
-                
+
                 RecordingButton(
                     isRecording: isRecording,
                     recordingDuration: recordingDuration,

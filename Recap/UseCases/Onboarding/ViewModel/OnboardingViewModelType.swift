@@ -16,7 +16,7 @@ protocol OnboardingViewModelType: ObservableObject {
     var errorMessage: String { get }
     var canContinue: Bool { get }
     var delegate: OnboardingDelegate? { get set }
-    
+
     func requestMicrophonePermission(_ enabled: Bool) async
     func toggleAutoDetectMeetings(_ enabled: Bool) async
     func toggleAutoSummarize(_ enabled: Bool)

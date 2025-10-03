@@ -5,7 +5,7 @@ struct CustomSegmentedControl<T: Hashable>: View {
     @Binding var selection: T
     let displayName: (T) -> String
     let onSelectionChange: ((T) -> Void)?
-    
+
     init(
         options: [T],
         selection: Binding<T>,
@@ -17,10 +17,10 @@ struct CustomSegmentedControl<T: Hashable>: View {
         self.displayName = displayName
         self.onSelectionChange = onSelectionChange
     }
-    
+
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(Array(options.enumerated()), id: \.element) { index, option in
+            ForEach(Array(options.enumerated()), id: \.element) { _, option in
                 Button(action: {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
                         selection = option
@@ -30,8 +30,8 @@ struct CustomSegmentedControl<T: Hashable>: View {
                     Text(displayName(option))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(
-                            selection == option 
-                                ? UIConstants.Colors.textPrimary 
+                            selection == option
+                                ? UIConstants.Colors.textPrimary
                                 : UIConstants.Colors.textSecondary
                         )
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -106,14 +106,14 @@ struct CustomSegmentedControl<T: Hashable>: View {
             displayName: { $0 }
         )
         .frame(width: 285)
-        
+
         CustomSegmentedControl(
             options: ["Option A", "Option B"],
             selection: .constant("Option B"),
             displayName: { $0 }
         )
         .frame(width: 260)
-        
+
         Text("This text should not move")
             .foregroundColor(.white)
     }

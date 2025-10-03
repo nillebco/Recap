@@ -13,20 +13,19 @@ struct TranscriptDropdownButton: View {
     private var displayText: String {
         return transcriptText
     }
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: isCollapsed ? "chevron.down" : "chevron.up")
                     .font(.system(size: 16, weight: .bold))
-    
-                
+
             VStack(alignment: .leading) {
                 Text("Transcript")
                     .font(UIConstants.Typography.cardTitle)
                     .foregroundColor(UIConstants.Colors.textPrimary)
-                
+
                 VStack {
-                    
+
                     if !isCollapsed {
                         Text(displayText)
                             .font(.system(size: 12))
@@ -37,7 +36,7 @@ struct TranscriptDropdownButton: View {
             }
 
             Spacer()
-        
+
         }
         .frame(alignment: .topLeading)
         .padding(.horizontal, UIConstants.Spacing.cardPadding + 4)
@@ -62,7 +61,7 @@ struct TranscriptDropdownButton: View {
 }
 
 #Preview {
-    GeometryReader { geometry in
+    GeometryReader { _ in
         VStack(spacing: 16) {
             TranscriptDropdownButton(
                 transcriptText: "Lorem ipsum dolor sit amet"

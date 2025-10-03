@@ -15,10 +15,10 @@ final class RecordingSessionManager: RecordingSessionManaging {
         self.microphoneCapture = microphoneCapture
         self.permissionsHelper = permissionsHelper
     }
-    
+
     func startSession(configuration: RecordingConfiguration) async throws -> AudioRecordingCoordinatorType {
         let microphoneCaptureToUse = configuration.enableMicrophone ? microphoneCapture : nil
-        
+
         if configuration.enableMicrophone {
             let hasPermission = await permissionsHelper.checkMicrophonePermissionStatus()
             guard hasPermission == .authorized else {

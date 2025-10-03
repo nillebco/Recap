@@ -9,7 +9,7 @@ struct ActionableWarningCard: View {
     let buttonText: String?
     let buttonAction: (() -> Void)?
     let footerText: String?
-    
+
     init(
         warning: WarningItem,
         containerWidth: CGFloat,
@@ -23,10 +23,10 @@ struct ActionableWarningCard: View {
         self.buttonAction = buttonAction
         self.footerText = footerText
     }
-    
+
     var body: some View {
         let severityColor = Color(hex: warning.severity.color)
-        
+
         let cardBackground = LinearGradient(
             gradient: Gradient(stops: [
                 .init(color: severityColor.opacity(0.1), location: 0),
@@ -35,7 +35,7 @@ struct ActionableWarningCard: View {
             startPoint: .top,
             endPoint: .bottom
         )
-        
+
         let cardBorder = LinearGradient(
             gradient: Gradient(stops: [
                 .init(color: severityColor.opacity(0.3), location: 0),
@@ -44,26 +44,26 @@ struct ActionableWarningCard: View {
             startPoint: .top,
             endPoint: .bottom
         )
-        
+
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
                 Image(systemName: warning.icon)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(severityColor)
-                
+
                 Text(warning.title)
                     .font(UIConstants.Typography.cardTitle)
                     .foregroundColor(UIConstants.Colors.textPrimary)
-                
+
                 Spacer()
             }
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 Text(warning.message)
                     .font(.system(size: 10, weight: .regular))
                     .foregroundColor(UIConstants.Colors.textSecondary)
                     .multilineTextAlignment(.leading)
-                
+
                 if let footerText = footerText {
                     Text(footerText)
                         .font(.system(size: 9))
@@ -72,7 +72,7 @@ struct ActionableWarningCard: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            
+
             if let buttonText = buttonText, let buttonAction = buttonAction {
                 HStack {
                     PillButton(
@@ -117,7 +117,7 @@ struct ActionableWarningCard: View {
                 },
                 footerText: "This permission allows Recap to read window titles only. No screen content is captured or recorded."
             )
-            
+
             ActionableWarningCard(
                 warning: WarningItem(
                     id: "network",

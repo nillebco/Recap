@@ -3,12 +3,12 @@ import SwiftUI
 struct ProcessingStatesCard: View {
     let containerWidth: CGFloat
     let currentStage: ProcessingStage
-    
+
     enum ProcessingStage: Int, CaseIterable {
         case recorded = 0
         case transcribing = 1
         case summarizing = 2
-        
+
         var label: String {
             switch self {
             case .recorded:
@@ -19,7 +19,7 @@ struct ProcessingStatesCard: View {
                 return "Summarizing"
             }
         }
-        
+
         var description: (headline: String, detail: String) {
             switch self {
             case .recorded:
@@ -31,16 +31,16 @@ struct ProcessingStatesCard: View {
             }
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             Text("Recap In Progress")
                 .font(UIConstants.Typography.infoCardTitle)
                 .foregroundColor(UIConstants.Colors.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
+
             progressSection
-            
+
             descriptionSection
         }
         .padding(24)
@@ -64,7 +64,7 @@ struct ProcessingStatesCard: View {
                 )
         )
     }
-    
+
     private var progressSection: some View {
         HStack(spacing: 16) {
             ForEach(ProcessingStage.allCases, id: \.self) { stage in
@@ -95,17 +95,17 @@ struct ProcessingStatesCard: View {
                 )
         )
     }
-    
+
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("What is happening now?")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(UIConstants.Colors.textTertiary)
-            
+
             Text(currentStage.description.headline)
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             Text(currentStage.description.detail)
                 .font(.system(size: 11, weight: .regular))
                 .foregroundColor(UIConstants.Colors.textSecondary)
@@ -113,7 +113,7 @@ struct ProcessingStatesCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
+
     private func progressState(for stage: ProcessingStage) -> ProcessingProgressBar.ProgressState {
         if stage.rawValue < currentStage.rawValue {
             return .completed

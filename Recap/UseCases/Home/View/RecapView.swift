@@ -9,17 +9,17 @@ import SwiftUI
 
 struct RecapHomeView: View {
     @ObservedObject private var viewModel: RecapViewModel
-    
+
     init(viewModel: RecapViewModel) {
         self.viewModel = viewModel
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 UIConstants.Gradients.backgroundGradient
                     .ignoresSafeArea()
-                
+
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: UIConstants.Spacing.sectionSpacing) {
                         HStack {
@@ -42,29 +42,28 @@ struct RecapHomeView: View {
                             .padding(.trailing, UIConstants.Spacing.contentPadding)
                             .padding(.top, UIConstants.Spacing.sectionSpacing)
                         }
-                        
+
                         ForEach(viewModel.activeWarnings, id: \.id) { warning in
                             WarningCard(warning: warning, containerWidth: geometry.size.width)
                                 .padding(.horizontal, UIConstants.Spacing.contentPadding)
                         }
-                        
-                        
+
                         VStack(spacing: UIConstants.Spacing.cardSpacing) {
                             TranscriptionCard(containerWidth: geometry.size.width) {
                                 viewModel.openView()
                             }
-                            
+
                             HStack(spacing: UIConstants.Spacing.cardSpacing) {
                                 InformationCard(
                                     icon: "list.bullet.indent",
-                                    title: "Previous Recaps", 
+                                    title: "Previous Recaps",
                                     description: "View past recordings",
                                     containerWidth: geometry.size.width
                                 )
                                 .onTapGesture {
                                     viewModel.openPreviousRecaps()
                                 }
-                                
+
                                 InformationCard(
                                     icon: "gear",
                                     title: "Settings",
@@ -76,7 +75,7 @@ struct RecapHomeView: View {
                                 }
                             }
                         }
-                        
+
                         Spacer(minLength: UIConstants.Spacing.sectionSpacing)
                     }
                 }
@@ -95,7 +94,7 @@ struct RecapHomeView: View {
 
 #Preview {
     let viewModel = RecapViewModel.createForPreview()
-    
+
     return RecapHomeView(viewModel: viewModel)
         .frame(width: 500, height: 500)
 }

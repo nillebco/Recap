@@ -5,7 +5,7 @@ import SwiftUI
 final class FolderSettingsViewModel: FolderSettingsViewModelType {
     @Published private(set) var currentFolderPath: String = ""
     @Published private(set) var errorMessage: String?
-    
+
     private let userPreferencesRepository: UserPreferencesRepositoryType
     private let fileManagerHelper: RecordingFileManagerHelperType
 
@@ -18,7 +18,7 @@ final class FolderSettingsViewModel: FolderSettingsViewModelType {
 
         loadCurrentFolderPath()
     }
-    
+
     private func loadCurrentFolderPath() {
         Task {
             do {
@@ -34,7 +34,7 @@ final class FolderSettingsViewModel: FolderSettingsViewModelType {
             }
         }
     }
-    
+
     func updateFolderPath(_ url: URL) async {
         errorMessage = nil
 
@@ -116,7 +116,7 @@ final class FolderSettingsViewModel: FolderSettingsViewModelType {
 
         currentFolderPath = resolvedURL.path
     }
-    
+
     func setErrorMessage(_ message: String?) {
         errorMessage = message
     }

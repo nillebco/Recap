@@ -5,7 +5,7 @@ struct MeetingPattern {
     let confidence: MeetingDetectionResult.MeetingConfidence
     let caseSensitive: Bool
     let excludePatterns: [String]
-    
+
     init(
         keyword: String,
         confidence: MeetingDetectionResult.MeetingConfidence,
@@ -21,29 +21,29 @@ struct MeetingPattern {
 
 final class MeetingPatternMatcher {
     private let patterns: [MeetingPattern]
-    
+
     init(patterns: [MeetingPattern]) {
         self.patterns = patterns.sorted { $0.confidence.rawValue > $1.confidence.rawValue }
     }
-    
+
     func findBestMatch(in title: String) -> MeetingDetectionResult.MeetingConfidence? {
         let processedTitle = title.lowercased()
-        
+
         for pattern in patterns {
             let searchText = pattern.caseSensitive ? title : processedTitle
             let searchKeyword = pattern.caseSensitive ? pattern.keyword : pattern.keyword.lowercased()
-            
+
             if searchText.contains(searchKeyword) {
                 let shouldExclude = pattern.excludePatterns.contains { excludePattern in
                     processedTitle.contains(excludePattern.lowercased())
                 }
-                
+
                 if !shouldExclude {
                     return pattern.confidence
                 }
             }
         }
-        
+
         return nil
     }
 }
@@ -60,7 +60,7 @@ extension MeetingPatternMatcher {
             MeetingPattern(keyword: "call", confidence: .medium)
         ]
     }
-    
+
     static var teamsPatterns: [MeetingPattern] {
         return [
             MeetingPattern(keyword: "microsoft teams meeting", confidence: .high),
@@ -76,7 +76,7 @@ extension MeetingPatternMatcher {
             MeetingPattern(keyword: "screen sharing", confidence: .medium)
         ] + commonMeetingPatterns
     }
-    
+
     static var zoomPatterns: [MeetingPattern] {
         return [
             MeetingPattern(keyword: "zoom meeting", confidence: .high),
@@ -84,7 +84,7 @@ extension MeetingPatternMatcher {
             MeetingPattern(keyword: "screen share", confidence: .medium)
         ] + commonMeetingPatterns
     }
-    
+
     static var googleMeetPatterns: [MeetingPattern] {
         return [
             MeetingPattern(keyword: "meet.google.com", confidence: .high),

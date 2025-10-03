@@ -18,7 +18,7 @@ enum KeychainError: Error, LocalizedError {
     case itemNotFound
     case duplicateItem
     case unexpectedStatus(OSStatus)
-    
+
     var errorDescription: String? {
         switch self {
         case .invalidData:

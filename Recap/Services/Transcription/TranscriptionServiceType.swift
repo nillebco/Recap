@@ -13,10 +13,10 @@ struct TranscriptionResult: Equatable {
     let combinedText: String
     let transcriptionDuration: TimeInterval
     let modelUsed: String
-    
+
     // New timestamped transcription data
     let timestampedTranscription: TimestampedTranscription?
-    
+
     init(
         systemAudioText: String,
         microphoneText: String?,
@@ -40,7 +40,7 @@ enum TranscriptionError: LocalizedError {
     case audioFileNotFound
     case transcriptionFailed(String)
     case invalidAudioFormat
-    
+
     var errorDescription: String? {
         switch self {
         case .modelNotAvailable:

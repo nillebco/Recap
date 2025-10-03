@@ -5,10 +5,10 @@ struct PermissionCard: View {
     let description: String
     @Binding var isEnabled: Bool
     var isExpandable: Bool = false
-    var expandedContent: (() -> AnyView)? = nil
+    var expandedContent: (() -> AnyView)?
     var isDisabled: Bool = false
     let onToggle: (Bool) async -> Void
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 12) {
@@ -16,15 +16,15 @@ struct PermissionCard: View {
                     Text(title)
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(UIConstants.Colors.textPrimary)
-                    
+
                     Text(description)
                         .font(.system(size: 11, weight: .regular))
                         .foregroundColor(UIConstants.Colors.textSecondary)
                         .lineLimit(2)
                 }
-                
+
                 Spacer()
-                
+
                 Toggle("", isOn: Binding(
                     get: { isEnabled },
                     set: { newValue in
@@ -41,12 +41,12 @@ struct PermissionCard: View {
                 .opacity(isDisabled ? 0.5 : 1.0)
             }
             .padding(16)
-            
+
             if isExpandable, let expandedContent = expandedContent {
                 Divider()
                     .background(Color.white.opacity(0.1))
                     .padding(.horizontal, 16)
-                
+
                 expandedContent()
                     .padding(16)
                     .transition(.opacity.combined(with: .move(edge: .top)))
@@ -85,12 +85,12 @@ struct PermissionCard: View {
 struct PermissionRequirement: View {
     let icon: String
     let text: String
-    
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
             Text(text)
-            
+
             Spacer()
         }
         .font(.system(size: 10, weight: .regular))
@@ -106,7 +106,7 @@ struct PermissionRequirement: View {
             isEnabled: .constant(true),
             onToggle: { _ in }
         )
-        
+
         PermissionCard(
             title: "Auto Detect Meetings",
             description: "Automatically start recording when a meeting begins",
@@ -118,7 +118,7 @@ struct PermissionRequirement: View {
                         Text("Required Permissions:")
                             .font(.system(size: 11, weight: .medium))
                             .foregroundColor(UIConstants.Colors.textPrimary)
-                        
+
                         PermissionRequirement(
                             icon: "rectangle.on.rectangle",
                             text: "Screen Recording Access"

@@ -20,7 +20,7 @@ extension RecordingProcessingState {
             return false
         }
     }
-    
+
     var isFailed: Bool {
         switch self {
         case .transcriptionFailed, .summarizationFailed:
@@ -29,11 +29,11 @@ extension RecordingProcessingState {
             return false
         }
     }
-    
+
     var canRetry: Bool {
         isFailed
     }
-    
+
     var displayName: String {
         switch self {
         case .recording:

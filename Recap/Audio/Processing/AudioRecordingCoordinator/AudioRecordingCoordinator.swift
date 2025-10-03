@@ -24,12 +24,12 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
         self.processTap = processTap
         self.systemWideTap = systemWideTap
     }
-    
+
     func start() async throws {
         guard !isRunning else { return }
-        
+
         let expectedFiles = configuration.expectedFiles
-        
+
         if let systemAudioURL = expectedFiles.systemAudioURL {
             if let systemWideTap = systemWideTap {
                 let recorder = SystemWideTapRecorder(fileURL: systemAudioURL, tap: systemWideTap)
@@ -49,7 +49,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
                 logger.info("Process-specific audio recording started: \(systemAudioURL.lastPathComponent)")
             }
         }
-        
+
         if let microphoneURL = expectedFiles.microphoneURL,
            let microphoneCapture = microphoneCapture {
 
@@ -73,18 +73,18 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
             } else {
                 throw AudioCaptureError.coreAudioError("No audio tap available")
             }
-            
+
             try microphoneCapture.start(outputURL: microphoneURL, targetFormat: tapStreamDescription)
             logger.info("Microphone recording started: \(microphoneURL.lastPathComponent)")
         }
-        
+
         isRunning = true
         logger.info("Recording started with configuration: \(self.configuration.id)")
     }
-    
+
     func stop() {
         guard isRunning else { return }
-        
+
         microphoneCapture?.stop()
         tapRecorder?.stop()
 
@@ -96,14 +96,14 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
 
         isRunning = false
         tapRecorder = nil
-        
+
         logger.info("Recording stopped for configuration: \(self.configuration.id)")
     }
-    
+
     var currentMicrophoneLevel: Float {
         microphoneCapture?.audioLevel ?? 0.0
     }
-    
+
     var currentSystemAudioLevel: Float {
         if let systemWideTap = systemWideTap {
             return systemWideTap.audioLevel
@@ -112,11 +112,11 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
         }
         return 0.0
     }
-    
+
     var hasDualAudio: Bool {
         configuration.enableMicrophone && microphoneCapture != nil
     }
-    
+
     var recordedFiles: RecordedFiles {
         configuration.expectedFiles
     }

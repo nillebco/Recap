@@ -8,9 +8,9 @@ struct DownloadPillButton: View {
     let isDownloading: Bool
     let downloadProgress: Double
     let action: () -> Void
-    
+
     @State private var iconOffset: CGFloat = 0
-    
+
     var body: some View {
         Button(action: isDownloading ? {} : action) {
             HStack(spacing: 4) {
@@ -19,7 +19,7 @@ struct DownloadPillButton: View {
                     .foregroundColor(.white)
                     .offset(y: isDownloading ? iconOffset : 0)
                     .animation(isDownloading ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true) : .default, value: iconOffset)
-                
+
                 Text(text)
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white)
@@ -30,7 +30,7 @@ struct DownloadPillButton: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(Color(hex: "242323"))
-                    
+
                     if isDownloading && downloadProgress > 0 {
                         GeometryReader { geometry in
                             Rectangle()
@@ -40,7 +40,7 @@ struct DownloadPillButton: View {
                         }
                         .mask(RoundedRectangle(cornerRadius: 16))
                     }
-                    
+
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(
                             LinearGradient(
@@ -64,7 +64,7 @@ struct DownloadPillButton: View {
                 iconOffset = 3
             }
         }
-        .onChange(of: isDownloading) { oldValue, newValue in
+        .onChange(of: isDownloading) { _, newValue in
             if newValue {
                 iconOffset = 3
             } else {
@@ -83,7 +83,7 @@ struct DownloadPillButton: View {
         ) {
             downloadPillButtonPreviewLogger.info("Download started")
         }
-        
+
         DownloadPillButton(
             text: "Downloading",
             isDownloading: true,
@@ -91,7 +91,7 @@ struct DownloadPillButton: View {
         ) {
             downloadPillButtonPreviewLogger.info("Download in progress (0.3)")
         }
-        
+
         DownloadPillButton(
             text: "Downloading",
             isDownloading: true,
@@ -99,7 +99,7 @@ struct DownloadPillButton: View {
         ) {
             downloadPillButtonPreviewLogger.info("Download in progress (0.7)")
         }
-        
+
         DownloadPillButton(
             text: "Downloaded",
             isDownloading: false,

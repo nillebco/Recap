@@ -9,7 +9,7 @@ struct SelectableApp: Identifiable, Hashable {
     let isAudioActive: Bool
     let isSystemWide: Bool
     private let originalAudioProcess: AudioProcess?
-    
+
     init(from audioProcess: AudioProcess) {
         self.id = audioProcess.id
         self.name = audioProcess.name
@@ -19,7 +19,7 @@ struct SelectableApp: Identifiable, Hashable {
         self.isSystemWide = false
         self.originalAudioProcess = audioProcess
     }
-    
+
     private init(systemWide: Bool) {
         self.id = -1
         self.name = "All Apps"
@@ -46,12 +46,12 @@ struct SelectableApp: Identifiable, Hashable {
         }
         return originalAudioProcess
     }
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(name)
     }
-    
+
     static func == (lhs: SelectableApp, rhs: SelectableApp) -> Bool {
         lhs.id == rhs.id && lhs.name == rhs.name
     }
@@ -70,14 +70,14 @@ extension AppSelectionState {
         }
         return nil
     }
-    
+
     var isShowingDropdown: Bool {
         if case .showingDropdown = self {
             return true
         }
         return false
     }
-    
+
     var hasSelection: Bool {
         if case .selected = self {
             return true

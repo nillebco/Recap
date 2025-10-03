@@ -11,11 +11,11 @@ extension URL {
         }
         return url.isBundle ? url : nil
     }
-    
+
     var isBundle: Bool {
         (try? resourceValues(forKeys: [.contentTypeKey]))?.contentType?.conforms(to: .bundle) == true
     }
-    
+
     var isApp: Bool {
         (try? resourceValues(forKeys: [.contentTypeKey]))?.contentType?.conforms(to: .application) == true
     }

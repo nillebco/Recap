@@ -12,16 +12,16 @@ final class PermissionsHelper: PermissionsHelperType {
             }
         }
     }
-    
+
     func requestScreenRecordingPermission() async -> Bool {
         do {
-            let _ = try await SCShareableContent.current
+            _ = try await SCShareableContent.current
             return true
         } catch {
             return false
         }
     }
-    
+
     func requestNotificationPermission() async -> Bool {
         do {
             let center = UNUserNotificationCenter.current()
@@ -31,11 +31,11 @@ final class PermissionsHelper: PermissionsHelperType {
             return false
         }
     }
-    
+
     func checkMicrophonePermissionStatus() -> AVAuthorizationStatus {
         AVCaptureDevice.authorizationStatus(for: .audio)
     }
-    
+
     func checkNotificationPermissionStatus() async -> Bool {
         await withCheckedContinuation { continuation in
             UNUserNotificationCenter.current().getNotificationSettings { settings in
@@ -43,7 +43,7 @@ final class PermissionsHelper: PermissionsHelperType {
             }
         }
     }
-    
+
     func checkScreenRecordingPermission() -> Bool {
         if #available(macOS 11.0, *) {
             return CGPreflightScreenCaptureAccess()
@@ -51,10 +51,10 @@ final class PermissionsHelper: PermissionsHelperType {
             return true
         }
     }
-    
+
     func checkScreenCapturePermission() async -> Bool {
         do {
-            let _ = try await SCShareableContent.current
+            _ = try await SCShareableContent.current
             return true
         } catch {
             return false

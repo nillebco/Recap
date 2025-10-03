@@ -5,12 +5,11 @@ import Combine
 protocol AvailabilityHelperType: AnyObject {
     var isAvailable: Bool { get }
     var availabilityPublisher: AnyPublisher<Bool, Never> { get }
-    
+
     func startMonitoring()
     func stopMonitoring()
     func checkAvailabilityNow() async -> Bool
 }
-
 
 @MainActor
 final class AvailabilityHelper: AvailabilityHelperType {
@@ -18,11 +17,11 @@ final class AvailabilityHelper: AvailabilityHelperType {
     var availabilityPublisher: AnyPublisher<Bool, Never> {
         $isAvailable.eraseToAnyPublisher()
     }
-    
+
     private let checkInterval: TimeInterval
     private let availabilityCheck: () async -> Bool
     private var monitoringTimer: Timer?
-    
+
     init(
         checkInterval: TimeInterval = 30.0,
         availabilityCheck: @escaping () async -> Bool
@@ -30,17 +29,17 @@ final class AvailabilityHelper: AvailabilityHelperType {
         self.checkInterval = checkInterval
         self.availabilityCheck = availabilityCheck
     }
-    
+
     deinit {
         monitoringTimer?.invalidate()
         monitoringTimer = nil
     }
-    
+
     func startMonitoring() {
         Task {
             await checkAvailabilityNow()
         }
-        
+
         monitoringTimer = Timer.scheduledTimer(
             withTimeInterval: checkInterval,
             repeats: true
@@ -50,12 +49,12 @@ final class AvailabilityHelper: AvailabilityHelperType {
             }
         }
     }
-    
+
     func stopMonitoring() {
         monitoringTimer?.invalidate()
         monitoringTimer = nil
     }
-    
+
     func checkAvailabilityNow() async -> Bool {
         let available = await availabilityCheck()
         isAvailable = available

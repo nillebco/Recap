@@ -6,9 +6,9 @@ import OSLog
 final class ProcessingCoordinator: ProcessingCoordinatorType {
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: ProcessingCoordinator.self))
     weak var delegate: ProcessingCoordinatorDelegate?
-    
+
     @Published private(set) var currentProcessingState: ProcessingState = .idle
-    
+
     private let recordingRepository: RecordingRepositoryType
     private let summarizationService: SummarizationServiceType
     private let transcriptionService: TranscriptionServiceType
@@ -32,7 +32,7 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
 
         startQueueProcessing()
     }
-    
+
     func setSystemLifecycleManager(_ manager: SystemLifecycleManager) {
         self.systemLifecycleManager = manager
         manager.delegate = self
@@ -41,11 +41,11 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
     func startProcessing(recordingInfo: RecordingInfo) async {
         processingQueue.continuation.yield(recordingInfo)
     }
-    
+
     func cancelProcessing(recordingID: String) async {
         guard case .processing(let currentID) = currentProcessingState,
               currentID == recordingID else { return }
-        
+
         processingTask?.cancel()
         currentProcessingState = .idle
 
@@ -54,35 +54,35 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
             state: .recorded,
             errorMessage: "Processing cancelled"
         )
-        
+
         delegate?.processingDidFail(recordingID: recordingID, error: .cancelled)
     }
-    
+
     func retryProcessing(recordingID: String) async {
         guard let recording = try? await recordingRepository.fetchRecording(id: recordingID),
               recording.canRetry else { return }
-        
+
         await startProcessing(recordingInfo: recording)
     }
-    
+
     private func startQueueProcessing() {
         queueTask = Task {
             for await recording in processingQueue.stream {
                 guard !Task.isCancelled else { break }
-                
+
                 currentProcessingState = .processing(recordingID: recording.id)
                 delegate?.processingDidStart(recordingID: recording.id)
-                
+
                 processingTask = Task {
                     await processRecording(recording)
                 }
-                
+
                 await processingTask?.value
                 currentProcessingState = .idle
             }
         }
     }
-    
+
     private func processRecording(_ recording: RecordingInfo) async {
         let startTime = Date()
 
@@ -121,7 +121,7 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
                     startTime: startTime
                 )
             }
-            
+
         } catch let error as ProcessingError {
             await handleProcessingError(error, for: recording)
         } catch {
@@ -129,7 +129,7 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
             await handleProcessingError(processingError, for: recording)
         }
     }
-    
+
     private func performTranscriptionPhase(_ recording: RecordingInfo) async throws -> String {
         try await updateRecordingState(recording.id, state: .transcribing)
 
@@ -158,25 +158,25 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
 
         return transcriptionResult.combinedText
     }
-    
+
     private func performSummarizationPhase(_ recording: RecordingInfo, transcriptionText: String) async throws -> String {
         try await updateRecordingState(recording.id, state: .summarizing)
-        
+
         let summaryRequest = buildSummarizationRequest(
             recording: recording,
             transcriptionText: transcriptionText
         )
-        
+
         let summaryResult = try await summarizationService.summarize(summaryRequest)
-        
+
         try await recordingRepository.updateRecordingSummary(
             id: recording.id,
             summaryText: summaryResult.summary
         )
-        
+
         return summaryResult.summary
     }
-    
+
     private func buildSummarizationRequest(recording: RecordingInfo, transcriptionText: String) -> SummarizationRequest {
         let metadata = SummarizationRequest.TranscriptMetadata(
             duration: recording.duration ?? 0,
@@ -184,14 +184,14 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
             recordingDate: recording.startDate,
             applicationName: recording.applicationName
         )
-        
+
         return SummarizationRequest(
             transcriptText: transcriptionText,
             metadata: metadata,
             options: .default
         )
     }
-    
+
     private func updateRecordingState(_ recordingID: String, state: RecordingProcessingState) async throws {
         try await recordingRepository.updateRecordingState(
             id: recordingID,
@@ -200,7 +200,7 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         )
         delegate?.processingStateDidChange(recordingID: recordingID, newState: state)
     }
-    
+
     private func completeProcessing(
         recording: RecordingInfo,
         transcriptionText: String,
@@ -209,20 +209,20 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
     ) async {
         do {
             try await updateRecordingState(recording.id, state: .completed)
-            
+
             let result = ProcessingResult(
                 recordingID: recording.id,
                 transcriptionText: transcriptionText,
                 summaryText: summaryText,
                 processingDuration: Date().timeIntervalSince(startTime)
             )
-            
+
             delegate?.processingDidComplete(recordingID: recording.id, result: result)
         } catch {
             await handleProcessingError(ProcessingError.coreDataError(error.localizedDescription), for: recording)
         }
     }
-    
+
     private func completeProcessingWithoutSummary(
         recording: RecordingInfo,
         transcriptionText: String,
@@ -230,20 +230,20 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
     ) async {
         do {
             try await updateRecordingState(recording.id, state: .completed)
-            
+
             let result = ProcessingResult(
                 recordingID: recording.id,
                 transcriptionText: transcriptionText,
                 summaryText: "",
                 processingDuration: Date().timeIntervalSince(startTime)
             )
-            
+
             delegate?.processingDidComplete(recordingID: recording.id, result: result)
         } catch {
             await handleProcessingError(ProcessingError.coreDataError(error.localizedDescription), for: recording)
         }
     }
-    
+
     private func performTranscription(_ recording: RecordingInfo) async throws -> TranscriptionResult {
         do {
             let microphoneURL = recording.hasMicrophoneAudio ? recording.microphoneURL : nil
@@ -260,7 +260,7 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
 
     private func handleProcessingError(_ error: ProcessingError, for recording: RecordingInfo) async {
         let failureState: RecordingProcessingState
-        
+
         switch error {
         case .transcriptionFailed:
             failureState = .transcriptionFailed
@@ -269,7 +269,7 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         default:
             failureState = recording.state == .transcribing ? .transcriptionFailed : .summarizationFailed
         }
-        
+
         do {
             try await recordingRepository.updateRecordingState(
                 id: recording.id,
@@ -280,10 +280,10 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
         } catch {
             logger.error("Failed to update recording state after error: \(error.localizedDescription, privacy: .public)")
         }
-        
+
         delegate?.processingDidFail(recordingID: recording.id, error: error)
     }
-    
+
     private func checkAutoSummarizeEnabled() async -> Bool {
         do {
             let preferences = try await userPreferencesRepository.getOrCreatePreferences()
@@ -361,10 +361,10 @@ extension ProcessingCoordinator: SystemLifecycleDelegate {
         currentProcessingState = .paused(recordingID: recordingID)
         processingTask?.cancel()
     }
-    
+
     func systemDidWake() {
         guard case .paused(let recordingID) = currentProcessingState else { return }
-        
+
         Task {
             if let recording = try? await recordingRepository.fetchRecording(id: recordingID) {
                 await startProcessing(recordingInfo: recording)

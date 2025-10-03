@@ -12,40 +12,40 @@ final class GlobalShortcutManager {
     private var hotKeyRef: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
     private weak var delegate: GlobalShortcutDelegate?
-    
+
     // Default shortcut: Cmd+R
     private var currentShortcut: (keyCode: UInt32, modifiers: UInt32) = (keyCode: 15, modifiers: UInt32(cmdKey)) // 'R' key with Cmd
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: GlobalShortcutManager.self))
-    
+
     init() {
         setupEventHandling()
     }
-    
+
     deinit {
         // Note: We can't use Task here as it would capture self in deinit
         // The shortcut will be cleaned up when the app terminates
     }
-    
+
     func setDelegate(_ delegate: GlobalShortcutDelegate) {
         self.delegate = delegate
     }
-    
+
     func registerShortcut(keyCode: UInt32, modifiers: UInt32) {
         unregisterShortcut()
         currentShortcut = (keyCode: keyCode, modifiers: modifiers)
         registerShortcut()
     }
-    
+
     func registerDefaultShortcut() {
         registerShortcut(keyCode: 15, modifiers: UInt32(cmdKey)) // Cmd+R
     }
-    
+
     private func registerShortcut() {
         let eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: OSType(kEventHotKeyPressed))
-        
+
         let status = InstallEventHandler(
             GetApplicationEventTarget(),
-            { (nextHandler, theEvent, userData) -> OSStatus in
+            { (_, theEvent, userData) -> OSStatus in
                 guard let userData = userData, let theEvent = theEvent else { return OSStatus(eventNotHandledErr) }
                 let manager = Unmanaged<GlobalShortcutManager>.fromOpaque(userData).takeUnretainedValue()
                 return manager.handleHotKeyEvent(theEvent)
@@ -55,12 +55,12 @@ final class GlobalShortcutManager {
             Unmanaged.passUnretained(self).toOpaque(),
             &eventHandler
         )
-        
+
         guard status == noErr else {
             logger.error("Failed to install event handler: \(status, privacy: .public)")
             return
         }
-        
+
         let hotKeyID = EventHotKeyID(signature: OSType(0x4D4B4D4B), id: 1)
         let status2 = RegisterEventHotKey(
             currentShortcut.keyCode,
@@ -70,7 +70,7 @@ final class GlobalShortcutManager {
             0,
             &hotKeyRef
         )
-        
+
         guard status2 == noErr else {
             logger.error("Failed to register hot key: \(status2, privacy: .public)")
             return
@@ -78,40 +78,40 @@ final class GlobalShortcutManager {
 
         logger.info("Global shortcut registered: Cmd+R")
     }
-    
+
     private func unregisterShortcut() {
         if let hotKeyRef = hotKeyRef {
             UnregisterEventHotKey(hotKeyRef)
             self.hotKeyRef = nil
         }
-        
+
         if let eventHandler = eventHandler {
             RemoveEventHandler(eventHandler)
             self.eventHandler = nil
         }
     }
-    
+
     private func setupEventHandling() {
         // This is handled in registerShortcut
     }
-    
+
     private func handleHotKeyEvent(_ event: EventRef) -> OSStatus {
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.globalShortcutActivated()
         }
         return noErr
     }
-    
+
     func getCurrentShortcut() -> (keyCode: UInt32, modifiers: UInt32) {
         return currentShortcut
     }
-    
+
     func getShortcutString() -> String {
         let keyString = getKeyString(for: currentShortcut.keyCode)
         let modifierString = getModifierString(for: currentShortcut.modifiers)
         return "\(modifierString)\(keyString)"
     }
-    
+
     private func getKeyString(for keyCode: UInt32) -> String {
         switch keyCode {
         case 0: return "A"
@@ -173,7 +173,7 @@ final class GlobalShortcutManager {
         default: return "Key\(keyCode)"
         }
     }
-    
+
     private func getModifierString(for modifiers: UInt32) -> String {
         var result = ""
         if (modifiers & UInt32(cmdKey)) != 0 {

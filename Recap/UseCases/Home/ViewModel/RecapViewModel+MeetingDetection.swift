@@ -7,7 +7,7 @@ extension RecapViewModel {
     func setupMeetingDetection() {
         Task {
             guard await shouldEnableMeetingDetection() else { return }
-            
+
             setupMeetingStateObserver()
             await startMonitoringIfPermissionGranted()
         }
@@ -25,7 +25,7 @@ private extension RecapViewModel {
             return false
         }
     }
-    
+
     func setupMeetingStateObserver() {
         meetingDetectionService.meetingStatePublisher
             .sink { [weak self] meetingState in
@@ -34,7 +34,7 @@ private extension RecapViewModel {
             }
             .store(in: &cancellables)
     }
-    
+
     func startMonitoringIfPermissionGranted() async {
         if await permissionsHelper.checkScreenCapturePermission() {
             meetingDetectionService.startMonitoring()
@@ -54,17 +54,17 @@ private extension RecapViewModel {
             handleMeetingEnded()
         }
     }
-    
+
     func handleMeetingDetected(info: ActiveMeetingInfo, detectedApp: AudioProcess?) {
         autoSelectAppIfAvailable(detectedApp)
-        
+
         let currentMeetingKey = "\(info.appName)-\(info.title)"
         if lastNotifiedMeetingKey != currentMeetingKey {
             lastNotifiedMeetingKey = currentMeetingKey
             sendMeetingStartedNotification(appName: info.appName, title: info.title)
         }
     }
-    
+
     func handleMeetingEnded() {
         lastNotifiedMeetingKey = nil
         sendMeetingEndedNotification()
@@ -77,7 +77,7 @@ private extension RecapViewModel {
         guard let detectedApp else {
             return
         }
-        
+
         appSelectionCoordinator.autoSelectApp(detectedApp)
     }
 }
@@ -89,7 +89,7 @@ private extension RecapViewModel {
             await notificationService.sendMeetingStartedNotification(appName: appName, title: title)
         }
     }
-    
+
     func sendMeetingEndedNotification() {
         // TODO: Later we will analyze audio levels, and if silence is detected, send a notification here.
     }

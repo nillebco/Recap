@@ -5,8 +5,4 @@ import Foundation
 
 struct MockWindow: WindowTitleProviding {
     let title: String?
-    
-    init(title: String?) {
-        self.title = title
-    }
 }

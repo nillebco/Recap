@@ -6,7 +6,7 @@ import AppKit
 
 struct FolderSettingsView<ViewModel: FolderSettingsViewModelType>: View {
     @ObservedObject private var viewModel: ViewModel
-    
+
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
@@ -21,20 +21,20 @@ struct FolderSettingsView<ViewModel: FolderSettingsViewModelType>: View {
                             .foregroundColor(UIConstants.Colors.textPrimary)
                             .lineLimit(1)
                             .truncationMode(.middle)
-                        
+
                         Spacer()
-                        
+
                         PillButton(text: "Choose Folder") {
                             openFolderPicker()
                         }
                     }
-                    
+
                     Text("Recordings and transcriptions will be organized in event-based folders")
                         .font(.system(size: 10, weight: .regular))
                         .foregroundColor(UIConstants.Colors.textSecondary)
                 }
             }
-            
+
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
                     .font(.system(size: 11, weight: .medium))
@@ -43,7 +43,7 @@ struct FolderSettingsView<ViewModel: FolderSettingsViewModelType>: View {
             }
         }
     }
-    
+
     private func settingsRow<Content: View>(
         label: String,
         @ViewBuilder control: () -> Content
@@ -52,9 +52,9 @@ struct FolderSettingsView<ViewModel: FolderSettingsViewModelType>: View {
             Text(label)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             Spacer()
-            
+
             control()
         }
     }
@@ -99,7 +99,7 @@ struct FolderSettingsView<ViewModel: FolderSettingsViewModelType>: View {
 protocol FolderSettingsViewModelType: ObservableObject {
     var currentFolderPath: String { get }
     var errorMessage: String? { get }
-    
+
     func updateFolderPath(_ url: URL) async
     func setErrorMessage(_ message: String?)
 }
@@ -114,7 +114,7 @@ final class AnyFolderSettingsViewModel: FolderSettingsViewModelType {
     private let _updateFolderPath: (URL) async -> Void
     private let _setErrorMessage: (String?) -> Void
     private var cancellable: AnyCancellable?
-    
+
     init<ViewModel: FolderSettingsViewModelType>(_ viewModel: ViewModel) {
         self._currentFolderPath = { viewModel.currentFolderPath }
         self._errorMessage = { viewModel.errorMessage }
@@ -124,14 +124,14 @@ final class AnyFolderSettingsViewModel: FolderSettingsViewModelType {
             self?.objectWillChange.send()
         }
     }
-    
+
     var currentFolderPath: String { _currentFolderPath() }
     var errorMessage: String? { _errorMessage() }
-    
+
     func updateFolderPath(_ url: URL) async {
         await _updateFolderPath(url)
     }
-    
+
     func setErrorMessage(_ message: String?) {
         _setErrorMessage(message)
     }
@@ -148,11 +148,11 @@ final class AnyFolderSettingsViewModel: FolderSettingsViewModelType {
 private final class PreviewFolderSettingsViewModel: FolderSettingsViewModelType {
     @Published var currentFolderPath: String = "/Users/nilleb/Library/Containers/co.nilleb.Recap/Data/tmp/"
     @Published var errorMessage: String?
-    
+
     func updateFolderPath(_ url: URL) async {
         currentFolderPath = url.path
     }
-    
+
     func setErrorMessage(_ message: String?) {
         errorMessage = message
     }

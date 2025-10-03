@@ -7,15 +7,15 @@ final class LLMService: LLMServiceType {
     var providerAvailabilityPublisher: AnyPublisher<Bool, Never> {
         $isProviderAvailable.eraseToAnyPublisher()
     }
-    
+
     private(set) var currentProvider: (any LLMProviderType)?
     private(set) var availableProviders: [any LLMProviderType] = []
-    
+
     private let llmModelRepository: LLMModelRepositoryType
     private let userPreferencesRepository: UserPreferencesRepositoryType
     private var cancellables = Set<AnyCancellable>()
     private var modelRefreshTimer: Timer?
-    
+
     init(
         llmModelRepository: LLMModelRepositoryType,
         userPreferencesRepository: UserPreferencesRepositoryType
@@ -25,11 +25,11 @@ final class LLMService: LLMServiceType {
         initializeProviders()
         startModelRefreshTimer()
     }
-    
+
     deinit {
         modelRefreshTimer?.invalidate()
     }
-    
+
     func initializeProviders() {
         let ollamaProvider = OllamaProvider()
         let openRouterProvider = OpenRouterProvider()
@@ -72,13 +72,13 @@ final class LLMService: LLMServiceType {
             try? await refreshModelsFromProviders()
         }
     }
-    
+
     func refreshModelsFromProviders() async throws {
         var allModelInfos: [LLMModelInfo] = []
-        
+
         for provider in availableProviders {
             guard provider.isAvailable else { continue }
-            
+
             do {
                 let providerModels = try await provider.listModels()
                 let modelInfos = providerModels.map { model in
@@ -94,22 +94,22 @@ final class LLMService: LLMServiceType {
                 continue
             }
         }
-        
+
         try await llmModelRepository.saveModels(allModelInfos)
     }
-    
+
     func getAvailableModels() async throws -> [LLMModelInfo] {
         let allModels = try await llmModelRepository.getAllModels()
         let preferences = try await userPreferencesRepository.getOrCreatePreferences()
         return allModels.filter { $0.provider.lowercased() == preferences.selectedProvider.providerName.lowercased() }
     }
-    
+
     func getSelectedModel() async throws -> LLMModelInfo? {
         let preferences = try await userPreferencesRepository.getOrCreatePreferences()
         guard let modelId = preferences.selectedLLMModelID else { return nil }
         return try await llmModelRepository.getModel(byId: modelId)
     }
-    
+
     func selectModel(id: String) async throws {
         guard (try await llmModelRepository.getModel(byId: id)) != nil else {
             throw LLMError.modelNotFound(id)
@@ -117,11 +117,11 @@ final class LLMService: LLMServiceType {
 
         try await userPreferencesRepository.updateSelectedLLMModel(id: id)
     }
-    
+
     func getUserPreferences() async throws -> UserPreferencesInfo {
         try await userPreferencesRepository.getOrCreatePreferences()
     }
-    
+
     func generateSummarization(
         text: String,
         options: LLMOptions? = nil
@@ -129,55 +129,55 @@ final class LLMService: LLMServiceType {
         guard let selectedModel = try await getSelectedModel() else {
             throw LLMError.configurationError("No model selected")
         }
-        
+
         guard let provider = findProvider(for: selectedModel.provider) else {
             throw LLMError.providerNotAvailable
         }
-        
+
         guard provider.isAvailable else {
             throw LLMError.providerNotAvailable
         }
-        
+
         let preferences = try await userPreferencesRepository.getOrCreatePreferences()
         let promptTemplate = preferences.summaryPromptTemplate ?? UserPreferencesInfo.defaultPromptTemplate
-        
+
         let effectiveOptions = options ?? LLMOptions(
             temperature: selectedModel.temperature ?? 0.7,
             maxTokens: Int(selectedModel.maxTokens),
             keepAliveMinutes: selectedModel.keepAliveMinutes.map(Int.init)
         )
-        
+
         let messages = [
             LLMMessage(role: .system, content: promptTemplate),
             LLMMessage(role: .user, content: text)
         ]
-        
+
         return try await provider.generateChatCompletion(
             modelName: selectedModel.name,
             messages: messages,
             options: effectiveOptions
         )
     }
-    
+
     private func findProvider(for providerName: String) -> (any LLMProviderType)? {
         availableProviders.first { provider in
             provider.name.lowercased() == providerName.lowercased()
         }
     }
-    
+
     func cancelCurrentTask() {
         availableProviders.forEach { $0.cancelCurrentTask() }
     }
-    
+
     func setCurrentProvider(_ provider: LLMProvider) {
         currentProvider = findProvider(for: provider.providerName)
     }
-    
+
     func selectProvider(_ provider: LLMProvider) async throws {
         try await userPreferencesRepository.updateSelectedProvider(provider)
         setCurrentProvider(provider)
     }
-    
+
     private func startModelRefreshTimer() {
         modelRefreshTimer?.invalidate()
         modelRefreshTimer = Timer.scheduledTimer(withTimeInterval: 3600.0, repeats: true) { [weak self] _ in

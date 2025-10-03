@@ -8,7 +8,7 @@ struct SummaryActionButton: View {
     let icon: String
     let action: () -> Void
     let isSecondary: Bool
-    
+
     init(
         text: String,
         icon: String,
@@ -20,14 +20,14 @@ struct SummaryActionButton: View {
         self.isSecondary = isSecondary
         self.action = action
     }
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(textColor)
-                
+
                 Text(text)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(textColor)
@@ -44,11 +44,11 @@ struct SummaryActionButton: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-    
+
     private var textColor: Color {
         isSecondary ? UIConstants.Colors.textSecondary : UIConstants.Colors.textPrimary
     }
-    
+
     private var backgroundGradient: LinearGradient {
         if isSecondary {
             return LinearGradient(
@@ -67,7 +67,7 @@ struct SummaryActionButton: View {
             )
         }
     }
-    
+
     private var borderGradient: LinearGradient {
         if isSecondary {
             return LinearGradient(
@@ -100,7 +100,7 @@ struct SummaryActionButton: View {
             ) {
                 summaryActionButtonPreviewLogger.info("Copy tapped")
             }
-            
+
             SummaryActionButton(
                 text: "Retry",
                 icon: "arrow.clockwise",
@@ -109,7 +109,7 @@ struct SummaryActionButton: View {
                 summaryActionButtonPreviewLogger.info("Retry tapped")
             }
         }
-        
+
         Text("Example in summary view context")
             .foregroundColor(.white.opacity(0.7))
             .font(.caption)

@@ -9,7 +9,7 @@ protocol LLMModelsViewModelType: ObservableObject {
     var errorMessage: String? { get }
     var providerStatus: ProviderStatus { get }
     var isProviderAvailable: Bool { get }
-    
+
     func refreshModels() async
     func selectModel(_ model: LLMModelInfo) async
 }

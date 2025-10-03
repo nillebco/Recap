@@ -2,7 +2,7 @@ import Foundation
 
 /// Utility class for merging and working with timestamped transcriptions
 struct TranscriptionMerger {
-    
+
     /// Merge timestamped transcriptions from microphone and system audio
     /// - Parameters:
     ///   - systemAudioSegments: Segments from system audio
@@ -15,7 +15,7 @@ struct TranscriptionMerger {
         let allSegments = systemAudioSegments + microphoneSegments
         return TimestampedTranscription(segments: allSegments)
     }
-    
+
     /// Get a chronological view of the transcription with speaker identification
     /// - Parameter transcription: The timestamped transcription
     /// - Returns: Array of segments with speaker labels, sorted by time
@@ -30,7 +30,7 @@ struct TranscriptionMerger {
             )
         }.sorted { $0.startTime < $1.startTime }
     }
-    
+
     /// Get segments within a specific time range
     /// - Parameters:
     ///   - transcription: The timestamped transcription
@@ -46,7 +46,7 @@ struct TranscriptionMerger {
             segment.startTime <= endTime && segment.endTime >= startTime
         }
     }
-    
+
     /// Get a formatted transcript with timestamps and speaker labels
     /// - Parameter transcription: The timestamped transcription
     /// - Returns: Formatted transcript string
@@ -61,7 +61,7 @@ struct TranscriptionMerger {
             return "\(String(format: "%.2f", segment.startTime)) + \(String(format: "%.2f", duration)), [\(source)]: \(cleanedText)"
         }.joined(separator: "\n")
     }
-    
+
     /// Get segments by source (microphone or system audio)
     /// - Parameters:
     ///   - transcription: The timestamped transcription
@@ -73,16 +73,16 @@ struct TranscriptionMerger {
     ) -> [TranscriptionSegment] {
         return transcription.segments.filter { $0.source == source }
     }
-    
+
     /// Find overlapping segments between different sources
     /// - Parameter transcription: The timestamped transcription
     /// - Returns: Array of overlapping segment pairs
     static func findOverlappingSegments(_ transcription: TimestampedTranscription) -> [OverlappingSegments] {
         let systemSegments = getSegmentsBySource(transcription, source: .systemAudio)
         let microphoneSegments = getSegmentsBySource(transcription, source: .microphone)
-        
+
         var overlappingPairs: [OverlappingSegments] = []
-        
+
         for systemSegment in systemSegments {
             for microphoneSegment in microphoneSegments {
                 if systemSegment.overlaps(with: microphoneSegment) {
@@ -93,7 +93,7 @@ struct TranscriptionMerger {
                 }
             }
         }
-        
+
         return overlappingPairs
     }
 }
@@ -111,20 +111,20 @@ struct ChronologicalSegment {
 struct OverlappingSegments {
     let systemAudio: TranscriptionSegment
     let microphone: TranscriptionSegment
-    
+
     /// Calculate the overlap duration
     var overlapDuration: TimeInterval {
         let overlapStart = max(systemAudio.startTime, microphone.startTime)
         let overlapEnd = min(systemAudio.endTime, microphone.endTime)
         return max(0, overlapEnd - overlapStart)
     }
-    
+
     /// Get the overlap percentage for the system audio segment
     var systemAudioOverlapPercentage: Double {
         guard systemAudio.duration > 0 else { return 0 }
         return overlapDuration / systemAudio.duration
     }
-    
+
     /// Get the overlap percentage for the microphone segment
     var microphoneOverlapPercentage: Double {
         guard microphone.duration > 0 else { return 0 }

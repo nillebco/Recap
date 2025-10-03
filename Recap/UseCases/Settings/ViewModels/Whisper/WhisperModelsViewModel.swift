@@ -11,31 +11,31 @@ final class WhisperModelsViewModel: WhisperModelsViewModelType {
     @Published var tooltipPosition: CGPoint = .zero
     @Published var errorMessage: String?
     @Published var showingError = false
-    
+
     private let repository: WhisperModelRepositoryType
-    
+
     init(repository: WhisperModelRepositoryType) {
         self.repository = repository
         Task {
             await loadModelsFromRepository()
         }
     }
-    
+
     var recommendedModels: [String] {
         ModelVariant.multilingualCases
             .filter { $0.isRecommended }
             .map { $0.description }
     }
-    
+
     var otherModels: [String] {
         ModelVariant.multilingualCases
             .filter { !$0.isRecommended }
             .map { $0.description }
     }
-    
+
     func selectModel(_ modelName: String) {
         guard downloadedModels.contains(modelName) else { return }
-        
+
         Task {
             do {
                 if selectedModel == modelName {
@@ -55,13 +55,13 @@ final class WhisperModelsViewModel: WhisperModelsViewModelType {
             }
         }
     }
-    
+
     func downloadModel(_ modelName: String) {
         Task {
             do {
                 downloadingModels.insert(modelName)
                 downloadProgress[modelName] = 0.0
-                
+
                 _ = try await WhisperKit.createWithProgress(
                     model: modelName,
                     modelRepo: "argmaxinc/whisperkit-coreml",
@@ -74,13 +74,13 @@ final class WhisperModelsViewModel: WhisperModelsViewModelType {
                         }
                     }
                 )
-                
+
                 let modelInfo = await WhisperKit.getModelSizeInfo(for: modelName)
                 try await repository.markAsDownloaded(
                     name: modelName,
                     sizeInMB: Int64(modelInfo.totalSizeMB)
                 )
-                
+
                 downloadedModels.insert(modelName)
                 downloadingModels.remove(modelName)
                 downloadProgress[modelName] = 1.0
@@ -91,7 +91,7 @@ final class WhisperModelsViewModel: WhisperModelsViewModelType {
             }
         }
     }
-    
+
     func toggleTooltip(for modelName: String, at position: CGPoint) {
         if showingTooltipForModel == modelName {
             showingTooltipForModel = nil
@@ -100,12 +100,12 @@ final class WhisperModelsViewModel: WhisperModelsViewModelType {
             tooltipPosition = position
         }
     }
-    
+
     func getModelInfo(_ name: String) -> ModelInfo? {
         let baseModelName = name.replacingOccurrences(of: "-v2", with: "").replacingOccurrences(of: "-v3", with: "")
         return String.modelInfoData[baseModelName]
     }
-    
+
     func modelDisplayName(_ name: String) -> String {
         switch name {
         case "large-v2":
@@ -118,18 +118,18 @@ final class WhisperModelsViewModel: WhisperModelsViewModelType {
             return name.capitalized
         }
     }
-    
+
     private func showError(_ message: String) {
         errorMessage = message
         showingError = true
     }
-    
+
     private func loadModelsFromRepository() async {
         do {
             let models = try await repository.getAllModels()
             let downloaded = models.filter { $0.isDownloaded }
             downloadedModels = Set(downloaded.map { $0.name })
-            
+
             if let selected = models.first(where: { $0.isSelected }) {
                 selectedModel = selected.name
             }
@@ -143,7 +143,7 @@ extension ModelVariant {
     static var multilingualCases: [ModelVariant] {
         return allCases.filter { $0.isMultilingual }
     }
-    
+
     var isRecommended: Bool {
         switch self {
         case .largev3, .medium, .small:

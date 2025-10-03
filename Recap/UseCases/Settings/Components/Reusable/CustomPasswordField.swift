@@ -6,7 +6,7 @@ struct CustomPasswordField: View {
     @Binding var text: String
     @State private var isSecure: Bool = true
     @FocusState private var isFocused: Bool
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -16,7 +16,7 @@ struct CustomPasswordField: View {
                     .multilineTextAlignment(.leading)
                 Spacer()
             }
-            
+
             HStack(spacing: 12) {
                 Group {
                     if isSecure {
@@ -48,7 +48,7 @@ struct CustomPasswordField: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
                                 .stroke(
-                                    isFocused 
+                                    isFocused
                                         ? LinearGradient(
                                             gradient: Gradient(stops: [
                                                 .init(color: Color(hex: "979797").opacity(0.4), location: 0),
@@ -69,7 +69,7 @@ struct CustomPasswordField: View {
                                 )
                         )
                 )
-                
+
                 PillButton(
                     text: isSecure ? "Show" : "Hide",
                     icon: isSecure ? "eye.slash" : "eye"
@@ -89,7 +89,7 @@ struct CustomPasswordField: View {
             placeholder: "Enter your API key",
             text: .constant("sk-or-v1-abcdef123456789")
         )
-        
+
         CustomPasswordField(
             label: "Empty Field",
             placeholder: "Enter password",

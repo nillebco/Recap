@@ -5,14 +5,14 @@ struct CenteredAlert<Content: View>: View {
     let title: String
     let onDismiss: () -> Void
     @ViewBuilder let content: Content
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             headerSection
-            
+
             Divider()
                 .background(Color.white.opacity(0.1))
-            
+
             VStack(alignment: .leading, spacing: 20) {
                 content
             }
@@ -33,7 +33,7 @@ struct CenteredAlert<Content: View>: View {
                 )
         )
     }
-    
+
     private var headerSection: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 0) {
@@ -42,9 +42,9 @@ struct CenteredAlert<Content: View>: View {
                     .foregroundColor(UIConstants.Colors.textPrimary)
                     .multilineTextAlignment(.leading)
             }
-            
+
             Spacer()
-            
+
             PillButton(
                 text: "Close",
                 icon: "xmark"
@@ -66,10 +66,10 @@ struct CenteredAlert<Content: View>: View {
                 Text("Background Content")
                     .foregroundColor(.white)
             )
-        
+
         Color.black.opacity(0.3)
             .ignoresSafeArea()
-        
+
         CenteredAlert(
             isPresented: .constant(true),
             title: "Example Alert",
@@ -78,7 +78,7 @@ struct CenteredAlert<Content: View>: View {
             VStack(alignment: .leading, spacing: 20) {
                 Text("This is centered alert content")
                     .foregroundColor(.white)
-                
+
                 Button("Example Button") {}
                     .foregroundColor(.blue)
             }

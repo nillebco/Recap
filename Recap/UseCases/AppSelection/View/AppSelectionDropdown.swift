@@ -4,7 +4,7 @@ struct AppSelectionDropdown: View {
     @ObservedObject private var viewModel: AppSelectionViewModel
     let onAppSelected: (SelectableApp) -> Void
     let onClearSelection: () -> Void
-    
+
     init(
         viewModel: AppSelectionViewModel,
         onAppSelected: @escaping (SelectableApp) -> Void,
@@ -14,7 +14,7 @@ struct AppSelectionDropdown: View {
         self.onAppSelected = onAppSelected
         self.onClearSelection = onClearSelection
     }
-    
+
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             contentView
@@ -30,11 +30,11 @@ struct AppSelectionDropdown: View {
                 .stroke(UIConstants.Gradients.standardBorder, lineWidth: UIConstants.Sizing.strokeWidth)
         )
     }
-    
+
     private var contentView: some View {
         VStack(alignment: .leading, spacing: 0) {
             dropdownHeader
-            
+
             systemWideRow
 
             if !viewModel.meetingApps.isEmpty || !viewModel.otherApps.isEmpty {
@@ -46,19 +46,19 @@ struct AppSelectionDropdown: View {
                 ForEach(viewModel.meetingApps) { app in
                     appRow(app)
                 }
-                
+
                 if !viewModel.otherApps.isEmpty {
                     sectionDivider
                 }
             }
-            
+
             if !viewModel.otherApps.isEmpty {
                 sectionHeader("Other Apps")
                 ForEach(viewModel.otherApps) { app in
                     appRow(app)
                 }
             }
-            
+
             if !viewModel.meetingApps.isEmpty || !viewModel.otherApps.isEmpty {
                 sectionDivider
                 clearSelectionRow
@@ -66,15 +66,15 @@ struct AppSelectionDropdown: View {
         }
         .padding(.vertical, UIConstants.Spacing.cardInternalSpacing)
     }
-    
+
     private var dropdownHeader: some View {
         HStack {
             Text("Select App")
                 .font(UIConstants.Typography.cardTitle)
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             Spacer()
-            
+
             Button {
                 viewModel.toggleAudioFilter()
             } label: {
@@ -102,7 +102,7 @@ struct AppSelectionDropdown: View {
         .padding(.horizontal, UIConstants.Spacing.cardPadding)
         .padding(.top, UIConstants.Spacing.cardInternalSpacing)
     }
-    
+
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
             .font(UIConstants.Typography.bodyText)
@@ -110,7 +110,7 @@ struct AppSelectionDropdown: View {
             .padding(.horizontal, UIConstants.Spacing.cardPadding)
             .padding(.vertical, UIConstants.Spacing.cardInternalSpacing)
     }
-    
+
     private func appRow(_ app: SelectableApp) -> some View {
         Button {
             onAppSelected(app)
@@ -120,14 +120,14 @@ struct AppSelectionDropdown: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 14, height: 14)
-                
+
                 Text(app.name)
                     .font(UIConstants.Typography.bodyText)
                     .foregroundColor(UIConstants.Colors.textPrimary)
                     .lineLimit(1)
-                
+
                 Spacer(minLength: 0)
-                
+
                 if app.isAudioActive {
                     Circle()
                         .fill(UIConstants.Colors.audioGreen)
@@ -151,7 +151,7 @@ struct AppSelectionDropdown: View {
                 }
         )
     }
-    
+
     private var sectionDivider: some View {
         Rectangle()
             .fill(UIConstants.Colors.textTertiary.opacity(0.1))
@@ -159,7 +159,7 @@ struct AppSelectionDropdown: View {
             .padding(.horizontal, UIConstants.Spacing.cardPadding)
             .padding(.vertical, UIConstants.Spacing.gridSpacing)
     }
-    
+
     private var systemWideRow: some View {
         Button {
             onAppSelected(SelectableApp.allApps)
@@ -207,11 +207,11 @@ struct AppSelectionDropdown: View {
                 Image(systemName: "xmark.circle")
                     .font(UIConstants.Typography.iconFont)
                     .foregroundColor(UIConstants.Colors.textSecondary)
-                
+
                 Text("Clear Selection")
                     .font(UIConstants.Typography.bodyText)
                     .foregroundColor(UIConstants.Colors.textSecondary)
-                
+
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, UIConstants.Spacing.cardPadding)
@@ -226,7 +226,7 @@ struct AppSelectionDropdown: View {
     }
 }
 
-//#Preview {
+// #Preview {
 //    AppSelectionDropdown(
 //        meetingApps: [
 //            SelectableApp(
@@ -299,4 +299,4 @@ struct AppSelectionDropdown: View {
 //        onClearSelection: { }
 //    )
 //    .frame(width: 300, height: 450)
-//}
+// }

@@ -9,10 +9,10 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
         self.viewModel = viewModel
         self.recapViewModel = recapViewModel
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
-            ScrollView() {
+            ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     // Audio Sources Section (moved from LeftPaneView)
                     if let recapViewModel = recapViewModel {
@@ -60,7 +60,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                 )
                                 .frame(width: 285)
                             }
-                            
+
                             if viewModel.isLoading {
                                 HStack {
                                     ProgressView()
@@ -135,7 +135,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                         )
                                 }
                             }
-                            
+
                             if let errorMessage = viewModel.errorMessage {
                                 Text(errorMessage)
                                     .font(.system(size: 11, weight: .medium))
@@ -144,7 +144,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                             }
                         }
                     }
-                    
+
                     SettingsCard(title: "Custom Prompt") {
                         VStack(alignment: .leading, spacing: 12) {
                             CustomTextEditor(
@@ -153,14 +153,14 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                 placeholder: "Enter your custom prompt template here...",
                                 height: 120
                             )
-                            
+
                             HStack {
                                 Text("Customize how AI summarizes your meeting transcripts")
                                     .font(.system(size: 11, weight: .regular))
                                     .foregroundColor(UIConstants.Colors.textSecondary)
-                                
+
                                 Spacer()
-                                
+
                                 PillButton(text: "Reset to Default") {
                                     Task {
                                         await viewModel.resetToDefaultPrompt()
@@ -169,7 +169,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                             }
                         }
                     }
-                    
+
                     SettingsCard(title: "Processing Options") {
                         VStack(spacing: 16) {
                             settingsRow(label: "Enable Transcription") {
@@ -211,11 +211,11 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                     SettingsCard(title: "Global Shortcut") {
                         GlobalShortcutSettingsView(viewModel: viewModel)
                     }
-                    
+
                     SettingsCard(title: "File Storage") {
                         FolderSettingsView(viewModel: AnyFolderSettingsViewModel(viewModel.folderSettingsViewModel))
                     }
-                    
+
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
@@ -279,8 +279,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.showAPIKeyAlert || viewModel.showOpenAIAlert)
         )
     }
-    
-    
+
     private func settingsRow<Content: View>(
         label: String,
         @ViewBuilder control: () -> Content
@@ -289,9 +288,9 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
             Text(label)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             Spacer()
-            
+
             control()
         }
     }
@@ -307,11 +306,11 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
     init() {
         // Preview initializer - no setup needed
     }
-    
+
     func updateCustomPromptTemplate(_ template: String) async {}
-    
+
     func resetToDefaultPrompt() async {}
-    
+
     var customPromptTemplate: Binding<String> {
         .constant(UserPreferencesInfo.defaultPromptTemplate)
     }
@@ -402,15 +401,15 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
 private final class PreviewFolderSettingsViewModel: FolderSettingsViewModelType {
     @Published var currentFolderPath: String = "/Users/nilleb/Library/Containers/co.nilleb.Recap/Data/tmp/"
     @Published var errorMessage: String?
-    
+
     init() {
         // Preview initializer - no setup needed
     }
-    
+
     func updateFolderPath(_ url: URL) async {
         currentFolderPath = url.path
     }
-    
+
     func setErrorMessage(_ message: String?) {
         errorMessage = message
     }

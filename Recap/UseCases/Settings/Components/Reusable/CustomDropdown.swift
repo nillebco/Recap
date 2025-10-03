@@ -6,18 +6,18 @@ struct CustomDropdown<T: Hashable>: View {
     @Binding var selection: T
     let displayName: (T) -> String
     let showSearch: Bool
-    
+
     @State private var isExpanded = false
     @State private var hoveredOption: T?
     @State private var searchText = ""
-    
+
     private var filteredOptions: [T] {
         guard showSearch && !searchText.isEmpty else { return options }
         return options.filter { option in
             displayName(option).localizedCaseInsensitiveContains(searchText)
         }
     }
-    
+
     init(
         title: String,
         options: [T],
@@ -31,7 +31,7 @@ struct CustomDropdown<T: Hashable>: View {
         self.displayName = displayName
         self.showSearch = showSearch
     }
-    
+
     var body: some View {
         dropdownButton
             .popover(isPresented: $isExpanded, arrowEdge: .bottom) {
@@ -39,13 +39,13 @@ struct CustomDropdown<T: Hashable>: View {
                     .frame(width: 285)
                     .frame(maxHeight: showSearch ? 350 : 300)
             }
-            .onChange(of: isExpanded) { oldValue, expanded in
+            .onChange(of: isExpanded) { _, expanded in
                 if !expanded {
                     searchText = ""
                 }
             }
     }
-    
+
     private var dropdownButton: some View {
         Button(action: {
             isExpanded.toggle()
@@ -55,9 +55,9 @@ struct CustomDropdown<T: Hashable>: View {
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(UIConstants.Colors.textPrimary)
                     .lineLimit(1)
-                
+
                 Spacer()
-                
+
                 Image(systemName: "chevron.down")
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(UIConstants.Colors.textSecondary)
@@ -87,13 +87,13 @@ struct CustomDropdown<T: Hashable>: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-    
+
     private var searchField: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 10, weight: .medium))
                 .foregroundColor(UIConstants.Colors.textSecondary)
-            
+
             TextField("Search...", text: $searchText)
                 .textFieldStyle(PlainTextFieldStyle())
                 .font(.system(size: 11, weight: .medium))
@@ -110,7 +110,7 @@ struct CustomDropdown<T: Hashable>: View {
                 )
         )
     }
-    
+
     private var dropdownList: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
@@ -129,14 +129,14 @@ struct CustomDropdown<T: Hashable>: View {
                             lineWidth: 0.8
                         )
                 )
-            
+
             VStack(spacing: 0) {
                 if showSearch {
                     searchField
                         .padding(.horizontal, 8)
                         .padding(.top, 16)
                 }
-                
+
                 ScrollView(.vertical, showsIndicators: true) {
                     VStack(spacing: 0) {
                         ForEach(filteredOptions, id: \.self) { option in
@@ -153,9 +153,9 @@ struct CustomDropdown<T: Hashable>: View {
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundColor(selection == option ? UIConstants.Colors.textPrimary : UIConstants.Colors.textSecondary)
                                     .lineLimit(1)
-                                
+
                                 Spacer()
-                                
+
                                 if selection == option {
                                     Image(systemName: "checkmark")
                                         .font(.system(size: 9, weight: .bold))
@@ -176,7 +176,7 @@ struct CustomDropdown<T: Hashable>: View {
                         .onHover { isHovered in
                             hoveredOption = isHovered ? option : nil
                         }
-                        
+
                         if option != filteredOptions.last {
                             Divider()
                                 .background(Color(hex: "979797").opacity(0.1))
@@ -187,7 +187,7 @@ struct CustomDropdown<T: Hashable>: View {
                 .cornerRadius(8)
             }
             }
-            
+
             // Gradient overlays
             VStack(spacing: 0) {
                 // Top gradient
@@ -202,9 +202,9 @@ struct CustomDropdown<T: Hashable>: View {
                 )
                 .frame(height: 20)
                 .allowsHitTesting(false)
-                
+
                 Spacer()
-                
+
                 // Bottom gradient
                 LinearGradient(
                     gradient: Gradient(stops: [
@@ -233,7 +233,7 @@ struct CustomDropdown<T: Hashable>: View {
             displayName: { $0 }
         )
         .frame(width: 285)
-        
+
         CustomDropdown(
             title: "Numbers",
             options: Array(1...20).map { "Option \($0)" },
@@ -242,7 +242,7 @@ struct CustomDropdown<T: Hashable>: View {
             showSearch: true
         )
         .frame(width: 285)
-        
+
         Text("This text should not move")
             .foregroundColor(.white)
     }

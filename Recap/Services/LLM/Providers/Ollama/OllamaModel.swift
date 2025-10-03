@@ -5,7 +5,7 @@ struct OllamaModel: LLMModelType {
     let name: String
     let provider: String = "ollama"
     let contextLength: Int32? = nil
-    
+
     init(name: String) {
         self.id = "ollama-\(name)"
         self.name = name

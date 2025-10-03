@@ -2,15 +2,15 @@ import SwiftUI
 
 struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
     @ObservedObject private var viewModel: ViewModel
-    
+
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             headerSection
-            
+
             ScrollView {
                 VStack(spacing: 20) {
                     permissionsSection
@@ -18,7 +18,7 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
                 }
                 .padding(.vertical, 20)
             }
-            
+
             continueButton
         }
         .background(
@@ -40,13 +40,13 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
             )
         }
     }
-    
+
     private var headerSection: some View {
         VStack(spacing: 6) {
             Text("Welcome to Recap")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             Text("Let's set up a few things to get you started")
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(UIConstants.Colors.textSecondary)
@@ -65,14 +65,14 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
             )
         )
     }
-    
+
     private var permissionsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("PERMISSIONS")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(UIConstants.Colors.textSecondary)
                 .padding(.horizontal, 24)
-            
+
             VStack(spacing: 12) {
                 PermissionCard(
                     title: "Microphone Access",
@@ -85,7 +85,7 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
                         await viewModel.requestMicrophonePermission(enabled)
                     }
                 )
-                
+
                 PermissionCard(
                     title: "Auto Detect Meetings",
                     description: "Automatically start recording when a meeting begins",
@@ -100,7 +100,7 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
                                 Text("This feature requires:")
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundColor(UIConstants.Colors.textPrimary)
-                                
+
                                 VStack(spacing: 8) {
                                     HStack {
                                         PermissionRequirement(
@@ -122,7 +122,6 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
                                 .foregroundColor(UIConstants.Colors.textSecondary.opacity(0.5))
                                 .font(.system(size: 10, weight: .regular))
 
-                                
                                 if !viewModel.hasRequiredPermissions {
                                     Text("App restart required after granting permissions")
                                         .font(.system(size: 10, weight: .regular))
@@ -140,14 +139,14 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
             .padding(.horizontal, 24)
         }
     }
-    
+
     private var featuresSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("FEATURES")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(UIConstants.Colors.textSecondary)
                 .padding(.horizontal, 24)
-            
+
             VStack(spacing: 12) {
                 PermissionCard(
                     title: "Auto Summarize",
@@ -157,11 +156,11 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
                         set: { _ in }
                     ),
                     isDisabled: true,
-                    onToggle: { enabled in
-                        
+                    onToggle: { _ in
+
                     }
                 )
-                
+
                 PermissionCard(
                     title: "Live Transcription",
                     description: "Show real-time transcription during recording",
@@ -177,12 +176,12 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
             .padding(.horizontal, 24)
         }
     }
-    
+
     private var continueButton: some View {
         GeometryReader { geometry in
             HStack {
                 Spacer()
-                
+
                 Button(action: {
                     viewModel.completeOnboarding()
                 }) {
@@ -190,7 +189,7 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
                         Image(systemName: "arrow.right.circle.fill")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.white)
-                        
+
                         Text("Continue")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.white)
@@ -228,7 +227,7 @@ struct OnboardingView<ViewModel: OnboardingViewModelType>: View {
                 }
                 .buttonStyle(PlainButtonStyle())
                 .padding(.all, 6)
-                
+
                 Spacer()
             }
         }

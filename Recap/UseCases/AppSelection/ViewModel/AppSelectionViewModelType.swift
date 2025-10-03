@@ -19,12 +19,12 @@ protocol AppSelectionViewModelType: ObservableObject {
     var otherApps: [SelectableApp] { get }
     var isAudioFilterEnabled: Bool { get set }
     var audioProcessController: any AudioProcessControllerType { get }
-    
+
     func toggleDropdown()
     func selectApp(_ app: SelectableApp)
     func clearSelection()
     func toggleAudioFilter()
     func refreshAvailableApps()
-    
+
     var delegate: AppSelectionDelegate? { get set }
 }

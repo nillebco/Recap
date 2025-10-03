@@ -8,14 +8,14 @@ struct PillButton: View {
     let icon: String?
     let action: () -> Void
     let borderGradient: LinearGradient?
-    
+
     init(text: String, icon: String? = nil, borderGradient: LinearGradient? = nil, action: @escaping () -> Void) {
         self.text = text
         self.icon = icon
         self.borderGradient = borderGradient
         self.action = action
     }
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
@@ -24,7 +24,7 @@ struct PillButton: View {
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white)
                 }
-                
+
                 Text(text)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white)
@@ -59,7 +59,7 @@ struct PillButton: View {
         PillButton(text: "Start Recording", icon: "mic.fill") {
             pillButtonPreviewLogger.info("Recording started")
         }
-        
+
         PillButton(text: "Button", icon: nil) {
             pillButtonPreviewLogger.info("Button tapped")
         }

@@ -8,7 +8,7 @@ protocol SlidingPanelDelegate: AnyObject {
 final class SlidingPanel: NSPanel, SlidingPanelType {
     weak var panelDelegate: SlidingPanelDelegate?
     private var eventMonitor: Any?
-    
+
     init(contentViewController: NSViewController) {
         super.init(
             contentRect: .zero,
@@ -16,14 +16,14 @@ final class SlidingPanel: NSPanel, SlidingPanelType {
             backing: .buffered,
             defer: false
         )
-        
+
         setupPanel(with: contentViewController)
         setupEventMonitoring()
     }
-    
+
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
-    
+
     private func setupPanel(with contentViewController: NSViewController) {
         self.contentViewController = contentViewController
         self.level = .popUpMenu
@@ -33,30 +33,30 @@ final class SlidingPanel: NSPanel, SlidingPanelType {
         self.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
         self.animationBehavior = .none
         self.alphaValue = 0.0
-        
+
         let containerView = createContainerView(with: contentViewController)
         self.contentView = containerView
-        
+
         containerView.wantsLayer = true
         containerView.layer?.backgroundColor = NSColor.clear.cgColor
     }
-    
+
     private func createContainerView(with contentViewController: NSViewController) -> NSView {
         let visualEffect = createVisualEffectView()
         let containerView = NSView()
-        
+
         containerView.wantsLayer = true
         containerView.layer?.backgroundColor = NSColor.clear.cgColor
-        
+
         containerView.addSubview(visualEffect)
         containerView.addSubview(contentViewController.view)
-        
+
         setupVisualEffectConstraints(visualEffect, in: containerView)
         setupContentViewConstraints(contentViewController.view, in: containerView)
-        
+
         return containerView
     }
-    
+
     private func createVisualEffectView() -> NSVisualEffectView {
         let visualEffect = NSVisualEffectView()
         visualEffect.material = .popover
@@ -68,20 +68,20 @@ final class SlidingPanel: NSPanel, SlidingPanelType {
         visualEffect.layer?.rasterizationScale = NSScreen.main?.backingScaleFactor ?? 2.0
         return visualEffect
     }
-    
+
     private func setupEventMonitoring() {
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             self?.handleGlobalClick(event)
         }
     }
-    
+
     private func handleGlobalClick(_ event: NSEvent) {
         let globalLocation = NSEvent.mouseLocation
         if !self.frame.contains(globalLocation) {
             panelDelegate?.panelDidReceiveClickOutside()
         }
     }
-    
+
     deinit {
         if let eventMonitor = eventMonitor {
             NSEvent.removeMonitor(eventMonitor)
@@ -92,7 +92,7 @@ final class SlidingPanel: NSPanel, SlidingPanelType {
 extension SlidingPanel {
     private func setupVisualEffectConstraints(_ visualEffect: NSVisualEffectView, in container: NSView) {
         visualEffect.translatesAutoresizingMaskIntoConstraints = false
-        
+
         NSLayoutConstraint.activate([
             visualEffect.topAnchor.constraint(equalTo: container.topAnchor),
             visualEffect.bottomAnchor.constraint(equalTo: container.bottomAnchor),
@@ -100,11 +100,11 @@ extension SlidingPanel {
             visualEffect.trailingAnchor.constraint(equalTo: container.trailingAnchor)
         ])
     }
-    
+
     private func setupContentViewConstraints(_ contentView: NSView, in container: NSView) {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.wantsLayer = true
-        
+
         NSLayoutConstraint.activate([
             contentView.topAnchor.constraint(equalTo: container.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: container.bottomAnchor),

@@ -11,20 +11,20 @@ struct ModelSizeInfo {
 
 // whisperkit has builtin progress tracking, yet the source code does not expose callback, workaround
 extension WhisperKit {
-    
+
     static func getModelSizeInfo(for modelName: String) async -> ModelSizeInfo {
         do {
             let hubApi = HubApi()
             let repo = Hub.Repo(id: "argmaxinc/whisperkit-coreml", type: .models)
             let modelSearchPath = "*\(modelName)*/*"
-            
+
             let fileMetadata = try await hubApi.getFileMetadata(from: repo, matching: [modelSearchPath])
-            
+
             let totalBytes = fileMetadata.reduce(0) { total, metadata in
                 total + (metadata.size ?? 0)
             }
             let totalSizeMB = Double(totalBytes) / Constants.bytesToMBDivisor
-            
+
             return ModelSizeInfo(
                 modelName: modelName,
                 totalSizeMB: totalSizeMB,
@@ -41,7 +41,7 @@ extension WhisperKit {
             )
         }
     }
-    
+
     static func createWithProgress(
         model: String?,
         downloadBase: URL? = nil,
@@ -51,9 +51,9 @@ extension WhisperKit {
         download: Bool = true,
         progressCallback: @escaping (Progress) -> Void
     ) async throws -> WhisperKit {
-        
+
         var actualModelFolder = modelFolder
-        
+
         if actualModelFolder == nil && download {
             let repo = modelRepo ?? "argmaxinc/whisperkit-coreml"
             let modelSupport = await WhisperKit.recommendedRemoteModels(from: repo, downloadBase: downloadBase)
@@ -76,7 +76,7 @@ extension WhisperKit {
                 """)
             }
         }
-        
+
         let config = WhisperKitConfig(
             model: model,
             downloadBase: downloadBase,
@@ -85,7 +85,7 @@ extension WhisperKit {
             modelFolder: actualModelFolder,
             download: false
         )
-        
+
         return try await WhisperKit(config)
     }
 }
@@ -102,7 +102,7 @@ private extension WhisperKit {
             "large-v3": 16793,
             "distil-whisper_distil-large-v3_turbo": 2035
         ]
-        
+
         static let defaultModelSizeMB: Double = 500.0
         static let defaultFileCount: Int = 6
         static let bytesToMBDivisor: Double = 1024 * 1024

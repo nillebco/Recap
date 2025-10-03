@@ -3,7 +3,7 @@ import SwiftUI
 struct SettingsCard<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
-    
+
     var body: some View {
         let cardBackground = LinearGradient(
             gradient: Gradient(stops: [
@@ -13,7 +13,7 @@ struct SettingsCard<Content: View>: View {
             startPoint: .top,
             endPoint: .bottom
         )
-        
+
         let cardBorder = LinearGradient(
             gradient: Gradient(stops: [
                 .init(color: Color(hex: "979797").opacity(0.05), location: 0),
@@ -22,12 +22,12 @@ struct SettingsCard<Content: View>: View {
             startPoint: .top,
             endPoint: .bottom
         )
-        
+
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             content
         }
         .padding(20)
@@ -57,7 +57,7 @@ struct SettingsCard<Content: View>: View {
                 }
             }
         }
-        
+
         SettingsCard(title: "Recording Settings") {
             VStack(spacing: 16) {
                 CustomToggle(isOn: .constant(true), label: "Auto Detect Meetings")

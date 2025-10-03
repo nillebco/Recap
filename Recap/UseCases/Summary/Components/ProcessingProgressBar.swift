@@ -2,18 +2,18 @@ import SwiftUI
 
 struct ProcessingProgressBar: View {
     let state: ProgressState
-    
+
     enum ProgressState {
         case pending
         case current
         case completed
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
                 backgroundBar
-                
+
                 if state == .completed {
                     completedBar(width: geometry.size.width)
                 } else if state == .current {
@@ -25,7 +25,7 @@ struct ProcessingProgressBar: View {
         }
         .frame(height: 6)
     }
-    
+
     private var backgroundBar: some View {
         RoundedRectangle(cornerRadius: 3)
             .fill(Color(hex: "1A1A1A").opacity(0.4))
@@ -44,7 +44,7 @@ struct ProcessingProgressBar: View {
                     )
             )
     }
-    
+
     private func completedBar(width: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: 3)
             .fill(
@@ -59,7 +59,7 @@ struct ProcessingProgressBar: View {
             )
             .frame(width: width)
     }
-    
+
     private func currentBar(width: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: 3)
             .fill(
@@ -74,7 +74,7 @@ struct ProcessingProgressBar: View {
             )
             .frame(width: width * 0.6)
     }
-    
+
     private func pendingSlashes(width: CGFloat) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: 3)
@@ -82,7 +82,7 @@ struct ProcessingProgressBar: View {
                 .frame(width: width, height: 6)
                 .overlay(
                     HStack(spacing: 4) {
-                        ForEach(0..<Int(width / 8), id: \.self) { index in
+                        ForEach(0..<Int(width / 8), id: \.self) { _ in
                             Rectangle()
                                 .fill(Color(hex: "979797").opacity(0.1))
                                 .frame(width: 3, height: 6)
@@ -98,23 +98,23 @@ struct ProcessingProgressBar: View {
 struct ProcessingStageItem: View {
     let stage: ProcessingStatesCard.ProcessingStage
     let progressState: ProcessingProgressBar.ProgressState
-    
+
     @State private var iconPulse = 0.3
-    
+
     var body: some View {
         VStack(spacing: 12) {
             stageIcon
                 .opacity(progressState == .current ? iconPulse : 1.0)
-            
+
             Text(stage.label)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(
-                    progressState == .pending 
-                        ? UIConstants.Colors.textTertiary 
+                    progressState == .pending
+                        ? UIConstants.Colors.textTertiary
                         : UIConstants.Colors.textPrimary
                 )
                 .frame(maxWidth: .infinity)
-            
+
             ProcessingProgressBar(state: progressState)
                 .frame(maxWidth: .infinity)
         }
@@ -129,7 +129,7 @@ struct ProcessingStageItem: View {
             }
         }
     }
-    
+
     private var stageIcon: some View {
         ZStack {
             Circle()
@@ -139,13 +139,13 @@ struct ProcessingStageItem: View {
                     Circle()
                         .stroke(iconBorder, lineWidth: 1)
                 )
-            
+
             Image(systemName: iconName)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(iconColor)
         }
     }
-    
+
     private var iconName: String {
         switch stage {
         case .recorded:
@@ -156,7 +156,7 @@ struct ProcessingStageItem: View {
             return "doc.text"
         }
     }
-    
+
     private var iconBackground: some ShapeStyle {
         switch progressState {
         case .completed:
@@ -185,7 +185,7 @@ struct ProcessingStageItem: View {
             )
         }
     }
-    
+
     private var iconBorder: some ShapeStyle {
         switch progressState {
         case .completed:
@@ -196,7 +196,7 @@ struct ProcessingStageItem: View {
             return Color(hex: "979797").opacity(0.2)
         }
     }
-    
+
     private var iconColor: Color {
         switch progressState {
         case .completed:

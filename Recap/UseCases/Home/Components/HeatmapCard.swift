@@ -26,9 +26,9 @@ struct HeatmapCard: View {
             VStack(spacing: 2) {
                 HeatmapGrid(audioLevel: audioLevel)
                     .padding(.top, 14)
-                
+
                 Spacer()
-                
+
                 Rectangle()
                     .fill(UIConstants.Colors.cardSecondaryBackground)
                     .frame(height: 35)
@@ -37,9 +37,9 @@ struct HeatmapCard: View {
                             Text(title)
                                 .foregroundColor(UIConstants.Colors.textPrimary)
                                 .font(UIConstants.Typography.cardTitle)
-                            
+
                             Spacer()
-                            
+
                             Circle()
                                 .stroke(UIConstants.Colors.selectionStroke, lineWidth: UIConstants.Sizing.strokeWidth)
                                 .frame(width: UIConstants.Sizing.selectionCircleSize, height: UIConstants.Sizing.selectionCircleSize)
@@ -70,41 +70,40 @@ struct HeatmapCard: View {
     }
 }
 
-
 struct HeatmapGrid: View {
     let cols = 18
     let rows = 4
     let audioLevel: Float
-    
+
     func cellOpacity(row: Int, col: Int) -> Double {
         let clampedLevel = min(max(audioLevel, 0), 1)
         guard clampedLevel > 0 else { return 0 }
-        
+
         let rowFromBottom = rows - 1 - row
         let centerCol = Double(cols) / 2.0
         let distanceFromCenter = abs(Double(col) - centerCol + 0.5) / centerCol
-        
+
         let baseWidthFactors = [1.0, 0.85, 0.65, 0.4]
         let baseWidthFactor = baseWidthFactors[min(rowFromBottom, baseWidthFactors.count - 1)]
-        
+
         let rowThreshold = Double(rowFromBottom) / Double(rows)
         let levelProgress = Double(clampedLevel)
-        
+
         guard levelProgress > rowThreshold else { return 0 }
-        
+
         let rowIntensity = min((levelProgress - rowThreshold) * Double(rows), 1.0)
-        
+
         let centerIntensity = 1.0 - pow(distanceFromCenter, 2.0)
         let widthThreshold = baseWidthFactor * rowIntensity
-        
+
         guard distanceFromCenter < widthThreshold else { return 0 }
-        
+
         let edgeFade = 1.0 - pow(distanceFromCenter / widthThreshold, 3.0)
         let intensity = rowIntensity * centerIntensity * edgeFade
-        
+
         return intensity * 0.9
     }
-    
+
     var body: some View {
         VStack(spacing: UIConstants.Spacing.gridCellSpacing) {
             ForEach(0..<rows, id: \.self) { row in

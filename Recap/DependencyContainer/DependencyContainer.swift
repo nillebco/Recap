@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 final class DependencyContainer {
     let inMemory: Bool
-    
+
     lazy var coreDataManager: CoreDataManagerType = makeCoreDataManager()
     lazy var whisperModelRepository: WhisperModelRepositoryType = makeWhisperModelRepository()
     lazy var whisperModelsViewModel: WhisperModelsViewModel = makeWhisperModelsViewModel()
@@ -35,14 +35,13 @@ final class DependencyContainer {
     lazy var appSelectionCoordinator: AppSelectionCoordinatorType = makeAppSelectionCoordinator()
     lazy var keychainService: KeychainServiceType = makeKeychainService()
     lazy var keychainAPIValidator: KeychainAPIValidatorType = makeKeychainAPIValidator()
-    
+
     init(inMemory: Bool = false) {
         self.inMemory = inMemory
     }
-    
-    
+
     // MARK: - Public Factory Methods
-    
+
     func createMenuBarPanelManager() -> MenuBarPanelManager {
         providerWarningCoordinator.startMonitoring()
         return MenuBarPanelManager(
@@ -60,7 +59,7 @@ final class DependencyContainer {
             meetingDetectionService: meetingDetectionService
         )
     }
-    
+
     func createRecapViewModel() -> RecapViewModel {
         RecapViewModel(
             recordingCoordinator: recordingCoordinator,
@@ -76,12 +75,11 @@ final class DependencyContainer {
             permissionsHelper: makePermissionsHelper()
         )
     }
-    
-    
+
     func createGeneralSettingsViewModel() -> GeneralSettingsViewModel {
         generalSettingsViewModel
     }
-    
+
     func createSummaryViewModel() -> SummaryViewModel {
         SummaryViewModel(
             recordingRepository: recordingRepository,
@@ -103,7 +101,7 @@ extension DependencyContainer {
     static func createForPreview() -> DependencyContainer {
         DependencyContainer(inMemory: true)
     }
-    
+
     static func createForTesting(inMemory: Bool = true) -> DependencyContainer {
         DependencyContainer(inMemory: inMemory)
     }

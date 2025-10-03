@@ -13,7 +13,7 @@ struct RecordingButton: View {
     let recordingDuration: TimeInterval
     let isEnabled: Bool
     let onToggleRecording: () -> Void
-    
+
     init(
         isRecording: Bool,
         recordingDuration: TimeInterval,
@@ -25,21 +25,21 @@ struct RecordingButton: View {
         self.isEnabled = isEnabled
         self.onToggleRecording = onToggleRecording
     }
-    
+
     private var formattedTime: String {
         let hours = Int(recordingDuration) / 3600
         let minutes = Int(recordingDuration) / 60 % 60
         let seconds = Int(recordingDuration) % 60
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
-    
+
     var body: some View {
         Button(action: isEnabled ? onToggleRecording : {}) {
             HStack(spacing: 6) {
                 Image(systemName: isRecording ? "stop.fill" : "mic.fill")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(isEnabled ? .white : .gray)
-                
+
                 Text(isRecording ? "Recording \(formattedTime)" : "Start Recording")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(isEnabled ? .white : .gray)

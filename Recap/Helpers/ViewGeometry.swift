@@ -3,7 +3,7 @@ import AppKit
 
 struct ViewGeometryReader: NSViewRepresentable {
     let onViewCreated: (NSView) -> Void
-    
+
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
         view.wantsLayer = true
@@ -12,7 +12,7 @@ struct ViewGeometryReader: NSViewRepresentable {
         }
         return view
     }
-    
+
     func updateNSView(_ nsView: NSView, context: Context) {
     }
 }

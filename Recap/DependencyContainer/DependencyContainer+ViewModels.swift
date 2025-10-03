@@ -1,19 +1,19 @@
 import Foundation
 
 extension DependencyContainer {
-    
+
     func makeWhisperModelsViewModel() -> WhisperModelsViewModel {
         WhisperModelsViewModel(repository: whisperModelRepository)
     }
-    
+
     func makeAppSelectionViewModel() -> AppSelectionViewModel {
         AppSelectionViewModel(audioProcessController: audioProcessController)
     }
-    
+
     func makePreviousRecapsViewModel() -> PreviousRecapsViewModel {
         PreviousRecapsViewModel(recordingRepository: recordingRepository)
     }
-    
+
     func makeGeneralSettingsViewModel() -> GeneralSettingsViewModel {
         GeneralSettingsViewModel(
             llmService: llmService,
@@ -24,7 +24,7 @@ extension DependencyContainer {
             fileManagerHelper: recordingFileManagerHelper
         )
     }
-    
+
     func makeMeetingDetectionSettingsViewModel() -> MeetingDetectionSettingsViewModel {
         MeetingDetectionSettingsViewModel(
             detectionService: meetingDetectionService,
@@ -32,7 +32,7 @@ extension DependencyContainer {
             permissionsHelper: makePermissionsHelper()
         )
     }
-    
+
     func makeOnboardingViewModel() -> OnboardingViewModel {
         OnboardingViewModel(
             permissionsHelper: PermissionsHelper(),

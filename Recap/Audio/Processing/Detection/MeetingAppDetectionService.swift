@@ -7,20 +7,20 @@ protocol MeetingAppDetecting {
 
 final class MeetingAppDetectionService: MeetingAppDetecting {
     private var processController: (any AudioProcessControllerType)?
-    
+
     init(processController: (any AudioProcessControllerType)?) {
         self.processController = processController
     }
-    
+
     func setProcessController(_ controller: any AudioProcessControllerType) {
         self.processController = controller
     }
-    
+
     func detectMeetingApps() async -> [AudioProcess] {
         guard let processController = processController else { return [] }
         return await MainActor.run { processController.meetingApps }
     }
-    
+
     func getAllAudioProcesses() async -> [AudioProcess] {
         guard let processController = processController else { return [] }
         return await MainActor.run { processController.processes }

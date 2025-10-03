@@ -8,42 +8,42 @@ final class MeetingDetectionServiceSpec: XCTestCase {
     private var sut: MeetingDetectionService!
     private var mockAudioProcessController: MockAudioProcessControllerType!
     private var cancellables: Set<AnyCancellable>!
-    
+
     override func setUp() async throws {
         try await super.setUp()
-        
+
         mockAudioProcessController = MockAudioProcessControllerType()
         cancellables = Set<AnyCancellable>()
-        
+
         let emptyProcesses: [AudioProcess] = []
         let emptyGroups: [AudioProcessGroup] = []
-        
+
         given(mockAudioProcessController)
             .processes
             .willReturn(emptyProcesses)
-        
+
         given(mockAudioProcessController)
             .processGroups
             .willReturn(emptyGroups)
-        
+
         given(mockAudioProcessController)
             .meetingApps
             .willReturn(emptyProcesses)
-        
+
         let mockPermissionsHelper = MockPermissionsHelperType()
         sut = MeetingDetectionService(audioProcessController: mockAudioProcessController, permissionsHelper: mockPermissionsHelper)
     }
-    
+
     override func tearDown() async throws {
         sut = nil
         mockAudioProcessController = nil
         cancellables = nil
-        
+
         try await super.tearDown()
     }
-    
+
     // MARK: - Initialization Tests
-    
+
     func testInitialState() {
         XCTAssertFalse(sut.isMeetingActive)
         XCTAssertNil(sut.activeMeetingInfo)
@@ -51,42 +51,42 @@ final class MeetingDetectionServiceSpec: XCTestCase {
         XCTAssertFalse(sut.hasPermission)
         XCTAssertFalse(sut.isMonitoring)
     }
-    
+
     // MARK: - Monitoring Tests
-    
+
     func testStartMonitoring() {
         XCTAssertFalse(sut.isMonitoring)
-        
+
         sut.startMonitoring()
-        
+
         XCTAssertTrue(sut.isMonitoring)
     }
-    
+
     func testStopMonitoring() {
         sut.startMonitoring()
         XCTAssertTrue(sut.isMonitoring)
-        
+
         sut.stopMonitoring()
-        
+
         XCTAssertFalse(sut.isMonitoring)
         XCTAssertFalse(sut.isMeetingActive)
         XCTAssertNil(sut.activeMeetingInfo)
         XCTAssertNil(sut.detectedMeetingApp)
     }
-    
+
     func testStartMonitoringTwiceDoesNotDuplicate() {
         sut.startMonitoring()
         let firstIsMonitoring = sut.isMonitoring
-        
+
         sut.startMonitoring()
-        
+
         XCTAssertEqual(firstIsMonitoring, sut.isMonitoring)
         XCTAssertTrue(sut.isMonitoring)
     }
-    
+
     func testMeetingStatePublisherEmitsInactive() async throws {
         let expectation = XCTestExpectation(description: "Meeting state publisher emits inactive")
-        
+
         sut.meetingStatePublisher
             .sink { state in
                 if case .inactive = state {
@@ -94,31 +94,30 @@ final class MeetingDetectionServiceSpec: XCTestCase {
                 }
             }
             .store(in: &cancellables)
-        
+
         await fulfillment(of: [expectation], timeout: 1.0)
     }
-    
+
     func testMeetingStatePublisherRemovesDuplicates() async throws {
         var receivedStates: [MeetingState] = []
-        
+
         sut.meetingStatePublisher
             .sink { state in
                 receivedStates.append(state)
             }
             .store(in: &cancellables)
-        
+
         try await Task.sleep(nanoseconds: 100_000_000)
-        
+
         XCTAssertEqual(receivedStates.count, 1)
         XCTAssertEqual(receivedStates.first, .inactive)
     }
-    
 
     func testStopMonitoringClearsAllState() {
         sut.startMonitoring()
-        
+
         sut.stopMonitoring()
-        
+
         XCTAssertFalse(sut.isMeetingActive)
         XCTAssertNil(sut.activeMeetingInfo)
         XCTAssertNil(sut.detectedMeetingApp)
@@ -130,13 +129,13 @@ final class MeetingDetectionServiceSpec: XCTestCase {
             name: "Microsoft Teams",
             bundleID: "com.microsoft.teams2"
         )
-        
+
         let processes: [RecapTests.AudioProcess] = [teamsProcess]
-        
+
         given(mockAudioProcessController)
             .processes
             .willReturn(processes)
-        
+
         verify(mockAudioProcessController)
             .processes
             .called(0)

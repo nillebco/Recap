@@ -38,7 +38,6 @@ struct UserPreferencesInfo: Identifiable {
         self.modifiedAt = managedObject.modifiedAt ?? Date()
     }
 
-    
     init(
         id: String = UUID().uuidString,
         selectedLLMModelID: String? = nil,
@@ -74,7 +73,7 @@ struct UserPreferencesInfo: Identifiable {
         self.createdAt = createdAt
         self.modifiedAt = modifiedAt
     }
-    
+
     static var defaultPromptTemplate: String {
         """
         Please provide a concise summary of the following meeting transcript. \

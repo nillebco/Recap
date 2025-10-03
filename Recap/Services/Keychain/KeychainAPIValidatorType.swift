@@ -15,7 +15,7 @@ enum APIValidationResult {
     case valid
     case missingApiKey
     case invalidApiKey
-    
+
     var isValid: Bool {
         switch self {
         case .valid:
@@ -24,7 +24,7 @@ enum APIValidationResult {
             return false
         }
     }
-    
+
     var errorMessage: String? {
         switch self {
         case .valid:

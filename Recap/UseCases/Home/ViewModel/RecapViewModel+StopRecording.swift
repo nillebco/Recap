@@ -5,7 +5,7 @@ extension RecapViewModel {
     func stopRecording() async {
         guard isRecording else { return }
         guard let recordingID = currentRecordingID else { return }
-        
+
         stopTimers()
 
         if let recordedFiles = await recordingCoordinator.stopRecording() {
@@ -19,23 +19,23 @@ extension RecapViewModel {
                 error: RecordingError.failedToStop
             )
         }
-        
+
         updateRecordingUIState(started: false)
         currentRecordingID = nil
     }
-    
+
     private func handleSuccessfulRecordingStop(
         recordingID: String,
         recordedFiles: RecordedFiles
     ) async {
         logRecordedFiles(recordedFiles)
-        
+
         do {
             try await updateRecordingInRepository(
                 recordingID: recordingID,
                 recordedFiles: recordedFiles
             )
-            
+
             if let updatedRecording = try await recordingRepository.fetchRecording(id: recordingID) {
                 await processingCoordinator.startProcessing(recordingInfo: updatedRecording)
             }
@@ -44,7 +44,7 @@ extension RecapViewModel {
             await handleRecordingFailure(recordingID: recordingID, error: error)
         }
     }
-    
+
     private func updateRecordingInRepository(
         recordingID: String,
         recordedFiles: RecordedFiles
@@ -56,19 +56,19 @@ extension RecapViewModel {
                 microphoneURL: recordedFiles.microphoneURL
             )
         }
-        
+
         try await recordingRepository.updateRecordingEndDate(
             id: recordingID,
             endDate: Date()
         )
-        
+
         try await recordingRepository.updateRecordingState(
             id: recordingID,
             state: .recorded,
             errorMessage: nil
         )
     }
-    
+
     private func logRecordedFiles(_ recordedFiles: RecordedFiles) {
         if let systemAudioURL = recordedFiles.systemAudioURL {
             logger.info("Recording stopped successfully - System audio: \(systemAudioURL.path)")

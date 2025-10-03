@@ -6,4 +6,3 @@ protocol LLMModelType: Identifiable, Hashable {
     var provider: String { get }
     var contextLength: Int32? { get }
 }
-

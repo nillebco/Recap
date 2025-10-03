@@ -11,11 +11,11 @@ struct AppSelectionButton: View {
     @ObservedObject private var viewModel: AppSelectionViewModel
     @StateObject private var dropdownManager = DropdownWindowManager()
     @State private var buttonView: NSView?
-    
+
     init(viewModel: AppSelectionViewModel) {
         self.viewModel = viewModel
     }
-    
+
     var body: some View {
         Button {
             if viewModel.state.isShowingDropdown {
@@ -40,10 +40,10 @@ struct AppSelectionButton: View {
             }
         }
     }
-    
+
     private func showDropdownWindow() {
         guard let buttonView = buttonView else { return }
-        
+
         dropdownManager.showDropdown(
             relativeTo: buttonView,
             viewModel: viewModel,
@@ -64,13 +64,13 @@ struct AppSelectionButton: View {
             }
         )
     }
-    
+
     private var buttonContent: some View {
         HStack(spacing: UIConstants.Spacing.gridCellSpacing * 2) {
             Image(systemName: viewModel.state.isShowingDropdown ? "chevron.up" : "chevron.down")
                 .font(UIConstants.Typography.iconFont)
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             if let selectedApp = viewModel.state.selectedApp {
                 selectedAppIcon(selectedApp)
                 selectedAppText(selectedApp)
@@ -96,7 +96,7 @@ struct AppSelectionButton: View {
                 )
         )
     }
-    
+
     private func selectedAppIcon(_ app: SelectableApp) -> some View {
         RoundedRectangle(cornerRadius: UIConstants.Sizing.smallCornerRadius * 2)
             .fill(Color.white)
@@ -108,14 +108,14 @@ struct AppSelectionButton: View {
                     .frame(width: 12, height: 12)
             )
     }
-    
+
     private func selectedAppText(_ app: SelectableApp) -> some View {
         Text(app.name)
             .font(UIConstants.Typography.cardTitle)
             .foregroundColor(UIConstants.Colors.textPrimary)
             .lineLimit(1)
     }
-    
+
     private var defaultIcon: some View {
         RoundedRectangle(cornerRadius: UIConstants.Sizing.smallCornerRadius * 2)
             .fill(UIConstants.Colors.textTertiary.opacity(0.3))
@@ -126,7 +126,7 @@ struct AppSelectionButton: View {
                     .foregroundColor(UIConstants.Colors.textTertiary)
             )
     }
-    
+
     private var defaultText: some View {
         Text("Select App")
             .font(UIConstants.Typography.cardTitle)
@@ -137,7 +137,7 @@ struct AppSelectionButton: View {
 #Preview {
     let controller = AudioProcessController()
     let viewModel = AppSelectionViewModel(audioProcessController: controller)
-    
+
     return AppSelectionButton(viewModel: viewModel)
         .padding()
         .background(Color.black)

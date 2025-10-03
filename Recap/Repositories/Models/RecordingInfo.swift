@@ -15,24 +15,24 @@ struct RecordingInfo: Identifiable, Equatable {
     let timestampedTranscription: TimestampedTranscription?
     let createdAt: Date
     let modifiedAt: Date
-    
+
     var duration: TimeInterval? {
         guard let endDate = endDate else { return nil }
         return endDate.timeIntervalSince(startDate)
     }
-    
+
     var isComplete: Bool {
         state == .completed
     }
-    
+
     var isProcessing: Bool {
         state.isProcessing
     }
-    
+
     var hasFailed: Bool {
         state.isFailed
     }
-    
+
     var canRetry: Bool {
         state.canRetry
     }
@@ -51,7 +51,7 @@ extension RecordingInfo {
         self.applicationName = entity.applicationName
         self.transcriptionText = entity.transcriptionText
         self.summaryText = entity.summaryText
-        
+
         // Decode timestamped transcription data if available
         if let data = entity.timestampedTranscriptionData {
             self.timestampedTranscription = try? JSONDecoder().decode(TimestampedTranscription.self, from: data)

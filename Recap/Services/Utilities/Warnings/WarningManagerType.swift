@@ -11,7 +11,7 @@ import Mockable
 protocol WarningManagerType: ObservableObject {
     var activeWarnings: [WarningItem] { get }
     var activeWarningsPublisher: AnyPublisher<[WarningItem], Never> { get }
-    
+
     func addWarning(_ warning: WarningItem)
     func removeWarning(withId id: String)
     func clearAllWarnings()
@@ -24,7 +24,7 @@ struct WarningItem: Identifiable, Equatable {
     let message: String
     let icon: String
     let severity: WarningSeverity
-    
+
     init(
         id: String,
         title: String,
@@ -44,7 +44,7 @@ enum WarningSeverity {
     case info
     case warning
     case error
-    
+
     var color: String {
         switch self {
         case .info:

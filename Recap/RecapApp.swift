@@ -12,7 +12,7 @@ import UserNotifications
 @main
 struct RecapApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
     var body: some Scene {
         // We don't need any scenes since we're using NSStatusItem
         Settings {
@@ -30,21 +30,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             dependencyContainer = DependencyContainer()
             panelManager = dependencyContainer?.createMenuBarPanelManager()
-            
+
             // Setup global shortcut manager
             globalShortcutManager = GlobalShortcutManager()
             globalShortcutManager?.setDelegate(self)
-            
+
             // Load global shortcut from user preferences
             await loadGlobalShortcutFromPreferences()
-            
+
             UNUserNotificationCenter.current().delegate = self
         }
     }
-    
+
     private func loadGlobalShortcutFromPreferences() async {
         guard let dependencyContainer = dependencyContainer else { return }
-        
+
         do {
             let preferences = try await dependencyContainer.userPreferencesRepository.getOrCreatePreferences()
             await globalShortcutManager?.registerShortcut(
@@ -67,7 +67,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
         completionHandler()
     }
-    
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .sound])
     }

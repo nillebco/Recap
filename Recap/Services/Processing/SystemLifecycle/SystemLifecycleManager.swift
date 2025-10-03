@@ -10,18 +10,18 @@ protocol SystemLifecycleDelegate: AnyObject {
 @MainActor
 final class SystemLifecycleManager {
     weak var delegate: SystemLifecycleDelegate?
-    
+
     private var sleepObserver: NSObjectProtocol?
     private var wakeObserver: NSObjectProtocol?
-    
+
     init() {
         setupNotifications()
     }
-    
+
     private func setupNotifications() {
         let workspace = NSWorkspace.shared
         let notificationCenter = workspace.notificationCenter
-        
+
         sleepObserver = notificationCenter.addObserver(
             forName: NSWorkspace.willSleepNotification,
             object: nil,
@@ -31,7 +31,7 @@ final class SystemLifecycleManager {
                 self?.delegate?.systemWillSleep()
             }
         }
-        
+
         wakeObserver = notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification,
             object: nil,
@@ -42,7 +42,7 @@ final class SystemLifecycleManager {
             }
         }
     }
-    
+
     deinit {
         if let observer = sleepObserver {
             NSWorkspace.shared.notificationCenter.removeObserver(observer)

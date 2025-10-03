@@ -5,11 +5,11 @@ import CoreData
 final class UserPreferencesRepository: UserPreferencesRepositoryType {
     private let coreDataManager: CoreDataManagerType
     private let defaultPreferencesId = "default-preferences"
-    
+
     init(coreDataManager: CoreDataManagerType) {
         self.coreDataManager = coreDataManager
     }
-    
+
     func getOrCreatePreferences() async throws -> UserPreferencesInfo {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
@@ -48,13 +48,13 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
-    
+
     func updateSelectedLLMModel(id: String?) async throws {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
         request.fetchLimit = 1
-        
+
         do {
             guard let preferences = try context.fetch(request).first else {
                 let newPreferences = UserPreferences(context: context)
@@ -69,7 +69,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 try context.save()
                 return
             }
-            
+
             preferences.selectedLLMModelID = id
             preferences.modifiedAt = Date()
             try context.save()
@@ -77,13 +77,13 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
-    
+
     func updateSelectedProvider(_ provider: LLMProvider) async throws {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
         request.fetchLimit = 1
-        
+
         do {
             guard let preferences = try context.fetch(request).first else {
                 let newPreferences = UserPreferences(context: context)
@@ -97,7 +97,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 try context.save()
                 return
             }
-            
+
             preferences.selectedProvider = provider.rawValue
             preferences.modifiedAt = Date()
             try context.save()
@@ -105,13 +105,13 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
-    
+
     func updateAutoDetectMeetings(_ enabled: Bool) async throws {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
         request.fetchLimit = 1
-        
+
         do {
             guard let preferences = try context.fetch(request).first else {
                 let newPreferences = UserPreferences(context: context)
@@ -125,7 +125,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 try context.save()
                 return
             }
-            
+
             preferences.autoDetectMeetings = enabled
             preferences.modifiedAt = Date()
             try context.save()
@@ -133,13 +133,13 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
-    
+
     func updateAutoStopRecording(_ enabled: Bool) async throws {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
         request.fetchLimit = 1
-        
+
         do {
             guard let preferences = try context.fetch(request).first else {
                 let newPreferences = UserPreferences(context: context)
@@ -153,7 +153,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 try context.save()
                 return
             }
-            
+
             preferences.autoStopRecording = enabled
             preferences.modifiedAt = Date()
             try context.save()
@@ -161,13 +161,13 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
-    
+
     func updateSummaryPromptTemplate(_ template: String?) async throws {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
         request.fetchLimit = 1
-        
+
         do {
             guard let preferences = try context.fetch(request).first else {
                 let newPreferences = UserPreferences(context: context)
@@ -182,7 +182,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 try context.save()
                 return
             }
-            
+
             preferences.summaryPromptTemplate = template
             preferences.modifiedAt = Date()
             try context.save()
@@ -190,7 +190,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
-    
+
     func updateAutoSummarize(_ enabled: Bool) async throws {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
@@ -246,13 +246,13 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
-    
+
     func updateOnboardingStatus(_ completed: Bool) async throws {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
         request.fetchLimit = 1
-        
+
         do {
             guard let preferences = try context.fetch(request).first else {
                 let newPreferences = UserPreferences(context: context)
@@ -267,7 +267,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 try context.save()
                 return
             }
-            
+
             preferences.onboarded = completed
             preferences.modifiedAt = Date()
             try context.save()
@@ -305,13 +305,13 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
-    
+
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async throws {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", defaultPreferencesId)
         request.fetchLimit = 1
-        
+
         do {
             guard let preferences = try context.fetch(request).first else {
                 let newPreferences = UserPreferences(context: context)
@@ -328,7 +328,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
                 try context.save()
                 return
             }
-            
+
             preferences.globalShortcutKeyCode = keyCode
             preferences.globalShortcutModifiers = modifiers
             preferences.modifiedAt = Date()
@@ -337,7 +337,7 @@ final class UserPreferencesRepository: UserPreferencesRepositoryType {
             throw LLMError.dataAccessError(error.localizedDescription)
         }
     }
-    
+
     func updateCustomTmpDirectory(path: String?, bookmark: Data?) async throws {
         let context = coreDataManager.viewContext
         let request: NSFetchRequest<UserPreferences> = UserPreferences.fetchRequest()

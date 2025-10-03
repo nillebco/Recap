@@ -14,9 +14,9 @@ protocol MeetingDetectionServiceType: ObservableObject {
     var detectedMeetingApp: AudioProcess? { get }
     var hasPermission: Bool { get }
     var isMonitoring: Bool { get }
-    
+
     var meetingStatePublisher: AnyPublisher<MeetingState, Never> { get }
-    
+
     func startMonitoring()
     func stopMonitoring()
 }
@@ -30,7 +30,7 @@ struct ActiveMeetingInfo {
 enum MeetingState: Equatable {
     case inactive
     case active(info: ActiveMeetingInfo, detectedApp: AudioProcess?)
-    
+
     static func == (lhs: MeetingState, rhs: MeetingState) -> Bool {
         switch (lhs, rhs) {
         case (.inactive, .inactive):

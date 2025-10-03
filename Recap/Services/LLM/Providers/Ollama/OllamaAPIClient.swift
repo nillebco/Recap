@@ -4,7 +4,7 @@ import Ollama
 @MainActor
 final class OllamaAPIClient {
     private let client: Client
-    
+
     init(baseURL: String = "http://localhost", port: Int = 11434) {
         let url = URL(string: "\(baseURL):\(port)")!
         let configuration = URLSessionConfiguration.default
@@ -13,7 +13,7 @@ final class OllamaAPIClient {
         let session = URLSession(configuration: configuration)
         self.client = Client(session: session, host: url)
     }
-    
+
     func checkAvailability() async -> Bool {
         do {
             _ = try await client.listModels()
@@ -22,7 +22,7 @@ final class OllamaAPIClient {
             return false
         }
     }
-    
+
     func listModels() async throws -> [OllamaAPIModel] {
         let response = try await client.listModels()
         return response.models.map { model in
@@ -41,7 +41,7 @@ final class OllamaAPIClient {
             )
         }
     }
-    
+
     func generateChatCompletion(
         modelName: String,
         messages: [LLMMessage],
@@ -59,23 +59,23 @@ final class OllamaAPIClient {
         )
         return response.message.content
     }
-    
+
     private func createModelID(from modelName: String) -> Model.ID? {
         Model.ID(rawValue: modelName)
     }
-    
+
     private func createKeepAlive(from options: LLMOptions) -> KeepAlive {
         options.keepAliveMinutes.map { KeepAlive.minutes($0) } ?? .default
     }
-    
+
     private func mapOptionsToClient(_ options: LLMOptions) -> [String: Value] {
         var clientOptions: [String: Value] = [:]
         clientOptions["temperature"] = .double(options.temperature)
-        
+
         if let maxTokens = options.maxTokens {
             clientOptions["num_predict"] = .double(Double(maxTokens))
         }
-        
+
         if let topP = options.topP {
             clientOptions["top_p"] = .double(topP)
         }
@@ -91,10 +91,10 @@ final class OllamaAPIClient {
         if let stopSequences = options.stopSequences {
             clientOptions["stop"] = .array(stopSequences.map { .string($0) })
         }
-        
+
         return clientOptions
     }
-    
+
     private func mapMessagesToClient(_ messages: [LLMMessage]) -> [Chat.Message] {
         messages.map { message in
             switch message.role {
@@ -115,7 +115,7 @@ struct OllamaAPIModel: Codable {
     let digest: String
     let modifiedAt: Date?
     let details: OllamaModelDetails?
-    
+
     private enum CodingKeys: String, CodingKey {
         case name
         case size
@@ -131,7 +131,7 @@ struct OllamaModelDetails: Codable {
     let families: [String]?
     let parameterSize: String?
     let quantizationLevel: String?
-    
+
     private enum CodingKeys: String, CodingKey {
         case format
         case family

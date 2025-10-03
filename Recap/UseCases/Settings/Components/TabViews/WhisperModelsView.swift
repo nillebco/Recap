@@ -2,7 +2,7 @@ import SwiftUI
 
 struct WhisperModelsView: View {
     @ObservedObject var viewModel: WhisperModelsViewModel
-    
+
     var body: some View {
         GeometryReader { geometry in
             let mainCardBackground = LinearGradient(
@@ -13,7 +13,7 @@ struct WhisperModelsView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-            
+
             let mainCardBorder = LinearGradient(
                 gradient: Gradient(stops: [
                     .init(color: Color(hex: "979797").opacity(0.1), location: 0),
@@ -40,16 +40,16 @@ struct WhisperModelsView: View {
                         }
                         .padding(.top, 14)
                         .padding(.horizontal, 14)
-                        
+
                         ScrollView {
                             VStack(alignment: .leading, spacing: 16) {
                                 modelSection(
                                     title: "Recommended Models",
                                     models: viewModel.recommendedModels
                                 )
-                                
+
                                 modelSection(
-                                    title: "Other Models", 
+                                    title: "Other Models",
                                     models: viewModel.otherModels
                                 )
                             }
@@ -89,13 +89,13 @@ struct WhisperModelsView: View {
                 )
         }
     }
-    
+
     private func modelSection(title: String, models: [String]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundColor(UIConstants.Colors.textSecondary)
-            
+
             VStack(spacing: 4) {
                 ForEach(models, id: \.self) { model in
                     ModelRowView(
@@ -137,7 +137,7 @@ struct ModelRowView: View {
     let onSelect: () -> Void
     let onDownload: () -> Void
     let onTooltipToggle: (CGPoint) -> Void
-    
+
     var body: some View {
         RoundedRectangle(cornerRadius: 8)
             .fill(Color(hex: "2A2A2A").opacity(0.2))
@@ -153,12 +153,12 @@ struct ModelRowView: View {
                                 .font(.system(size: 8, weight: .bold))
                                 .foregroundColor(UIConstants.Colors.textPrimary)
                         )
-                    
+
                     HStack(spacing: 6) {
                         Text(displayName)
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(UIConstants.Colors.textPrimary)
-                        
+
                         GeometryReader { geometry in
                             Button(action: {
                                 let frame = geometry.frame(in: .global)
@@ -176,9 +176,9 @@ struct ModelRowView: View {
                         }
                         .frame(width: 12, height: 12)
                     }
-                    
+
                     Spacer()
-                    
+
                     if !isDownloaded {
                         DownloadPillButton(
                             text: isDownloading ? "Downloading" : "Download",
@@ -187,7 +187,7 @@ struct ModelRowView: View {
                             action: onDownload
                         )
                     }
-                    
+
                     if isDownloaded {
                         Circle()
                             .stroke(UIConstants.Colors.selectionStroke, lineWidth: UIConstants.Sizing.strokeWidth)
@@ -210,5 +210,5 @@ struct ModelRowView: View {
                 }
             }
     }
-    
+
 }

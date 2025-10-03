@@ -5,7 +5,7 @@ final class OpenRouterAPIClient {
     private let baseURL: String
     private let apiKey: String?
     private let session: URLSession
-    
+
     init(baseURL: String = "https://openrouter.ai/api/v1", apiKey: String? = nil) {
         self.baseURL = baseURL
         self.apiKey = apiKey
@@ -14,7 +14,7 @@ final class OpenRouterAPIClient {
         configuration.timeoutIntervalForResource = 300.0
         self.session = URLSession(configuration: configuration)
     }
-    
+
     func checkAvailability() async -> Bool {
         do {
             _ = try await listModels()
@@ -23,30 +23,30 @@ final class OpenRouterAPIClient {
             return false
         }
     }
-    
+
     func listModels() async throws -> [OpenRouterAPIModel] {
         guard let url = URL(string: "\(baseURL)/models") else {
             throw LLMError.configurationError("Invalid base URL")
         }
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         addHeaders(&request)
-        
+
         let (data, response) = try await session.data(for: request)
-        
+
         guard let httpResponse = response as? HTTPURLResponse else {
             throw LLMError.apiError("Invalid response type")
         }
-        
+
         guard httpResponse.statusCode == 200 else {
             throw LLMError.apiError("HTTP \(httpResponse.statusCode)")
         }
-        
+
         let modelsResponse = try JSONDecoder().decode(OpenRouterModelsResponse.self, from: data)
         return modelsResponse.data
     }
-    
+
     func generateChatCompletion(
         modelName: String,
         messages: [LLMMessage],
@@ -55,7 +55,7 @@ final class OpenRouterAPIClient {
         guard let url = URL(string: "\(baseURL)/chat/completions") else {
             throw LLMError.configurationError("Invalid base URL")
         }
-        
+
         let requestBody = OpenRouterChatRequest(
             model: modelName,
             messages: messages.map { OpenRouterMessage(role: $0.role.rawValue, content: $0.content) },
@@ -64,45 +64,45 @@ final class OpenRouterAPIClient {
             topP: options.topP,
             stop: options.stopSequences
         )
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         addHeaders(&request)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
+
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         request.httpBody = try encoder.encode(requestBody)
-        
+
         let (data, response) = try await session.data(for: request)
-        
+
         guard let httpResponse = response as? HTTPURLResponse else {
             throw LLMError.apiError("Invalid response type")
         }
-        
+
         guard httpResponse.statusCode == 200 else {
             if let errorData = try? JSONDecoder().decode(OpenRouterErrorResponse.self, from: data) {
                 throw LLMError.apiError(errorData.error.message)
             }
             throw LLMError.apiError("HTTP \(httpResponse.statusCode)")
         }
-        
+
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let chatResponse = try decoder.decode(OpenRouterChatResponse.self, from: data)
-        
+
         guard let choice = chatResponse.choices.first else {
             throw LLMError.invalidResponse
         }
-        
+
         let content = choice.message.content
         guard !content.isEmpty else {
             throw LLMError.invalidResponse
         }
-        
+
         return content
     }
-    
+
     private func addHeaders(_ request: inout URLRequest) {
         if let apiKey = apiKey {
             request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
@@ -124,7 +124,7 @@ struct OpenRouterAPIModel: Codable {
     let contextLength: Int?
     let architecture: OpenRouterArchitecture?
     let topProvider: OpenRouterTopProvider?
-    
+
     private enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -145,7 +145,7 @@ struct OpenRouterArchitecture: Codable {
     let modality: String?
     let tokenizer: String?
     let instructType: String?
-    
+
     private enum CodingKeys: String, CodingKey {
         case modality
         case tokenizer
@@ -156,7 +156,7 @@ struct OpenRouterArchitecture: Codable {
 struct OpenRouterTopProvider: Codable {
     let maxCompletionTokens: Int?
     let isModerated: Bool?
-    
+
     private enum CodingKeys: String, CodingKey {
         case maxCompletionTokens = "max_completion_tokens"
         case isModerated = "is_moderated"
@@ -170,7 +170,7 @@ struct OpenRouterChatRequest: Codable {
     let maxTokens: Int?
     let topP: Double?
     let stop: [String]?
-    
+
     private enum CodingKeys: String, CodingKey {
         case model
         case messages
@@ -194,7 +194,7 @@ struct OpenRouterChatResponse: Codable {
 struct OpenRouterChoice: Codable {
     let message: OpenRouterMessage
     let finishReason: String?
-    
+
     private enum CodingKeys: String, CodingKey {
         case message
         case finishReason = "finish_reason"
@@ -205,7 +205,7 @@ struct OpenRouterUsage: Codable {
     let promptTokens: Int?
     let completionTokens: Int?
     let totalTokens: Int?
-    
+
     private enum CodingKeys: String, CodingKey {
         case promptTokens = "prompt_tokens"
         case completionTokens = "completion_tokens"

@@ -15,7 +15,7 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
     @Published private(set) var detectedMeetingApp: AudioProcess?
     @Published private(set) var hasPermission = false
     @Published private(set) var isMonitoring = false
-    
+
     var meetingStatePublisher: AnyPublisher<MeetingState, Never> {
         Publishers.CombineLatest3($isMeetingActive, $activeMeetingInfo, $detectedMeetingApp)
             .map { isMeeting, meetingInfo, detectedApp in
@@ -28,20 +28,20 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
-    
+
     private var monitoringTask: Task<Void, Never>?
     private var detectors: [any MeetingDetectorType] = []
     private let checkInterval: TimeInterval = 1.0
     private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: "MeetingDetectionService")
     private let audioProcessController: any AudioProcessControllerType
     private let permissionsHelper: any PermissionsHelperType
-    
+
     init(audioProcessController: any AudioProcessControllerType, permissionsHelper: any PermissionsHelperType) {
         self.audioProcessController = audioProcessController
         self.permissionsHelper = permissionsHelper
         setupDetectors()
     }
-    
+
     private func setupDetectors() {
         detectors = [
             TeamsMeetingDetector(),
@@ -49,10 +49,10 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
             GoogleMeetDetector()
         ]
     }
-    
+
     func startMonitoring() {
         guard !isMonitoring else { return }
-        
+
         isMonitoring = true
         monitoringTask?.cancel()
         monitoringTask = Task {
@@ -63,7 +63,7 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
             }
         }
     }
-    
+
     func stopMonitoring() {
         monitoringTask?.cancel()
         isMonitoring = false
@@ -71,24 +71,24 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
         isMeetingActive = false
         activeMeetingInfo = nil
     }
-    
+
     private func checkForMeetings() async {
         do {
             let content = try await SCShareableContent.current
             hasPermission = true
-            
+
             var highestConfidenceResult: DetectorResult?
-            
+
             for detector in detectors {
                 let relevantWindows = content.windows.filter { window in
                     guard let app = window.owningApplication else { return false }
                     let bundleID = app.bundleIdentifier
                     return detector.supportedBundleIdentifiers.contains(bundleID)
                 }
-                
+
                 if !relevantWindows.isEmpty {
                     let result = await detector.checkForMeeting(in: relevantWindows)
-                    
+
                     if result.isActive {
                         if highestConfidenceResult == nil {
                             highestConfidenceResult = DetectorResult(detector: detector, result: result)
@@ -100,7 +100,7 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
                     }
                 }
             }
-            
+
             if let detectorResult = highestConfidenceResult {
                 let meetingInfo = ActiveMeetingInfo(
                     appName: detectorResult.detector.meetingAppName,
@@ -108,7 +108,7 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
                     confidence: detectorResult.result.confidence
                 )
                 let matchedApp = findMatchingAudioProcess(bundleIdentifiers: detectorResult.detector.supportedBundleIdentifiers)
-                
+
                 activeMeetingInfo = meetingInfo
                 detectedMeetingApp = matchedApp
                 isMeetingActive = true
@@ -117,14 +117,13 @@ final class MeetingDetectionService: MeetingDetectionServiceType {
                 detectedMeetingApp = nil
                 isMeetingActive = false
             }
-            
+
         } catch {
             logger.error("Failed to check for meetings: \(error.localizedDescription)")
             hasPermission = false
         }
     }
-    
-    
+
     private func findMatchingAudioProcess(bundleIdentifiers: Set<String>) -> AudioProcess? {
         audioProcessController.processes.first { process in
             guard let processBundleID = process.bundleID else { return false }
@@ -141,7 +140,7 @@ extension MeetingDetectionResult.MeetingConfidence: Comparable {
         case .high: return 3
         }
     }
-    
+
     static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.rawValue < rhs.rawValue
     }

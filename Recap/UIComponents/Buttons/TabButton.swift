@@ -7,7 +7,7 @@ struct TabButton: View {
     let text: String
     let isSelected: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             Text(text)
@@ -46,7 +46,7 @@ struct TabButton: View {
         TabButton(text: "General", isSelected: true) {
             tabButtonPreviewLogger.info("General selected")
         }
-        
+
         TabButton(text: "Whisper Models", isSelected: false) {
             tabButtonPreviewLogger.info("Whisper Models selected")
         }

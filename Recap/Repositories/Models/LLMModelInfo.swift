@@ -8,7 +8,7 @@ struct LLMModelInfo: Identifiable, Hashable {
     var keepAliveMinutes: Int32?
     var temperature: Double?
     var maxTokens: Int32
-    
+
     init(from managedObject: LLMModel) {
         self.id = managedObject.id ?? UUID().uuidString
         self.name = managedObject.name ?? ""
@@ -17,7 +17,7 @@ struct LLMModelInfo: Identifiable, Hashable {
         self.temperature = managedObject.temperature
         self.maxTokens = managedObject.maxTokens
     }
-    
+
     init(
         id: String = UUID().uuidString,
         name: String,

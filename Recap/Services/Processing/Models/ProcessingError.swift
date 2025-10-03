@@ -7,7 +7,7 @@ enum ProcessingError: LocalizedError {
     case coreDataError(String)
     case networkError(String)
     case cancelled
-    
+
     var errorDescription: String? {
         switch self {
         case .transcriptionFailed(let message):
@@ -24,7 +24,7 @@ enum ProcessingError: LocalizedError {
             return "Processing was cancelled"
         }
     }
-    
+
     var isRetryable: Bool {
         switch self {
         case .fileNotFound, .cancelled:

@@ -2,11 +2,11 @@ import SwiftUI
 
 struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: View {
     @ObservedObject private var viewModel: ViewModel
-    
+
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ScrollView(showsIndicators: false) {
@@ -29,7 +29,7 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                         )
                         .transition(.opacity.combined(with: .move(edge: .top)))
                     }
-                    
+
                     SettingsCard(title: "Meeting Detection") {
                         VStack(spacing: 16) {
                             settingsRow(
@@ -47,7 +47,7 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                                 .toggleStyle(CustomToggleStyle())
                                 .labelsHidden()
                             }
-                            
+
                             if viewModel.autoDetectMeetings {
                                 VStack(spacing: 12) {
                                     if !viewModel.hasScreenRecordingPermission {
@@ -63,7 +63,7 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                             }
                         }
                     }
-                    
+
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
@@ -76,7 +76,7 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                 await viewModel.checkPermissionStatus()
             }
         }
-        .onChange(of: viewModel.autoDetectMeetings) { oldValue, enabled in
+        .onChange(of: viewModel.autoDetectMeetings) { _, enabled in
             if enabled {
                 Task {
                     await viewModel.checkPermissionStatus()
@@ -84,7 +84,7 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
             }
         }
     }
-    
+
     private func settingsRow<Content: View>(
         label: String,
         description: String? = nil,
@@ -95,7 +95,7 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                 Text(label)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(UIConstants.Colors.textPrimary)
-                
+
                 if let description = description {
                     Text(description)
                         .font(.system(size: 10))
@@ -103,11 +103,11 @@ struct MeetingDetectionView<ViewModel: MeetingDetectionSettingsViewModelType>: V
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            
+
             Spacer()
-            
+
             control()
         }
     }
-    
+
 }

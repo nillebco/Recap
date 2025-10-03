@@ -159,7 +159,7 @@ struct OpenAIAPIKeyAlert: View {
             isPresented: .constant(true),
             existingKey: nil,
             existingEndpoint: nil,
-            onSave: { key, endpoint in
+            onSave: { _, _ in
                 try await Task.sleep(nanoseconds: 1_000_000_000)
             }
         )

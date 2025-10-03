@@ -28,7 +28,7 @@ final class SummaryViewModel: SummaryViewModelType {
             await loadUserPreferences()
         }
     }
-    
+
     func loadUserPreferences() async {
         do {
             userPreferences = try await userPreferencesRepository.getOrCreatePreferences()
@@ -52,11 +52,11 @@ final class SummaryViewModel: SummaryViewModelType {
             isLoadingRecording = false
         }
     }
-    
+
     func loadLatestRecording() {
         isLoadingRecording = true
         errorMessage = nil
-        
+
         Task {
             do {
                 let recordings = try await recordingRepository.fetchAllRecordings()
@@ -67,10 +67,10 @@ final class SummaryViewModel: SummaryViewModelType {
             isLoadingRecording = false
         }
     }
-    
+
     var processingStage: ProcessingStatesCard.ProcessingStage? {
         guard let recording = currentRecording else { return nil }
-        
+
         switch recording.state {
         case .recorded:
             return .recorded
@@ -82,12 +82,12 @@ final class SummaryViewModel: SummaryViewModelType {
             return nil
         }
     }
-    
+
     var isProcessing: Bool {
         guard let recording = currentRecording else { return false }
         return recording.state.isProcessing
     }
-    
+
     var hasSummary: Bool {
         guard let recording = currentRecording else { return false }
         return recording.state == .completed && recording.summaryText != nil
@@ -105,7 +105,7 @@ final class SummaryViewModel: SummaryViewModelType {
         // If auto-summarize is disabled, the recording is valid when completed
         return true
     }
-    
+
     func retryProcessing() async {
         guard let recording = currentRecording else { return }
 
@@ -167,25 +167,25 @@ final class SummaryViewModel: SummaryViewModelType {
             errorMessage = "Failed to mark recording as completed: \(error.localizedDescription)"
         }
     }
-    
+
     func startAutoRefresh() {
         stopAutoRefresh()
-        
+
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 await self?.refreshCurrentRecording()
             }
         }
     }
-    
+
     func stopAutoRefresh() {
         refreshTimer?.invalidate()
         refreshTimer = nil
     }
-    
+
     private func refreshCurrentRecording() async {
         guard let recordingID = currentRecording?.id else { return }
-        
+
         do {
             let recording = try await recordingRepository.fetchRecording(id: recordingID)
             currentRecording = recording
@@ -193,36 +193,36 @@ final class SummaryViewModel: SummaryViewModelType {
             errorMessage = "Failed to refresh recording: \(error.localizedDescription)"
         }
     }
-    
+
     func copySummary() {
         guard let summaryText = currentRecording?.summaryText else { return }
-        
+
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(summaryText, forType: .string)
-        
+
         showingCopiedToast = true
-        
+
         Task {
             try? await Task.sleep(nanoseconds: 2_000_000_000)
             showingCopiedToast = false
         }
     }
-    
+
     func copyTranscription() {
         guard let recording = currentRecording else { return }
         guard let transcriptionText = recording.transcriptionText else { return }
 
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(transcriptionText, forType: .string)
-        
+
         showingCopiedToast = true
-        
+
         Task {
             try? await Task.sleep(nanoseconds: 2_000_000_000)
             showingCopiedToast = false
         }
     }
-    
+
     deinit {
         Task { @MainActor [weak self] in
             self?.stopAutoRefresh()

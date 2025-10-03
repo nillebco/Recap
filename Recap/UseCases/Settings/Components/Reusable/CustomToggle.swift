@@ -3,15 +3,15 @@ import SwiftUI
 struct CustomToggle: View {
     @Binding var isOn: Bool
     let label: String
-    
+
     var body: some View {
         HStack {
             Text(label)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             Spacer()
-            
+
             Toggle("", isOn: $isOn)
                 .toggleStyle(CustomToggleStyle())
                 .labelsHidden()

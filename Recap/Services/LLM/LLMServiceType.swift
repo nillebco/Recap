@@ -13,7 +13,7 @@ protocol LLMServiceType: AnyObject {
     var availableProviders: [any LLMProviderType] { get }
     var isProviderAvailable: Bool { get }
     var providerAvailabilityPublisher: AnyPublisher<Bool, Never> { get }
-    
+
     func initializeProviders()
     func refreshModelsFromProviders() async throws
     func getAvailableModels() async throws -> [LLMModelInfo]

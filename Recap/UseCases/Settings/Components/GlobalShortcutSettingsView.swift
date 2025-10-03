@@ -6,22 +6,22 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
     @State private var isRecordingShortcut = false
     @State private var currentKeyCode: Int32 = 15
     @State private var currentModifiers: Int32 = 1048840
-    
+
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Global Shortcut")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(UIConstants.Colors.textPrimary)
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 Text("Press the key combination you want to use for starting/stopping recording:")
                     .font(.system(size: 12))
                     .foregroundColor(UIConstants.Colors.textSecondary)
-                
+
                 HStack {
                     Button(action: {
                         isRecordingShortcut = true
@@ -30,9 +30,9 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
                             Text(shortcutDisplayString)
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(UIConstants.Colors.textPrimary)
-                            
+
                             Spacer()
-                            
+
                             Image(systemName: "keyboard")
                                 .font(.system(size: 12))
                                 .foregroundColor(UIConstants.Colors.textSecondary)
@@ -41,16 +41,16 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
                         .padding(.vertical, 8)
                         .background(
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(isRecordingShortcut ? 
-                                    Color.blue.opacity(0.2) : 
+                                .fill(isRecordingShortcut ?
+                                    Color.blue.opacity(0.2) :
                                     Color.gray.opacity(0.1)
                                 )
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(
-                                    isRecordingShortcut ? 
-                                        Color.blue : 
+                                    isRecordingShortcut ?
+                                        Color.blue :
                                         Color.gray.opacity(0.3),
                                     lineWidth: 1
                                 )
@@ -58,7 +58,7 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
                     }
                     .buttonStyle(PlainButtonStyle())
                     .frame(width: 200)
-                    
+
                     if isRecordingShortcut {
                         Button("Cancel") {
                             isRecordingShortcut = false
@@ -67,7 +67,7 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
                         .foregroundColor(UIConstants.Colors.textSecondary)
                     }
                 }
-                
+
                 if isRecordingShortcut {
                     Text("Press any key combination...")
                         .font(.system(size: 11))
@@ -90,24 +90,24 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
                 // Convert KeyEquivalent to key code (simplified mapping)
                 let keyCode = getKeyCodeFromKeyEquivalent(keyPress.key)
                 let modifiers = Int32(keyPress.modifiers.rawValue)
-                
+
                 Task {
                     await viewModel.updateGlobalShortcut(keyCode: keyCode, modifiers: modifiers)
                 }
-                
+
                 isRecordingShortcut = false
                 return .handled
             }
             return .ignored
         }
     }
-    
+
     private var shortcutDisplayString: String {
         let keyString = getKeyString(for: currentKeyCode)
         let modifierString = getModifierString(for: currentModifiers)
         return "\(modifierString)\(keyString)"
     }
-    
+
     private func getKeyString(for keyCode: Int32) -> String {
         switch keyCode {
         case 0: return "A"
@@ -169,7 +169,7 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
         default: return "Key\(keyCode)"
         }
     }
-    
+
     private func getKeyCodeFromKeyEquivalent(_ key: KeyEquivalent) -> Int32 {
         // Simplified mapping for common keys
         switch key {
@@ -207,7 +207,7 @@ struct GlobalShortcutSettingsView<ViewModel: GeneralSettingsViewModelType>: View
         default: return 15 // Default to 'R'
         }
     }
-    
+
     private func getModifierString(for modifiers: Int32) -> String {
         var result = ""
         if (modifiers & Int32(NSEvent.ModifierFlags.command.rawValue)) != 0 {

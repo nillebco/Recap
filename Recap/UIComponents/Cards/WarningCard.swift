@@ -3,15 +3,15 @@ import SwiftUI
 struct WarningCard: View {
     let warning: WarningItem
     let containerWidth: CGFloat
-    
+
     init(warning: WarningItem, containerWidth: CGFloat) {
         self.warning = warning
         self.containerWidth = containerWidth
     }
-    
+
     var body: some View {
         let severityColor = Color(hex: warning.severity.color)
-        
+
         let cardBackground = LinearGradient(
             gradient: Gradient(stops: [
                 .init(color: severityColor.opacity(0.1), location: 0),
@@ -20,7 +20,7 @@ struct WarningCard: View {
             startPoint: .top,
             endPoint: .bottom
         )
-        
+
         let cardBorder = LinearGradient(
             gradient: Gradient(stops: [
                 .init(color: severityColor.opacity(0.3), location: 0),
@@ -29,24 +29,24 @@ struct WarningCard: View {
             startPoint: .top,
             endPoint: .bottom
         )
-        
+
         HStack(spacing: 12) {
             Image(systemName: warning.icon)
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(severityColor)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(warning.title)
                     .font(UIConstants.Typography.cardTitle)
                     .foregroundColor(UIConstants.Colors.textPrimary)
-                
+
                 Text(warning.message)
                     .font(.system(size: 10, weight: .regular))
                     .foregroundColor(UIConstants.Colors.textSecondary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
             }
-            
+
             Spacer()
         }
         .padding(.horizontal, UIConstants.Spacing.cardPadding + 4)
@@ -76,7 +76,7 @@ struct WarningCard: View {
                 ),
                 containerWidth: geometry.size.width
             )
-            
+
             WarningCard(
                 warning: WarningItem(
                     id: "network",

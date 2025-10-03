@@ -48,15 +48,15 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     @Published private(set) var showOpenAIAlert = false
     @Published private(set) var existingOpenAIKey: String?
     @Published private(set) var existingOpenAIEndpoint: String?
-    
+
     var hasModels: Bool {
         !availableModels.isEmpty
     }
-    
+
     var currentSelection: LLMModelInfo? {
         selectedModel
     }
-    
+
     private let llmService: LLMServiceType
     private let userPreferencesRepository: UserPreferencesRepositoryType
     private let keychainAPIValidator: KeychainAPIValidatorType
@@ -71,7 +71,7 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             fileManagerHelper: fileManagerHelper
         )
     }()
-    
+
     init(
         llmService: LLMServiceType,
         userPreferencesRepository: UserPreferencesRepositoryType,
@@ -93,13 +93,13 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             await loadInitialState()
         }
     }
-    
+
     private func setupWarningObserver() {
         warningManager.activeWarningsPublisher
             .assign(to: \.activeWarnings, on: self)
             .store(in: &cancellables)
     }
-    
+
     private func loadInitialState() async {
         do {
             let preferences = try await llmService.getUserPreferences()
@@ -123,25 +123,25 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
         }
         await loadModels()
     }
-    
+
     func loadModels() async {
         isLoading = true
         errorMessage = nil
-        
+
         do {
             availableModels = try await llmService.getAvailableModels()
             selectedModel = try await llmService.getSelectedModel()
-            
+
             if selectedModel == nil, let firstModel = availableModels.first {
                 await selectModel(firstModel)
             }
         } catch {
             errorMessage = error.localizedDescription
         }
-        
+
         isLoading = false
     }
-    
+
     func selectModel(_ model: LLMModelInfo) async {
         errorMessage = nil
         selectedModel = model
@@ -172,7 +172,7 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             selectedModel = nil
         }
     }
-    
+
     func selectProvider(_ provider: LLMProvider) async {
         errorMessage = nil
 
@@ -226,21 +226,21 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             errorMessage = error.localizedDescription
         }
     }
-    
+
     private func showValidationToast(_ message: String) {
         toastMessage = message
         showToast = true
-        
+
         Task {
             try? await Task.sleep(nanoseconds: 3_000_000_000)
             showToast = false
         }
     }
-    
+
     func toggleAutoDetectMeetings(_ enabled: Bool) async {
         errorMessage = nil
         autoDetectMeetings = enabled
-        
+
         do {
             try await userPreferencesRepository.updateAutoDetectMeetings(enabled)
         } catch {
@@ -248,10 +248,10 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             autoDetectMeetings = !enabled
         }
     }
-    
+
     func updateCustomPromptTemplate(_ template: String) async {
         customPromptTemplateValue = template
-        
+
         do {
             let templateToSave = template.isEmpty ? nil : template
             try await userPreferencesRepository.updateSummaryPromptTemplate(templateToSave)
@@ -263,7 +263,7 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
     func resetToDefaultPrompt() async {
         await updateCustomPromptTemplate(UserPreferencesInfo.defaultPromptTemplate)
     }
-    
+
     func toggleAutoStopRecording(_ enabled: Bool) async {
         errorMessage = nil
         isAutoStopRecording = enabled
@@ -299,7 +299,7 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
             isAutoTranscribeEnabled = !enabled
         }
     }
-    
+
     func saveAPIKey(_ apiKey: String) async throws {
         try keychainService.storeOpenRouterAPIKey(apiKey)
 
@@ -330,7 +330,7 @@ final class GeneralSettingsViewModel: GeneralSettingsViewModelType {
         existingOpenAIKey = nil
         existingOpenAIEndpoint = nil
     }
-    
+
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {
         errorMessage = nil
         globalShortcutKeyCode = keyCode

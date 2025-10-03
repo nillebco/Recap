@@ -5,22 +5,22 @@ final class ProviderWarningCoordinator {
     private let warningManager: any WarningManagerType
     private let llmService: LLMServiceType
     private var cancellables = Set<AnyCancellable>()
-    
+
     private let ollamaWarningId = "ollama_connectivity"
     private let openRouterWarningId = "openrouter_connectivity"
-    
+
     init(warningManager: any WarningManagerType, llmService: LLMServiceType) {
         self.warningManager = warningManager
         self.llmService = llmService
     }
-    
+
     func startMonitoring() {
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 1_000_000_000)
             setupProviderMonitoring()
         }
     }
-    
+
     @MainActor
     private func setupProviderMonitoring() {
         guard let ollamaProvider = llmService.availableProviders.first(where: { $0.name == "Ollama" }),
@@ -31,7 +31,7 @@ final class ProviderWarningCoordinator {
             }
             return
         }
-        
+
         Publishers.CombineLatest(
             ollamaProvider.availabilityPublisher,
             openRouterProvider.availabilityPublisher
@@ -46,13 +46,13 @@ final class ProviderWarningCoordinator {
         }
         .store(in: &cancellables)
     }
-    
+
     @MainActor
     private func updateProviderWarnings(ollamaAvailable: Bool, openRouterAvailable: Bool) async {
         do {
             let preferences = try await llmService.getUserPreferences()
             let selectedProvider = preferences.selectedProvider
-            
+
             switch selectedProvider {
             case .ollama:
                 handleOllamaWarning(isAvailable: ollamaAvailable)
@@ -72,7 +72,7 @@ final class ProviderWarningCoordinator {
             warningManager.removeWarning(withId: openRouterWarningId)
         }
     }
-    
+
     @MainActor
     private func handleOllamaWarning(isAvailable: Bool) {
         if isAvailable {
@@ -88,7 +88,7 @@ final class ProviderWarningCoordinator {
             warningManager.updateWarning(warning)
         }
     }
-    
+
     @MainActor
     private func handleOpenRouterWarning(isAvailable: Bool) {
         if isAvailable {

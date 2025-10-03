@@ -12,15 +12,15 @@ struct CardBackground: View {
     let height: CGFloat
     let backgroundColor: Color
     let borderGradient: LinearGradient
-    
+
     private var safeWidth: CGFloat {
         max(width, 50)
     }
-    
+
     private var safeHeight: CGFloat {
         max(height, 50)
     }
-    
+
     var body: some View {
         RoundedRectangle(cornerRadius: UIConstants.Sizing.cornerRadius)
             .fill(backgroundColor)
