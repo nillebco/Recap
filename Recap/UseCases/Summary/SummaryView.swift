@@ -5,7 +5,7 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
     let onClose: () -> Void
     @ObservedObject var viewModel: ViewModel
     let recordingID: String?
-    
+
     init(
         onClose: @escaping () -> Void,
         viewModel: ViewModel,
@@ -15,16 +15,16 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
         self.viewModel = viewModel
         self.recordingID = recordingID
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 UIConstants.Gradients.backgroundGradient
                     .ignoresSafeArea()
-                
+
                 VStack(spacing: UIConstants.Spacing.sectionSpacing) {
                     headerView
-                    
+
                     if viewModel.isLoadingRecording {
                         loadingView
                     } else if let errorMessage = viewModel.errorMessage {
@@ -35,10 +35,12 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
                         processingView(geometry: geometry)
                     } else if viewModel.isRecordingReady {
                         summaryView
+                    } else if let recording = viewModel.currentRecording {
+                        stuckRecordingView(recording)
                     } else {
-                        errorView(viewModel.currentRecording?.errorMessage ?? "Recording is in an unexpected state")
+                        errorView("Recording is in an unexpected state")
                     }
-                    
+
                     Spacer()
                 }
             }
@@ -65,7 +67,7 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
             )
         }
     }
-    
+
     private var headerView: some View {
         HStack {
             Text("Summary")
@@ -73,40 +75,40 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
                 .font(UIConstants.Typography.appTitle)
                 .padding(.leading, UIConstants.Spacing.contentPadding)
                 .padding(.top, UIConstants.Spacing.sectionSpacing)
-            
+
             Spacer()
-            
+
             closeButton
                 .padding(.trailing, UIConstants.Spacing.contentPadding)
                 .padding(.top, UIConstants.Spacing.sectionSpacing)
         }
     }
-    
+
     private var closeButton: some View {
         PillButton(text: "Close", icon: "xmark") {
             onClose()
         }
     }
-    
+
     private var loadingView: some View {
         VStack(spacing: 16) {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle())
                 .scaleEffect(1.5)
-            
+
             Text("Loading recording...")
                 .font(UIConstants.Typography.bodyText)
                 .foregroundColor(UIConstants.Colors.textSecondary)
         }
         .frame(maxHeight: .infinity)
     }
-    
+
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 48))
                 .foregroundColor(.red.opacity(0.8))
-            
+
             Text(message)
                 .font(.system(size: 14))
                 .foregroundColor(UIConstants.Colors.textSecondary)
@@ -115,20 +117,43 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
         }
         .frame(maxHeight: .infinity)
     }
-    
+
+    private func stuckRecordingView(_ recording: RecordingInfo) -> some View {
+        VStack(spacing: 20) {
+            recordingStateInfo(recording)
+                .padding(.horizontal, UIConstants.Spacing.contentPadding)
+
+            if let errorMessage = recording.errorMessage {
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 48))
+                        .foregroundColor(.red.opacity(0.8))
+
+                    Text(errorMessage)
+                        .font(.system(size: 14))
+                        .foregroundColor(UIConstants.Colors.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, UIConstants.Spacing.contentPadding)
+                }
+            }
+        }
+        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(.top, 20)
+    }
+
     private var noRecordingView: some View {
         VStack(spacing: 16) {
             Image(systemName: "mic.slash")
                 .font(.system(size: 48))
                 .foregroundColor(UIConstants.Colors.textTertiary)
-            
+
             Text("No recordings found")
                 .font(.system(size: 14))
                 .foregroundColor(UIConstants.Colors.textSecondary)
         }
         .frame(maxHeight: .infinity)
     }
-    
+
     private func processingView(geometry: GeometryProxy) -> some View {
         VStack(spacing: UIConstants.Spacing.sectionSpacing) {
             if let stage = viewModel.processingStage {
@@ -138,11 +163,11 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
                 )
                 .padding(.horizontal, UIConstants.Spacing.contentPadding)
             }
-            
+
             Spacer()
         }
     }
-    
+
     private var summaryView: some View {
         VStack(spacing: 0) {
             ScrollView {
@@ -150,6 +175,8 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
                     if let recording = viewModel.currentRecording {
 
                         VStack(alignment: .leading, spacing: UIConstants.Spacing.cardInternalSpacing) {
+                            recordingStateInfo(recording)
+
                             if let transcriptionText = recording.transcriptionText, !transcriptionText.isEmpty {
                                 TranscriptDropdownButton(
                                     transcriptText: transcriptionText
@@ -216,11 +243,11 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
                     }
                 }
             }
-            
+
             summaryActionButtons
         }
     }
-    
+
     private var summaryActionButtons: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
@@ -230,14 +257,14 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
                 ) {
                     viewModel.copySummary()
                 }
-                
+
                 SummaryActionButton(
                     text: "Copy Transcription",
                     icon: "doc.text"
                 ) {
                     viewModel.copyTranscription()
                 }
-                
+
                 SummaryActionButton(
                     text: retryButtonText,
                     icon: "arrow.clockwise"
@@ -254,15 +281,99 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
         .background(UIConstants.Gradients.summaryButtonBackground)
         .cornerRadius(UIConstants.Sizing.cornerRadius)
     }
-    
+
     private var retryButtonText: String {
         guard let recording = viewModel.currentRecording else { return "Retry Summarization" }
-        
+
         switch recording.state {
         case .transcriptionFailed:
             return "Retry"
         default:
             return "Retry Summarization"
+        }
+    }
+
+    private func recordingStateInfo(_ recording: RecordingInfo) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Recording State:")
+                    .font(UIConstants.Typography.bodyText)
+                    .foregroundColor(UIConstants.Colors.textSecondary)
+
+                Text(recording.state.displayName)
+                    .font(UIConstants.Typography.bodyText.weight(.semibold))
+                    .foregroundColor(stateColor(for: recording.state))
+            }
+
+            if recording.state == .recording || recording.state == .recorded || recording.state.isFailed {
+                VStack(alignment: .leading, spacing: 8) {
+                    if recording.state == .recording {
+                        Text("This recording is stuck in 'Recording' state.")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    } else if recording.state.isFailed {
+                        Text("This recording has failed processing.")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+
+                    HStack(spacing: 8) {
+                        Button(action: {
+                            Task {
+                                await viewModel.fixStuckRecording()
+                            }
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "wrench.and.screwdriver")
+                                Text("Fix & Process")
+                            }
+                            .font(.caption.weight(.medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.orange)
+                            .cornerRadius(6)
+                        }
+                        .buttonStyle(.plain)
+
+                        Button(action: {
+                            Task {
+                                await viewModel.markAsCompleted()
+                            }
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "checkmark.circle")
+                                Text("Mark Completed")
+                            }
+                            .font(.caption.weight(.medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.green.opacity(0.8))
+                            .cornerRadius(6)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .background(Color(hex: "242323").opacity(0.3))
+        .cornerRadius(8)
+    }
+
+    private func stateColor(for state: RecordingProcessingState) -> Color {
+        switch state {
+        case .completed:
+            return UIConstants.Colors.audioGreen
+        case .transcriptionFailed, .summarizationFailed:
+            return .red
+        case .transcribing, .summarizing:
+            return .orange
+        case .recording:
+            return .yellow
+        default:
+            return UIConstants.Colors.textTertiary
         }
     }
 }

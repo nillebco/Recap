@@ -108,13 +108,13 @@ final class SummaryViewModel: SummaryViewModelType {
     
     func retryProcessing() async {
         guard let recording = currentRecording else { return }
-        
+
         if recording.state == .transcriptionFailed {
             await processingCoordinator.retryProcessing(recordingID: recording.id)
         } else {
             do {
                 try await recordingRepository.updateRecordingState(
-                    id: recording.id, 
+                    id: recording.id,
                     state: .summarizing,
                     errorMessage: nil
                 )
@@ -125,6 +125,47 @@ final class SummaryViewModel: SummaryViewModelType {
         }
 
         loadRecording(withID: recording.id)
+    }
+
+    func fixStuckRecording() async {
+        guard let recording = currentRecording else { return }
+
+        do {
+            // Fix stuck recording by transitioning to .recorded state
+            try await recordingRepository.updateRecordingState(
+                id: recording.id,
+                state: .recorded,
+                errorMessage: nil
+            )
+
+            // Reload the recording to reflect the change
+            loadRecording(withID: recording.id)
+
+            // Trigger processing
+            if let updatedRecording = try await recordingRepository.fetchRecording(id: recording.id) {
+                await processingCoordinator.startProcessing(recordingInfo: updatedRecording)
+            }
+        } catch {
+            errorMessage = "Failed to fix recording state: \(error.localizedDescription)"
+        }
+    }
+
+    func markAsCompleted() async {
+        guard let recording = currentRecording else { return }
+
+        do {
+            // Mark recording as completed without processing
+            try await recordingRepository.updateRecordingState(
+                id: recording.id,
+                state: .completed,
+                errorMessage: nil
+            )
+
+            // Reload the recording to reflect the change
+            loadRecording(withID: recording.id)
+        } catch {
+            errorMessage = "Failed to mark recording as completed: \(error.localizedDescription)"
+        }
     }
     
     func startAutoRefresh() {
