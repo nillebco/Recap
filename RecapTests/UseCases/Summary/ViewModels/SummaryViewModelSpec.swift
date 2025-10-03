@@ -8,19 +8,30 @@ final class SummaryViewModelSpec: XCTestCase {
     private var sut: SummaryViewModel!
     private var mockRecordingRepository = MockRecordingRepositoryType()
     private var mockProcessingCoordinator = MockProcessingCoordinatorType()
+    private var mockUserPreferencesRepository: MockUserPreferencesRepositoryType!
     private var cancellables = Set<AnyCancellable>()
     
     override func setUp() async throws {
         try await super.setUp()
         
+        mockUserPreferencesRepository = MockUserPreferencesRepositoryType()
+        
+        given(mockUserPreferencesRepository)
+            .getOrCreatePreferences()
+            .willReturn(UserPreferencesInfo())
+
         sut = SummaryViewModel(
             recordingRepository: mockRecordingRepository,
-            processingCoordinator: mockProcessingCoordinator
+            processingCoordinator: mockProcessingCoordinator,
+            userPreferencesRepository: mockUserPreferencesRepository
         )
+
+        try await Task.sleep(nanoseconds: 100_000_000)
     }
     
     override func tearDown() async throws {
         sut = nil
+        mockUserPreferencesRepository = nil
         cancellables.removeAll()
         
         try await super.tearDown()
@@ -164,7 +175,6 @@ private extension SummaryViewModelSpec {
             transcriptionText: "Test transcription",
             summaryText: summaryText,
             timestampedTranscription: nil,
-            structuredTranscriptions: nil,
             createdAt: Date(),
             modifiedAt: Date()
         )

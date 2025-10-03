@@ -11,6 +11,7 @@ final class GeneralSettingsViewModelSpec: XCTestCase {
     private var mockKeychainAPIValidator: MockKeychainAPIValidatorType!
     private var mockKeychainService: MockKeychainServiceType!
     private var mockWarningManager: MockWarningManagerType!
+    private var mockFileManagerHelper: RecordingFileManagerHelperType!
     private var cancellables = Set<AnyCancellable>()
     
     override func setUp() async throws {
@@ -21,6 +22,7 @@ final class GeneralSettingsViewModelSpec: XCTestCase {
         mockKeychainAPIValidator = MockKeychainAPIValidatorType()
         mockKeychainService = MockKeychainServiceType()
         mockWarningManager = MockWarningManagerType()
+        mockFileManagerHelper = TestRecordingFileManagerHelper()
     }
     
     private func initSut(
@@ -54,7 +56,8 @@ final class GeneralSettingsViewModelSpec: XCTestCase {
             userPreferencesRepository: mockUserPreferencesRepository,
             keychainAPIValidator: mockKeychainAPIValidator,
             keychainService: mockKeychainService,
-            warningManager: mockWarningManager
+            warningManager: mockWarningManager,
+            fileManagerHelper: mockFileManagerHelper
         )
         
         try? await Task.sleep(nanoseconds: 100_000_000)
@@ -67,6 +70,7 @@ final class GeneralSettingsViewModelSpec: XCTestCase {
         mockKeychainAPIValidator = nil
         mockKeychainService = nil
         mockWarningManager = nil
+        mockFileManagerHelper = nil
         cancellables.removeAll()
         
         try await super.tearDown()
@@ -126,7 +130,8 @@ final class GeneralSettingsViewModelSpec: XCTestCase {
             userPreferencesRepository: mockUserPreferencesRepository,
             keychainAPIValidator: mockKeychainAPIValidator,
             keychainService: mockKeychainService,
-            warningManager: mockWarningManager
+            warningManager: mockWarningManager,
+            fileManagerHelper: mockFileManagerHelper
         )
         
         try await Task.sleep(nanoseconds: 100_000_000)
@@ -209,7 +214,8 @@ final class GeneralSettingsViewModelSpec: XCTestCase {
             userPreferencesRepository: mockUserPreferencesRepository,
             keychainAPIValidator: mockKeychainAPIValidator,
             keychainService: mockKeychainService,
-            warningManager: mockWarningManager
+            warningManager: mockWarningManager,
+            fileManagerHelper: mockFileManagerHelper
         )
         
         try? await Task.sleep(nanoseconds: 100_000_000)
@@ -375,12 +381,12 @@ final class GeneralSettingsViewModelSpec: XCTestCase {
         let testWarnings = [
             WarningItem(id: "1", title: "Test Warning", message: "Test warning message")
         ]
-        
+
         let warningPublisher = PassthroughSubject<[WarningItem], Never>()
         given(mockWarningManager)
             .activeWarningsPublisher
             .willReturn(warningPublisher.eraseToAnyPublisher())
-        
+
         given(mockLLMService)
             .getUserPreferences()
             .willReturn(UserPreferencesInfo(
@@ -388,32 +394,53 @@ final class GeneralSettingsViewModelSpec: XCTestCase {
                 autoDetectMeetings: false,
                 autoStopRecording: false
             ))
-        
+
         given(mockLLMService)
             .getAvailableModels()
             .willReturn([])
-        
+
         given(mockLLMService)
             .getSelectedModel()
             .willReturn(nil)
-        
+
         sut = GeneralSettingsViewModel(
             llmService: mockLLMService,
             userPreferencesRepository: mockUserPreferencesRepository,
             keychainAPIValidator: mockKeychainAPIValidator,
             keychainService: mockKeychainService,
-            warningManager: mockWarningManager
+            warningManager: mockWarningManager,
+            fileManagerHelper: mockFileManagerHelper
         )
-        
+
         try await Task.sleep(nanoseconds: 100_000_000)
-        
+
         XCTAssertEqual(sut.activeWarnings.count, 0)
-        
+
         warningPublisher.send(testWarnings)
-        
+
         try await Task.sleep(nanoseconds: 100_000_000)
-        
+
         XCTAssertEqual(sut.activeWarnings.count, 1)
         XCTAssertEqual(sut.activeWarnings.first?.title, "Test Warning")
+    }
+}
+
+private final class TestRecordingFileManagerHelper: RecordingFileManagerHelperType {
+    private(set) var baseDirectory: URL
+
+    init(baseDirectory: URL = URL(fileURLWithPath: "/tmp/recap-tests", isDirectory: true)) {
+        self.baseDirectory = baseDirectory
+    }
+
+    func getBaseDirectory() -> URL {
+        baseDirectory
+    }
+
+    func setBaseDirectory(_ url: URL, bookmark: Data?) throws {
+        baseDirectory = url
+    }
+
+    func createRecordingDirectory(for recordingID: String) throws -> URL {
+        baseDirectory.appendingPathComponent(recordingID, isDirectory: true)
     }
 }
