@@ -50,9 +50,17 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
                 emptyStateView
             } else {
                 recordingsContent
-                    .animation(.easeInOut(duration: 0.3), value: viewModel.groupedRecordings.todayRecordings.count)
-                    .animation(.easeInOut(duration: 0.3), value: viewModel.groupedRecordings.thisWeekRecordings.count)
-                    .animation(.easeInOut(duration: 0.3), value: viewModel.groupedRecordings.allRecordings.count)
+                    .animation(
+                        .easeInOut(duration: 0.3),
+                        value: viewModel.groupedRecordings.todayRecordings.count
+                    )
+                    .animation(
+                        .easeInOut(duration: 0.3),
+                        value: viewModel.groupedRecordings.thisWeekRecordings.count
+                    )
+                    .animation(
+                        .easeInOut(duration: 0.3),
+                        value: viewModel.groupedRecordings.allRecordings.count)
             }
         }
         .padding(.top, UIConstants.Spacing.contentPadding)
@@ -89,13 +97,16 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
                     )
                     .padding(.horizontal, UIConstants.Spacing.contentPadding)
                     .padding(.bottom, UIConstants.Spacing.cardSpacing)
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .top).combined(with: .opacity),
-                        removal: .move(edge: .leading).combined(with: .opacity)
-                    ))
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .top).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
                 }
 
-                if !viewModel.groupedRecordings.thisWeekRecordings.isEmpty || !viewModel.groupedRecordings.allRecordings.isEmpty {
+                if !viewModel.groupedRecordings.thisWeekRecordings.isEmpty
+                    || !viewModel.groupedRecordings.allRecordings.isEmpty
+                {
                     sectionDivider
                 }
             }
@@ -112,10 +123,11 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
                     )
                     .padding(.horizontal, UIConstants.Spacing.contentPadding)
                     .padding(.bottom, UIConstants.Spacing.cardSpacing)
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .top).combined(with: .opacity),
-                        removal: .move(edge: .leading).combined(with: .opacity)
-                    ))
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .top).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
                 }
 
                 if !viewModel.groupedRecordings.allRecordings.isEmpty {
@@ -135,10 +147,11 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
                     )
                     .padding(.horizontal, UIConstants.Spacing.contentPadding)
                     .padding(.bottom, UIConstants.Spacing.cardSpacing)
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .top).combined(with: .opacity),
-                        removal: .move(edge: .leading).combined(with: .opacity)
-                    ))
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .top).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
                 }
             }
         }
@@ -217,7 +230,8 @@ struct PreviousRecapsDropdown<ViewModel: PreviousRecapsViewModelType>: View {
 }
 
 #Preview {
-    PreviousRecapsDropdown(viewModel: MockPreviousRecapsViewModel(), onRecordingSelected: { _ in }, onClose: {})
+    PreviousRecapsDropdown(
+        viewModel: MockPreviousRecapsViewModel(), onRecordingSelected: { _ in }, onClose: {})
 }
 
 private class MockPreviousRecapsViewModel: ObservableObject, PreviousRecapsViewModelType {
@@ -244,7 +258,9 @@ private class MockPreviousRecapsViewModel: ObservableObject, PreviousRecapsViewM
             RecordingInfo(
                 id: "week",
                 startDate: Calendar.current.date(byAdding: .day, value: -3, to: Date()) ?? Date(),
-                endDate: Calendar.current.date(byAdding: .day, value: -3, to: Calendar.current.date(byAdding: .minute, value: 45, to: Date()) ?? Date()),
+                endDate: Calendar.current.date(
+                    byAdding: .day, value: -3,
+                    to: Calendar.current.date(byAdding: .minute, value: 45, to: Date()) ?? Date()),
                 state: .completed,
                 errorMessage: nil,
                 recordingURL: URL(fileURLWithPath: "/tmp/week.m4a"),

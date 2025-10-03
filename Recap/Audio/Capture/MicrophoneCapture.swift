@@ -5,14 +5,16 @@
 //  Created by Rawand Ahmad on 01/08/2025.
 //
 
+import AVFoundation
 import AudioToolbox
 import AudioUnit
-import AVFoundation
 import Combine
 import OSLog
 
 final class MicrophoneCapture: MicrophoneCaptureType {
-    let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: MicrophoneCapture.self))
+    let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem,
+        category: String(describing: MicrophoneCapture.self))
 
     var audioEngine: AVAudioEngine?
     var audioFile: AVAudioFile?
@@ -45,7 +47,11 @@ final class MicrophoneCapture: MicrophoneCaptureType {
             var format = targetDesc
             self.targetFormat = AVAudioFormat(streamDescription: &format)
 
-            logger.info("Target format set from ProcessTap: \(targetDesc.mSampleRate)Hz, \(targetDesc.mChannelsPerFrame)ch, formatID: \(String(format: "0x%08x", targetDesc.mFormatID))")
+            logger.info(
+                """
+                Target format set from ProcessTap: \(targetDesc.mSampleRate)Hz, \
+                \(targetDesc.mChannelsPerFrame)ch, formatID: \(String(format: "0x%08x", targetDesc.mFormatID))
+                """)
         }
 
         waitForPreWarmIfNeeded()

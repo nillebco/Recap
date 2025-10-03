@@ -41,8 +41,14 @@ struct HeatmapCard: View {
                             Spacer()
 
                             Circle()
-                                .stroke(UIConstants.Colors.selectionStroke, lineWidth: UIConstants.Sizing.strokeWidth)
-                                .frame(width: UIConstants.Sizing.selectionCircleSize, height: UIConstants.Sizing.selectionCircleSize)
+                                .stroke(
+                                    UIConstants.Colors.selectionStroke,
+                                    lineWidth: UIConstants.Sizing.strokeWidth
+                                )
+                                .frame(
+                                    width: UIConstants.Sizing.selectionCircleSize,
+                                    height: UIConstants.Sizing.selectionCircleSize
+                                )
                                 .overlay {
                                     if isSelected {
                                         Image(systemName: "checkmark")
@@ -110,9 +116,15 @@ struct HeatmapGrid: View {
                 HStack(spacing: UIConstants.Spacing.gridSpacing) {
                     ForEach(0..<cols, id: \.self) { col in
                         Rectangle()
-                            .fill(UIConstants.Colors.audioActive.opacity(cellOpacity(row: row, col: col)))
+                            .fill(
+                                UIConstants.Colors.audioActive.opacity(
+                                    cellOpacity(row: row, col: col))
+                            )
                             .background(UIConstants.Colors.audioInactive)
-                            .frame(width: UIConstants.Sizing.heatmapCellSize, height: UIConstants.Sizing.heatmapCellSize)
+                            .frame(
+                                width: UIConstants.Sizing.heatmapCellSize,
+                                height: UIConstants.Sizing.heatmapCellSize
+                            )
                             .cornerRadius(UIConstants.Sizing.smallCornerRadius)
                             .animation(.easeInOut(duration: 0.15), value: audioLevel)
                     }

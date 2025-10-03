@@ -254,7 +254,7 @@ public struct AlertToast: View {
                             .renderingMode(.template)
                             .foregroundColor(color)
                     case .loading:
-                         ActivityIndicator(color: style?.activityIndicatorColor ?? .white)
+                        ActivityIndicator(color: style?.activityIndicatorColor ?? .white)
                     case .regular:
                         EmptyView()
                     }
@@ -367,7 +367,7 @@ public struct AlertToast: View {
                     .padding(.bottom)
                 Spacer()
             case .loading:
-                 ActivityIndicator(color: style?.activityIndicatorColor ?? .white)
+                ActivityIndicator(color: style?.activityIndicatorColor ?? .white)
             case .regular:
                 EmptyView()
             }
@@ -434,11 +434,11 @@ public struct AlertToastModifier: ViewModifier {
     @State private var alertRect: CGRect = .zero
 
     private var screen: CGRect {
-#if os(iOS)
+        #if os(iOS)
         return UIScreen.main.bounds
-#else
+        #else
         return NSScreen.main?.frame ?? .zero
-#endif
+        #endif
     }
 
     private var offset: CGFloat {
@@ -526,7 +526,7 @@ public struct AlertToastModifier: ViewModifier {
                     main()
                         .offset(y: offsetY)
                 }
-                            .animation(Animation.spring(), value: isPresenting)
+                .animation(Animation.spring(), value: isPresenting)
                 )
                 .valueChanged(value: isPresenting, onChange: { (presented) in
                     if presented {
@@ -547,13 +547,13 @@ public struct AlertToastModifier: ViewModifier {
 
                         return AnyView(EmptyView())
                     }
-                        .overlay(ZStack {
-                            main()
-                                .offset(y: offsetY)
-                        }
-                                    .frame(maxWidth: screen.width, maxHeight: screen.height)
-                                    .offset(y: offset)
-                                    .animation(Animation.spring(), value: isPresenting))
+                    .overlay(ZStack {
+                        main()
+                            .offset(y: offsetY)
+                    }
+                    .frame(maxWidth: screen.width, maxHeight: screen.height)
+                    .offset(y: offset)
+                    .animation(Animation.spring(), value: isPresenting))
                 )
                 .valueChanged(value: isPresenting, onChange: { (presented) in
                     if presented {
@@ -566,9 +566,9 @@ public struct AlertToastModifier: ViewModifier {
                     main()
                         .offset(y: offsetY)
                 }
-                            .frame(maxWidth: screen.width, maxHeight: screen.height, alignment: .center)
-                            .edgesIgnoringSafeArea(.all)
-                            .animation(Animation.spring(), value: isPresenting))
+                .frame(maxWidth: screen.width, maxHeight: screen.height, alignment: .center)
+                .edgesIgnoringSafeArea(.all)
+                .animation(Animation.spring(), value: isPresenting))
                 .valueChanged(value: isPresenting, onChange: { (presented) in
                     if presented {
                         onAppearAction()

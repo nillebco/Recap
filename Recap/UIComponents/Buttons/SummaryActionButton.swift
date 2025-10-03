@@ -1,7 +1,10 @@
-import SwiftUI
 import OSLog
+import SwiftUI
 
-private let summaryActionButtonPreviewLogger = Logger(subsystem: AppConstants.Logging.subsystem, category: "SummaryActionButtonPreview")
+private let summaryActionButtonPreviewLogger = Logger(
+    subsystem: AppConstants.Logging.subsystem,
+    category: "SummaryActionButtonPreview"
+)
 
 struct SummaryActionButton: View {
     let text: String

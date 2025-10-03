@@ -18,7 +18,9 @@ extension DependencyContainer {
     }
 
     func makeMeetingDetectionService() -> any MeetingDetectionServiceType {
-        MeetingDetectionService(audioProcessController: audioProcessController, permissionsHelper: makePermissionsHelper())
+        MeetingDetectionService(
+            audioProcessController: audioProcessController,
+            permissionsHelper: makePermissionsHelper())
     }
 
     func makeMeetingAppDetectionService() -> MeetingAppDetecting {

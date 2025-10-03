@@ -1,5 +1,17 @@
 import Foundation
 
+enum ActionItemPriority: String, CaseIterable {
+    case high
+    case medium
+    case low
+}
+
+struct ActionItem {
+    let description: String
+    let assignee: String?
+    let priority: ActionItemPriority
+}
+
 struct SummarizationResult {
     let id: String
     let summary: String
@@ -8,18 +20,6 @@ struct SummarizationResult {
     let generatedAt: Date
     let modelUsed: String
     let processingTime: TimeInterval
-
-    struct ActionItem {
-        let description: String
-        let assignee: String?
-        let priority: Priority
-
-        enum Priority: String, CaseIterable {
-            case high
-            case medium
-            case low
-        }
-    }
 
     init(
         id: String = UUID().uuidString,

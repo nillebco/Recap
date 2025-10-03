@@ -19,11 +19,13 @@ extension RecapViewModel: ProcessingCoordinatorDelegate {
 
     func processingDidFail(recordingID: String, error: ProcessingError) {
         Task { @MainActor in
-            logger.error("Processing failed for recording \(recordingID): \(error.localizedDescription)")
+            logger.error(
+                "Processing failed for recording \(recordingID): \(error.localizedDescription)")
             updateRecordingsFromRepository()
 
             if error.isRetryable {
-                errorMessage = "\(error.localizedDescription). You can retry from the recordings list."
+                errorMessage =
+                    "\(error.localizedDescription). You can retry from the recordings list."
             } else {
                 errorMessage = error.localizedDescription
             }
@@ -48,7 +50,7 @@ extension RecapViewModel: ProcessingCoordinatorDelegate {
     }
 
     private func showProcessingCompleteNotification(for result: ProcessingResult) {
-        // TODO: Implement rich notification when Notification Center integration is added
+        // Future enhancement: Implement rich notification when Notification Center integration is added
         logger.info("Summary ready for recording \(result.recordingID)")
     }
 }

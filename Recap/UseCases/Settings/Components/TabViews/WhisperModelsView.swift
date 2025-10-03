@@ -62,7 +62,7 @@ struct WhisperModelsView: View {
                 .overlay(
                     Group {
                         if let tooltipModel = viewModel.showingTooltipForModel,
-                            let modelInfo = viewModel.getModelInfo(tooltipModel) {
+                           let modelInfo = viewModel.getModelInfo(tooltipModel) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(modelInfo.displayName)
                                     .font(.system(size: 10, weight: .semibold))

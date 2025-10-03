@@ -19,7 +19,9 @@ struct TranscriptionMerger {
     /// Get a chronological view of the transcription with speaker identification
     /// - Parameter transcription: The timestamped transcription
     /// - Returns: Array of segments with speaker labels, sorted by time
-    static func getChronologicalView(_ transcription: TimestampedTranscription) -> [ChronologicalSegment] {
+    static func getChronologicalView(_ transcription: TimestampedTranscription)
+        -> [ChronologicalSegment]
+    {
         return transcription.segments.map { segment in
             ChronologicalSegment(
                 text: segment.text,
@@ -58,7 +60,8 @@ struct TranscriptionMerger {
             let source = segment.source == .microphone ? "Microphone" : "System Audio"
             let cleanedText = TranscriptionTextCleaner.cleanWhisperKitText(segment.text)
 
-            return "\(String(format: "%.2f", segment.startTime)) + \(String(format: "%.2f", duration)), [\(source)]: \(cleanedText)"
+            return
+                "\(String(format: "%.2f", segment.startTime)) + \(String(format: "%.2f", duration)), [\(source)]: \(cleanedText)"
         }.joined(separator: "\n")
     }
 
@@ -77,20 +80,22 @@ struct TranscriptionMerger {
     /// Find overlapping segments between different sources
     /// - Parameter transcription: The timestamped transcription
     /// - Returns: Array of overlapping segment pairs
-    static func findOverlappingSegments(_ transcription: TimestampedTranscription) -> [OverlappingSegments] {
+    static func findOverlappingSegments(_ transcription: TimestampedTranscription)
+        -> [OverlappingSegments]
+    {
         let systemSegments = getSegmentsBySource(transcription, source: .systemAudio)
         let microphoneSegments = getSegmentsBySource(transcription, source: .microphone)
 
         var overlappingPairs: [OverlappingSegments] = []
 
         for systemSegment in systemSegments {
-            for microphoneSegment in microphoneSegments {
-                if systemSegment.overlaps(with: microphoneSegment) {
-                    overlappingPairs.append(OverlappingSegments(
+            for microphoneSegment in microphoneSegments
+            where systemSegment.overlaps(with: microphoneSegment) {
+                overlappingPairs.append(
+                    OverlappingSegments(
                         systemAudio: systemSegment,
                         microphone: microphoneSegment
                     ))
-                }
             }
         }
 

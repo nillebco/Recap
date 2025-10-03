@@ -17,7 +17,7 @@ struct TranscriptDropdownButton: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: isCollapsed ? "chevron.down" : "chevron.up")
-                    .font(.system(size: 16, weight: .bold))
+                .font(.system(size: 16, weight: .bold))
 
             VStack(alignment: .leading) {
                 Text("Transcript")

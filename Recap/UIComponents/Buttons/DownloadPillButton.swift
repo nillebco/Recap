@@ -1,7 +1,10 @@
-import SwiftUI
 import OSLog
+import SwiftUI
 
-private let downloadPillButtonPreviewLogger = Logger(subsystem: AppConstants.Logging.subsystem, category: "DownloadPillButtonPreview")
+private let downloadPillButtonPreviewLogger = Logger(
+    subsystem: AppConstants.Logging.subsystem,
+    category: "DownloadPillButtonPreview"
+)
 
 struct DownloadPillButton: View {
     let text: String
@@ -18,7 +21,12 @@ struct DownloadPillButton: View {
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white)
                     .offset(y: isDownloading ? iconOffset : 0)
-                    .animation(isDownloading ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true) : .default, value: iconOffset)
+                    .animation(
+                        isDownloading
+                            ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true)
+                            : .default,
+                        value: iconOffset
+                    )
 
                 Text(text)
                     .font(.system(size: 10, weight: .medium))
@@ -35,7 +43,9 @@ struct DownloadPillButton: View {
                         GeometryReader { geometry in
                             Rectangle()
                                 .fill(Color.white.opacity(0.2))
-                                .frame(width: geometry.size.width * min(max(downloadProgress, 0), 1))
+                                .frame(
+                                    width: geometry.size.width * min(max(downloadProgress, 0), 1)
+                                )
                                 .animation(.easeInOut(duration: 0.3), value: downloadProgress)
                         }
                         .mask(RoundedRectangle(cornerRadius: 16))

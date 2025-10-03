@@ -2,11 +2,11 @@ import Combine
 import Foundation
 
 #if MOCKING
-    import Mockable
+import Mockable
 #endif
 
 #if MOCKING
-    @Mockable
+@Mockable
 #endif
 protocol AudioProcessControllerType: ObservableObject {
     var processes: [AudioProcess] { get }

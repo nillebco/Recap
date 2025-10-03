@@ -55,7 +55,7 @@ final class AudioRecordingCoordinator: AudioRecordingCoordinatorType {
         }
 
         if let microphoneURL = expectedFiles.microphoneURL,
-            let microphoneCapture = microphoneCapture {
+           let microphoneCapture = microphoneCapture {
 
             let tapStreamDescription: AudioStreamBasicDescription
             if let systemWideTap = systemWideTap {

@@ -5,9 +5,9 @@ import AudioToolbox
 extension AudioProcess {
     init(app: NSRunningApplication, objectID: AudioObjectID) {
         let name = app.localizedName ??
-                  app.bundleURL?.deletingPathExtension().lastPathComponent ??
-                  app.bundleIdentifier?.components(separatedBy: ".").last ??
-                  "Unknown \(app.processIdentifier)"
+            app.bundleURL?.deletingPathExtension().lastPathComponent ??
+            app.bundleIdentifier?.components(separatedBy: ".").last ??
+            "Unknown \(app.processIdentifier)"
 
         self.init(
             id: app.processIdentifier,

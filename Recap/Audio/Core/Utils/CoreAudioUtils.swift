@@ -1,5 +1,5 @@
-import Foundation
 import AudioToolbox
+import Foundation
 
 extension AudioObjectID {
     static let system = AudioObjectID(kAudioObjectSystemObject)
@@ -33,11 +33,16 @@ extension AudioObjectID {
 
         var dataSize: UInt32 = 0
         var err = AudioObjectGetPropertyDataSize(self, &address, 0, nil, &dataSize)
-        guard err == noErr else { throw AudioCaptureError.coreAudioError("Error reading data size for \(address): \(err)") }
+        guard err == noErr else {
+            throw AudioCaptureError.coreAudioError("Error reading data size for \(address): \(err)")
+        }
 
-        var value = [AudioObjectID](repeating: .unknown, count: Int(dataSize) / MemoryLayout<AudioObjectID>.size)
+        var value = [AudioObjectID](
+            repeating: .unknown, count: Int(dataSize) / MemoryLayout<AudioObjectID>.size)
         err = AudioObjectGetPropertyData(self, &address, 0, nil, &dataSize, &value)
-        guard err == noErr else { throw AudioCaptureError.coreAudioError("Error reading array for \(address): \(err)") }
+        guard err == noErr else {
+            throw AudioCaptureError.coreAudioError("Error reading array for \(address): \(err)")
+        }
 
         return value
     }
@@ -72,7 +77,8 @@ extension AudioObjectID {
 
     func readDefaultSystemOutputDevice() throws -> AudioDeviceID {
         try requireSystemObject()
-        return try read(kAudioHardwarePropertyDefaultSystemOutputDevice, defaultValue: AudioDeviceID.unknown)
+        return try read(
+            kAudioHardwarePropertyDefaultSystemOutputDevice, defaultValue: AudioDeviceID.unknown)
     }
 
     func readDeviceUID() throws -> String {
@@ -91,65 +97,96 @@ extension AudioObjectID {
 }
 
 extension AudioObjectID {
-    func read<T, Q>(_ selector: AudioObjectPropertySelector,
-                    scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-                    element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-                    defaultValue: T,
-                    qualifier: Q) throws -> T {
-        try read(AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element),
-                defaultValue: defaultValue, qualifier: qualifier)
+    func read<T, Q>(
+        _ selector: AudioObjectPropertySelector,
+        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
+        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
+        defaultValue: T,
+        qualifier: Q
+    ) throws -> T {
+        try read(
+            AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element),
+            defaultValue: defaultValue,
+            qualifier: qualifier
+        )
     }
 
-    func read<T>(_ selector: AudioObjectPropertySelector,
-                scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-                element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
-                defaultValue: T) throws -> T {
-        try read(AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element),
-                defaultValue: defaultValue)
+    func read<T>(
+        _ selector: AudioObjectPropertySelector,
+        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
+        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain,
+        defaultValue: T
+    ) throws -> T {
+        try read(
+            AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element),
+            defaultValue: defaultValue
+        )
     }
 
-    func read<T, Q>(_ address: AudioObjectPropertyAddress, defaultValue: T, qualifier: Q) throws -> T {
+    func read<T, Q>(_ address: AudioObjectPropertyAddress, defaultValue: T, qualifier: Q) throws
+    -> T {
         var inQualifier = qualifier
         let qualifierSize = UInt32(MemoryLayout<Q>.size(ofValue: qualifier))
         return try withUnsafeMutablePointer(to: &inQualifier) { qualifierPtr in
-            try read(address, defaultValue: defaultValue, inQualifierSize: qualifierSize, inQualifierData: qualifierPtr)
+            try read(
+                address,
+                defaultValue: defaultValue,
+                inQualifierSize: qualifierSize,
+                inQualifierData: qualifierPtr
+            )
         }
     }
 
     func read<T>(_ address: AudioObjectPropertyAddress, defaultValue: T) throws -> T {
-        try read(address, defaultValue: defaultValue, inQualifierSize: 0, inQualifierData: nil)
+        try read(
+            address,
+            defaultValue: defaultValue,
+            inQualifierSize: 0,
+            inQualifierData: nil
+        )
     }
 
-    func readString(_ selector: AudioObjectPropertySelector,
-                   scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-                   element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain) throws -> String {
-        try read(AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element),
-                defaultValue: "" as CFString) as String
+    func readString(
+        _ selector: AudioObjectPropertySelector,
+        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
+        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain
+    ) throws -> String {
+        try read(
+            AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element),
+            defaultValue: "" as CFString) as String
     }
 
-    func readBool(_ selector: AudioObjectPropertySelector,
-                 scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
-                 element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain) throws -> Bool {
-        let value: Int = try read(AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element),
-                                defaultValue: 0)
+    func readBool(
+        _ selector: AudioObjectPropertySelector,
+        scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
+        element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain
+    ) throws -> Bool {
+        let value: Int = try read(
+            AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element),
+            defaultValue: 0)
         return value == 1
     }
 
-    private func read<T>(_ inAddress: AudioObjectPropertyAddress,
-                        defaultValue: T,
-                        inQualifierSize: UInt32 = 0,
-                        inQualifierData: UnsafeRawPointer? = nil) throws -> T {
+    private func read<T>(
+        _ inAddress: AudioObjectPropertyAddress,
+        defaultValue: T,
+        inQualifierSize: UInt32 = 0,
+        inQualifierData: UnsafeRawPointer? = nil
+    ) throws -> T {
         var address = inAddress
         var dataSize: UInt32 = 0
 
-        var err = AudioObjectGetPropertyDataSize(self, &address, inQualifierSize, inQualifierData, &dataSize)
+        var err = AudioObjectGetPropertyDataSize(
+            self, &address, inQualifierSize, inQualifierData, &dataSize)
         guard err == noErr else {
-            throw AudioCaptureError.coreAudioError("Error reading data size for \(inAddress): \(err)")
+            throw AudioCaptureError.coreAudioError(
+                "Error reading data size for \(inAddress): \(err)")
         }
 
         var value: T = defaultValue
         err = withUnsafeMutablePointer(to: &value) { ptr in
-            AudioObjectGetPropertyData(self, &address, inQualifierSize, inQualifierData, &dataSize, ptr)
+            AudioObjectGetPropertyData(
+                self, &address, inQualifierSize, inQualifierData, &dataSize, ptr)
         }
 
         guard err == noErr else {
@@ -160,8 +197,8 @@ extension AudioObjectID {
     }
 }
 
-private extension UInt32 {
-    var fourCharString: String {
+extension UInt32 {
+    fileprivate var fourCharString: String {
         String(cString: [
             UInt8((self >> 24) & 0xFF),
             UInt8((self >> 16) & 0xFF),
@@ -174,7 +211,8 @@ private extension UInt32 {
 
 extension AudioObjectPropertyAddress {
     public var description: String {
-        let elementDescription = mElement == kAudioObjectPropertyElementMain ? "main" : mElement.fourCharString
+        let elementDescription =
+            mElement == kAudioObjectPropertyElementMain ? "main" : mElement.fourCharString
         return "\(mSelector.fourCharString)/\(mScope.fourCharString)/\(elementDescription)"
     }
 }

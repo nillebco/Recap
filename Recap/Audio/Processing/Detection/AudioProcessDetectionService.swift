@@ -21,7 +21,10 @@ final class AudioProcessDetectionService: AudioProcessDetectionServiceType {
                 return process
             } catch {
                 logger.warning(
-                    "Failed to initialize process with object ID #\(objectID, privacy: .public): \(error, privacy: .public)"
+                    """
+                    Failed to initialize process with object ID #\(objectID, privacy: .public): \
+                    \(error, privacy: .public)
+                    """
                 )
                 return nil
             }

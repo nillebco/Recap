@@ -39,8 +39,10 @@ extension MicrophoneCapture {
 
         let mixerOutputFormat = inputFormat
         logger.info(
-            "Mixer output format set to match input: \(mixerOutputFormat.sampleRate)Hz, \(mixerOutputFormat.channelCount)ch"
-        )
+            """
+            Mixer output format set to match input: \(mixerOutputFormat.sampleRate)Hz, \
+            \(mixerOutputFormat.channelCount)ch
+            """)
 
         if let targetFormat = targetFormat {
             logger.info(
@@ -117,8 +119,7 @@ extension MicrophoneCapture {
 
         let tapFormat = inputFormat
 
-        converterNode.installTap(onBus: 0, bufferSize: 1024, format: tapFormat) {
-            [weak self] buffer, time in
+        converterNode.installTap(onBus: 0, bufferSize: 1024, format: tapFormat) { [weak self] buffer, time in
             self?.processAudioBuffer(buffer, at: time)
         }
 

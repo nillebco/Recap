@@ -7,7 +7,9 @@ final class TranscriptionService: TranscriptionServiceType {
     private let whisperModelRepository: WhisperModelRepositoryType
     private var whisperKit: WhisperKit?
     private var loadedModelName: String?
-    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: TranscriptionService.self))
+    private let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem,
+        category: String(describing: TranscriptionService.self))
 
     init(whisperModelRepository: WhisperModelRepositoryType) {
         self.whisperModelRepository = whisperModelRepository
@@ -23,21 +25,25 @@ final class TranscriptionService: TranscriptionServiceType {
         try await ensureModelLoaded()
 
         guard let whisperKit = self.whisperKit,
-              let modelName = self.loadedModelName else {
+            let modelName = self.loadedModelName
+        else {
             throw TranscriptionError.modelNotAvailable
         }
 
         // Get both text and timestamped segments
         let systemAudioText = try await transcribeAudioFile(audioURL, with: whisperKit)
-        let systemAudioSegments = try await transcribeAudioFileWithTimestamps(audioURL, with: whisperKit, source: .systemAudio)
+        let systemAudioSegments = try await transcribeAudioFileWithTimestamps(
+            audioURL, with: whisperKit, source: .systemAudio)
 
         var microphoneText: String?
         var microphoneSegments: [TranscriptionSegment] = []
 
         if let microphoneURL = microphoneURL,
-           FileManager.default.fileExists(atPath: microphoneURL.path) {
+            FileManager.default.fileExists(atPath: microphoneURL.path)
+        {
             microphoneText = try await transcribeAudioFile(microphoneURL, with: whisperKit)
-            microphoneSegments = try await transcribeAudioFileWithTimestamps(microphoneURL, with: whisperKit, source: .microphone)
+            microphoneSegments = try await transcribeAudioFileWithTimestamps(
+                microphoneURL, with: whisperKit, source: .microphone)
         }
 
         let combinedText = buildCombinedText(
@@ -79,7 +85,9 @@ final class TranscriptionService: TranscriptionServiceType {
 
     private func loadModel(_ modelName: String, isDownloaded: Bool) async throws {
         do {
-            logger.info("Loading WhisperKit model: \(modelName, privacy: .public), isDownloaded: \(isDownloaded, privacy: .public)")
+            logger.info(
+                "Loading WhisperKit model: \(modelName, privacy: .public), isDownloaded: \(isDownloaded, privacy: .public)"
+            )
 
             // Always try to download/load the model, as WhisperKit will handle caching
             // The isDownloaded flag is just for UI purposes, but WhisperKit manages its own cache
@@ -87,9 +95,11 @@ final class TranscriptionService: TranscriptionServiceType {
                 model: modelName,
                 modelRepo: "argmaxinc/whisperkit-coreml",
                 modelFolder: nil,
-                download: true, // Always allow download, WhisperKit will use cache if available
+                download: true,  // Always allow download, WhisperKit will use cache if available
                 progressCallback: { [weak self] progress in
-                    self?.logger.info("WhisperKit download progress: \(progress.fractionCompleted, privacy: .public)")
+                    self?.logger.info(
+                        "WhisperKit download progress: \(progress.fractionCompleted, privacy: .public)"
+                    )
                 }
             )
 
@@ -100,33 +110,42 @@ final class TranscriptionService: TranscriptionServiceType {
             // Mark as downloaded in our repository if not already marked
             if !isDownloaded {
                 let modelInfo = await WhisperKit.getModelSizeInfo(for: modelName)
-                try await whisperModelRepository.markAsDownloaded(name: modelName, sizeInMB: Int64(modelInfo.totalSizeMB))
-                logger.info("Model marked as downloaded: \(modelName, privacy: .public), size: \(modelInfo.totalSizeMB, privacy: .public) MB")
+                try await whisperModelRepository.markAsDownloaded(
+                    name: modelName, sizeInMB: Int64(modelInfo.totalSizeMB))
+                logger.info(
+                    "Model marked as downloaded: \(modelName, privacy: .public), size: \(modelInfo.totalSizeMB, privacy: .public) MB"
+                )
             }
 
         } catch {
-            logger.error("Failed to load WhisperKit model \(modelName, privacy: .public): \(error.localizedDescription, privacy: .public)")
-            throw TranscriptionError.modelLoadingFailed("Failed to load model \(modelName): \(error.localizedDescription)")
+            logger.error(
+                "Failed to load WhisperKit model \(modelName, privacy: .public): \(error.localizedDescription, privacy: .public)"
+            )
+            throw TranscriptionError.modelLoadingFailed(
+                "Failed to load model \(modelName): \(error.localizedDescription)")
         }
     }
 
-    private func transcribeAudioFile(_ url: URL, with whisperKit: WhisperKit) async throws -> String {
+    private func transcribeAudioFile(_ url: URL, with whisperKit: WhisperKit) async throws -> String
+    {
         do {
             let options = DecodingOptions(
                 task: .transcribe,
-                language: nil, // Auto-detect language
-                withoutTimestamps: false, // We want timestamps
-                wordTimestamps: false // We don't need word-level timestamps for basic transcription
+                language: nil,  // Auto-detect language
+                withoutTimestamps: false,  // We want timestamps
+                wordTimestamps: false  // We don't need word-level timestamps for basic transcription
             )
 
-            let results = try await whisperKit.transcribe(audioPath: url.path, decodeOptions: options)
+            let results = try await whisperKit.transcribe(
+                audioPath: url.path, decodeOptions: options)
             let result = results.first
 
             guard let segments = result?.segments else {
                 return ""
             }
 
-            let text = segments
+            let text =
+                segments
                 .map { $0.text.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { !$0.isEmpty }
                 .joined(separator: " ")
@@ -138,16 +157,19 @@ final class TranscriptionService: TranscriptionServiceType {
         }
     }
 
-    private func transcribeAudioFileWithTimestamps(_ url: URL, with whisperKit: WhisperKit, source: TranscriptionSegment.AudioSource) async throws -> [TranscriptionSegment] {
+    private func transcribeAudioFileWithTimestamps(
+        _ url: URL, with whisperKit: WhisperKit, source: TranscriptionSegment.AudioSource
+    ) async throws -> [TranscriptionSegment] {
         do {
             let options = DecodingOptions(
                 task: .transcribe,
-                language: nil, // Auto-detect language
-                withoutTimestamps: false, // We want timestamps
-                wordTimestamps: true // Enable word timestamps for precise timing
+                language: nil,  // Auto-detect language
+                withoutTimestamps: false,  // We want timestamps
+                wordTimestamps: true  // Enable word timestamps for precise timing
             )
 
-            let results = try await whisperKit.transcribe(audioPath: url.path, decodeOptions: options)
+            let results = try await whisperKit.transcribe(
+                audioPath: url.path, decodeOptions: options)
             let result = results.first
 
             guard let segments = result?.segments else {
@@ -178,9 +200,11 @@ final class TranscriptionService: TranscriptionServiceType {
         var combinedText = systemAudioText
 
         if let microphoneText = microphoneText, !microphoneText.isEmpty {
-            combinedText += "\n\n[User Audio Note: The following was spoken by the user during this recording. Please incorporate this context when creating the meeting summary:]\n\n"
+            combinedText +=
+                "\n\n[User Audio Note: The following was spoken by the user during this recording. Please incorporate this context when creating the meeting summary:]\n\n"
             combinedText += microphoneText
-            combinedText += "\n\n[End of User Audio Note. Please align the above user input with the meeting content for a comprehensive summary.]"
+            combinedText +=
+                "\n\n[End of User Audio Note. Please align the above user input with the meeting content for a comprehensive summary.]"
         }
 
         return combinedText

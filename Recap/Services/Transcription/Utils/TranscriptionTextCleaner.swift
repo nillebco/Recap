@@ -14,15 +14,19 @@ final class TranscriptionTextCleaner {
         cleanedText = cleanedText.replacingOccurrences(of: "<|transcribe|>", with: "")
 
         // Remove timestamp patterns like <|0.00|> and <|2.00|>
-        cleanedText = cleanedText.replacingOccurrences(of: "<|\\d+\\.\\d+\\|>", with: "", options: .regularExpression)
+        cleanedText = cleanedText.replacingOccurrences(
+            of: "<|\\d+\\.\\d+\\|>", with: "", options: .regularExpression)
 
         // Remove pipe characters at the beginning and end of text
-        cleanedText = cleanedText.replacingOccurrences(of: "^\\s*\\|\\s*", with: "", options: .regularExpression)
-        cleanedText = cleanedText.replacingOccurrences(of: "\\s*\\|\\s*$", with: "", options: .regularExpression)
+        cleanedText = cleanedText.replacingOccurrences(
+            of: "^\\s*\\|\\s*", with: "", options: .regularExpression)
+        cleanedText = cleanedText.replacingOccurrences(
+            of: "\\s*\\|\\s*$", with: "", options: .regularExpression)
 
         // Clean up extra whitespace and normalize line breaks
         cleanedText = cleanedText.trimmingCharacters(in: .whitespacesAndNewlines)
-        cleanedText = cleanedText.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+        cleanedText = cleanedText.replacingOccurrences(
+            of: "\\s+", with: " ", options: .regularExpression)
 
         return cleanedText
     }
@@ -36,10 +40,12 @@ final class TranscriptionTextCleaner {
         cleanedText = formatUserAudioNotes(cleanedText)
 
         // Clean up [ Silence ] markers
-        cleanedText = cleanedText.replacingOccurrences(of: "\\[ Silence \\]", with: "", options: .regularExpression)
+        cleanedText = cleanedText.replacingOccurrences(
+            of: "\\[ Silence \\]", with: "", options: .regularExpression)
 
         // Normalize whitespace and ensure proper paragraph formatting
-        cleanedText = cleanedText.replacingOccurrences(of: "\\n\\s*\\n", with: "\n\n", options: .regularExpression)
+        cleanedText = cleanedText.replacingOccurrences(
+            of: "\\n\\s*\\n", with: "\n\n", options: .regularExpression)
         cleanedText = cleanedText.trimmingCharacters(in: .whitespacesAndNewlines)
 
         return cleanedText
@@ -51,13 +57,15 @@ final class TranscriptionTextCleaner {
 
         // Replace user audio note markers with cleaner formatting
         formattedText = formattedText.replacingOccurrences(
-            of: "\\[User Audio Note: The following was spoken by the user during this recording\\. Please incorporate this context when creating the meeting summary:\\]",
+            of:
+                "\\[User Audio Note: The following was spoken by the user during this recording\\. Please incorporate this context when creating the meeting summary:\\]",
             with: "\n**User Input:**",
             options: .regularExpression
         )
 
         formattedText = formattedText.replacingOccurrences(
-            of: "\\[End of User Audio Note\\. Please align the above user input with the meeting content for a comprehensive summary\\.\\]",
+            of:
+                "\\[End of User Audio Note\\. Please align the above user input with the meeting content for a comprehensive summary\\.\\]",
             with: "\n**System Audio:**",
             options: .regularExpression
         )

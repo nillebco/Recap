@@ -62,11 +62,12 @@ final class StatusBarManager: StatusBarManagerType {
                 logger.debug("🎨 Applied red tinted image")
             } else {
                 // Use original image
-                let workingImage = image.copy() as! NSImage
-                workingImage.isTemplate = true
-                button.image = workingImage
-                button.contentTintColor = nil
-                logger.debug("🎨 Applied normal image")
+                if let workingImage = image.copy() as? NSImage {
+                    workingImage.isTemplate = true
+                    button.image = workingImage
+                    button.contentTintColor = nil
+                    logger.debug("🎨 Applied normal image")
+                }
             }
         } else if let fallback = NSImage(named: "barIcon") {
             if isRecording {
@@ -77,11 +78,12 @@ final class StatusBarManager: StatusBarManagerType {
                 logger.debug("🎨 Applied red tinted fallback image")
             } else {
                 // Use original image
-                let workingImage = fallback.copy() as! NSImage
-                workingImage.isTemplate = true
-                button.image = workingImage
-                button.contentTintColor = nil
-                logger.debug("🎨 Applied normal fallback image")
+                if let workingImage = fallback.copy() as? NSImage {
+                    workingImage.isTemplate = true
+                    button.image = workingImage
+                    button.contentTintColor = nil
+                    logger.debug("🎨 Applied normal fallback image")
+                }
             }
         }
     }

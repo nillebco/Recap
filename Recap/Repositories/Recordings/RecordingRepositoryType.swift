@@ -10,11 +10,11 @@ struct RecordingCreationParameters {
 }
 
 #if MOCKING
-    import Mockable
+import Mockable
 #endif
 
 #if MOCKING
-    @Mockable
+@Mockable
 #endif
 protocol RecordingRepositoryType {
     func createRecording(_ parameters: RecordingCreationParameters) async throws -> RecordingInfo
@@ -22,7 +22,7 @@ protocol RecordingRepositoryType {
     func fetchAllRecordings() async throws -> [RecordingInfo]
     func fetchRecordings(withState state: RecordingProcessingState) async throws -> [RecordingInfo]
     func updateRecordingState(id: String, state: RecordingProcessingState, errorMessage: String?)
-        async throws
+    async throws
     func updateRecordingEndDate(id: String, endDate: Date) async throws
     func updateRecordingTranscription(id: String, transcriptionText: String) async throws
     func updateRecordingTimestampedTranscription(

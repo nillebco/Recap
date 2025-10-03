@@ -1,7 +1,10 @@
-import SwiftUI
 import OSLog
+import SwiftUI
 
-private let actionableWarningCardPreviewLogger = Logger(subsystem: AppConstants.Logging.subsystem, category: "ActionableWarningCardPreview")
+private let actionableWarningCardPreviewLogger = Logger(
+    subsystem: AppConstants.Logging.subsystem,
+    category: "ActionableWarningCardPreview"
+)
 
 struct ActionableWarningCard: View {
     let warning: WarningItem
@@ -115,14 +118,18 @@ struct ActionableWarningCard: View {
                 buttonAction: {
                     actionableWarningCardPreviewLogger.info("Button tapped")
                 },
-                footerText: "This permission allows Recap to read window titles only. No screen content is captured or recorded."
+                footerText: """
+                    This permission allows Recap to read window titles only. \
+                    No screen content is captured or recorded.
+                    """
             )
 
             ActionableWarningCard(
                 warning: WarningItem(
                     id: "network",
                     title: "Connection Issue",
-                    message: "Unable to connect to the service. Check your network connection and try again.",
+                    message:
+                        "Unable to connect to the service. Check your network connection and try again.",
                     icon: "network.slash",
                     severity: .error
                 ),

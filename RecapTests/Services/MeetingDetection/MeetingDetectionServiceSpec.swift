@@ -1,7 +1,8 @@
-import XCTest
 import Combine
-@testable import Recap
 import Mockable
+import XCTest
+
+@testable import Recap
 
 @MainActor
 final class MeetingDetectionServiceSpec: XCTestCase {
@@ -31,7 +32,9 @@ final class MeetingDetectionServiceSpec: XCTestCase {
             .willReturn(emptyProcesses)
 
         let mockPermissionsHelper = MockPermissionsHelperType()
-        sut = MeetingDetectionService(audioProcessController: mockAudioProcessController, permissionsHelper: mockPermissionsHelper)
+        sut = MeetingDetectionService(
+            audioProcessController: mockAudioProcessController,
+            permissionsHelper: mockPermissionsHelper)
     }
 
     override func tearDown() async throws {

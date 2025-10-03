@@ -2,7 +2,7 @@ import Combine
 import SwiftUI
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #endif
 
 struct FolderSettingsView<ViewModel: FolderSettingsViewModelType>: View {
@@ -62,35 +62,35 @@ struct FolderSettingsView<ViewModel: FolderSettingsViewModelType>: View {
 
     private func openFolderPicker() {
         #if os(macOS)
-            NSApp.activate(ignoringOtherApps: true)
+        NSApp.activate(ignoringOtherApps: true)
 
-            let panel = NSOpenPanel()
-            panel.canChooseFiles = false
-            panel.canChooseDirectories = true
-            panel.allowsMultipleSelection = false
-            panel.canCreateDirectories = true
-            if !viewModel.currentFolderPath.isEmpty {
-                panel.directoryURL = URL(
-                    fileURLWithPath: viewModel.currentFolderPath, isDirectory: true)
-            }
-            panel.prompt = "Choose"
-            panel.message = "Select a folder where Recap will store recordings and segments."
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.canCreateDirectories = true
+        if !viewModel.currentFolderPath.isEmpty {
+            panel.directoryURL = URL(
+                fileURLWithPath: viewModel.currentFolderPath, isDirectory: true)
+        }
+        panel.prompt = "Choose"
+        panel.message = "Select a folder where Recap will store recordings and segments."
 
-            if let window = NSApp.keyWindow {
-                panel.beginSheetModal(for: window) { response in
-                    guard response == .OK, let url = panel.url else { return }
-                    Task {
-                        await viewModel.updateFolderPath(url)
-                    }
-                }
-            } else {
-                panel.begin { response in
-                    guard response == .OK, let url = panel.url else { return }
-                    Task {
-                        await viewModel.updateFolderPath(url)
-                    }
+        if let window = NSApp.keyWindow {
+            panel.beginSheetModal(for: window) { response in
+                guard response == .OK, let url = panel.url else { return }
+                Task {
+                    await viewModel.updateFolderPath(url)
                 }
             }
+        } else {
+            panel.begin { response in
+                guard response == .OK, let url = panel.url else { return }
+                Task {
+                    await viewModel.updateFolderPath(url)
+                }
+            }
+        }
         #endif
     }
 }

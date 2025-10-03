@@ -19,7 +19,8 @@ struct WhisperKitTimestampExtractor {
             let mirror = Mirror(reflecting: segment)
             guard let text = mirror.children.first(where: { $0.label == "text" })?.value as? String,
                   let start = mirror.children.first(where: { $0.label == "start" })?.value as? Float,
-                  let end = mirror.children.first(where: { $0.label == "end" })?.value as? Float else {
+                  let end = mirror.children.first(where: { $0.label == "end" })?.value as? Float
+            else {
                 return nil
             }
 
@@ -50,38 +51,51 @@ struct WhisperKitTimestampExtractor {
             let segmentMirror = Mirror(reflecting: segment)
 
             // Extract word-level timestamps if available
-            if let words = segmentMirror.children.first(where: { $0.label == "words" })?.value as? [Any] {
+            if let words = segmentMirror.children.first(where: { $0.label == "words" })?.value
+                as? [Any] {
                 for word in words {
                     let wordMirror = Mirror(reflecting: word)
-                    guard let wordText = wordMirror.children.first(where: { $0.label == "word" })?.value as? String,
-                          let wordStart = wordMirror.children.first(where: { $0.label == "start" })?.value as? Float,
-                          let wordEnd = wordMirror.children.first(where: { $0.label == "end" })?.value as? Float else { continue }
+                    guard
+                        let wordText = wordMirror.children.first(where: { $0.label == "word" })?
+                            .value as? String,
+                        let wordStart = wordMirror.children.first(where: { $0.label == "start" })?
+                            .value as? Float,
+                        let wordEnd = wordMirror.children.first(where: { $0.label == "end" })?.value
+                            as? Float
+                    else { continue }
 
                     let text = wordText.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                     guard !text.isEmpty else { continue }
 
-                    wordSegments.append(TranscriptionSegment(
-                        text: text,
-                        startTime: TimeInterval(wordStart),
-                        endTime: TimeInterval(wordEnd),
-                        source: source
-                    ))
+                    wordSegments.append(
+                        TranscriptionSegment(
+                            text: text,
+                            startTime: TimeInterval(wordStart),
+                            endTime: TimeInterval(wordEnd),
+                            source: source
+                        ))
                 }
             } else {
                 // Fallback to segment-level timing
-                guard let text = segmentMirror.children.first(where: { $0.label == "text" })?.value as? String,
-                      let start = segmentMirror.children.first(where: { $0.label == "start" })?.value as? Float,
-                      let end = segmentMirror.children.first(where: { $0.label == "end" })?.value as? Float else { continue }
+                guard
+                    let text = segmentMirror.children.first(where: { $0.label == "text" })?.value
+                        as? String,
+                    let start = segmentMirror.children.first(where: { $0.label == "start" })?.value
+                        as? Float,
+                    let end = segmentMirror.children.first(where: { $0.label == "end" })?.value
+                        as? Float
+                else { continue }
 
                 let trimmedText = text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                 guard !trimmedText.isEmpty else { continue }
 
-                wordSegments.append(TranscriptionSegment(
-                    text: trimmedText,
-                    startTime: TimeInterval(start),
-                    endTime: TimeInterval(end),
-                    source: source
-                ))
+                wordSegments.append(
+                    TranscriptionSegment(
+                        text: trimmedText,
+                        startTime: TimeInterval(start),
+                        endTime: TimeInterval(end),
+                        source: source
+                    ))
             }
         }
 
@@ -105,43 +119,50 @@ struct WhisperKitTimestampExtractor {
             let mirror = Mirror(reflecting: segment)
             guard let text = mirror.children.first(where: { $0.label == "text" })?.value as? String,
                   let start = mirror.children.first(where: { $0.label == "start" })?.value as? Float,
-                  let end = mirror.children.first(where: { $0.label == "end" })?.value as? Float else { continue }
+                  let end = mirror.children.first(where: { $0.label == "end" })?.value as? Float
+            else { continue }
 
             let duration = end - start
 
             if duration <= Float(maxSegmentDuration) {
                 // Segment is already small enough
-                refinedSegments.append(TranscriptionSegment(
-                    text: text,
-                    startTime: TimeInterval(start),
-                    endTime: TimeInterval(end),
-                    source: source
-                ))
+                refinedSegments.append(
+                    TranscriptionSegment(
+                        text: text,
+                        startTime: TimeInterval(start),
+                        endTime: TimeInterval(end),
+                        source: source
+                    ))
             } else {
                 // Split the segment into smaller chunks
                 let words = text.components(separatedBy: CharacterSet.whitespaces)
-                let wordsPerChunk = max(1, Int(Double(words.count) * maxSegmentDuration / Double(duration)))
+                let wordsPerChunk = max(
+                    1, Int(Double(words.count) * maxSegmentDuration / Double(duration)))
 
-                for i in stride(from: 0, to: words.count, by: wordsPerChunk) {
-                    let endIndex = min(i + wordsPerChunk, words.count)
-                    let chunkWords = Array(words[i..<endIndex])
+                for wordIndex in stride(from: 0, to: words.count, by: wordsPerChunk) {
+                    let endIndex = min(wordIndex + wordsPerChunk, words.count)
+                    let chunkWords = Array(words[wordIndex..<endIndex])
                     let chunkText = chunkWords.joined(separator: " ")
 
-                    guard !chunkText.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty else { continue }
+                    guard
+                        !chunkText.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                            .isEmpty
+                    else { continue }
 
                     // Calculate proportional timing for this chunk
-                    let chunkStartRatio = Double(i) / Double(words.count)
+                    let chunkStartRatio = Double(wordIndex) / Double(words.count)
                     let chunkEndRatio = Double(endIndex) / Double(words.count)
 
                     let chunkStartTime = Double(start) + (Double(duration) * chunkStartRatio)
                     let chunkEndTime = Double(start) + (Double(duration) * chunkEndRatio)
 
-                    refinedSegments.append(TranscriptionSegment(
-                        text: chunkText,
-                        startTime: chunkStartTime,
-                        endTime: chunkEndTime,
-                        source: source
-                    ))
+                    refinedSegments.append(
+                        TranscriptionSegment(
+                            text: chunkText,
+                            startTime: chunkStartTime,
+                            endTime: chunkEndTime,
+                            source: source
+                        ))
                 }
             }
         }
@@ -170,7 +191,8 @@ struct WhisperKitTimestampExtractor {
     static func hasWordTimestamps(_ segments: [Any]) -> Bool {
         return segments.contains { segment in
             let mirror = Mirror(reflecting: segment)
-            guard let words = mirror.children.first(where: { $0.label == "words" })?.value as? [Any] else { return false }
+            guard let words = mirror.children.first(where: { $0.label == "words" })?.value as? [Any]
+            else { return false }
             return !words.isEmpty
         }
     }
@@ -181,7 +203,8 @@ struct WhisperKitTimestampExtractor {
     static func totalDuration(_ segments: [Any]) -> TimeInterval {
         return segments.compactMap { segment in
             let mirror = Mirror(reflecting: segment)
-            guard let end = mirror.children.first(where: { $0.label == "end" })?.value as? Float else { return nil }
+            guard let end = mirror.children.first(where: { $0.label == "end" })?.value as? Float
+            else { return nil }
             return TimeInterval(end)
         }.max() ?? 0
     }

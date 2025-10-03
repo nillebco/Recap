@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 import SwiftUI
 
 // MARK: - Meeting Detection Setup
@@ -15,8 +15,8 @@ extension RecapViewModel {
 }
 
 // MARK: - Private Setup Helpers
-private extension RecapViewModel {
-    func shouldEnableMeetingDetection() async -> Bool {
+extension RecapViewModel {
+    fileprivate func shouldEnableMeetingDetection() async -> Bool {
         do {
             let preferences = try await userPreferencesRepository.getOrCreatePreferences()
             return preferences.autoDetectMeetings
@@ -26,7 +26,7 @@ private extension RecapViewModel {
         }
     }
 
-    func setupMeetingStateObserver() {
+    fileprivate func setupMeetingStateObserver() {
         meetingDetectionService.meetingStatePublisher
             .sink { [weak self] meetingState in
                 guard let self = self else { return }
@@ -35,7 +35,7 @@ private extension RecapViewModel {
             .store(in: &cancellables)
     }
 
-    func startMonitoringIfPermissionGranted() async {
+    fileprivate func startMonitoringIfPermissionGranted() async {
         if await permissionsHelper.checkScreenCapturePermission() {
             meetingDetectionService.startMonitoring()
         } else {
@@ -45,8 +45,8 @@ private extension RecapViewModel {
 }
 
 // MARK: - Meeting State Handling
-private extension RecapViewModel {
-    func handleMeetingStateChange(_ meetingState: MeetingState) {
+extension RecapViewModel {
+    fileprivate func handleMeetingStateChange(_ meetingState: MeetingState) {
         switch meetingState {
         case .active(let info, let detectedApp):
             handleMeetingDetected(info: info, detectedApp: detectedApp)
@@ -55,7 +55,7 @@ private extension RecapViewModel {
         }
     }
 
-    func handleMeetingDetected(info: ActiveMeetingInfo, detectedApp: AudioProcess?) {
+    fileprivate func handleMeetingDetected(info: ActiveMeetingInfo, detectedApp: AudioProcess?) {
         autoSelectAppIfAvailable(detectedApp)
 
         let currentMeetingKey = "\(info.appName)-\(info.title)"
@@ -65,15 +65,15 @@ private extension RecapViewModel {
         }
     }
 
-    func handleMeetingEnded() {
+    fileprivate func handleMeetingEnded() {
         lastNotifiedMeetingKey = nil
         sendMeetingEndedNotification()
     }
 }
 
 // MARK: - App Auto-Selection
-private extension RecapViewModel {
-    func autoSelectAppIfAvailable(_ detectedApp: AudioProcess?) {
+extension RecapViewModel {
+    fileprivate func autoSelectAppIfAvailable(_ detectedApp: AudioProcess?) {
         guard let detectedApp else {
             return
         }
@@ -83,15 +83,15 @@ private extension RecapViewModel {
 }
 
 // MARK: - Notification Helpers
-private extension RecapViewModel {
-    func sendMeetingStartedNotification(appName: String, title: String) {
+extension RecapViewModel {
+    fileprivate func sendMeetingStartedNotification(appName: String, title: String) {
         Task {
             await notificationService.sendMeetingStartedNotification(appName: appName, title: title)
         }
     }
 
-    func sendMeetingEndedNotification() {
-        // TODO: Later we will analyze audio levels, and if silence is detected, send a notification here.
+    fileprivate func sendMeetingEndedNotification() {
+        // Future enhancement: Analyze audio levels, and if silence is detected, send a notification here.
     }
 }
 

@@ -6,7 +6,7 @@ struct AudioProcess: Identifiable, Hashable, Sendable {
     enum Kind: String, Sendable {
         case process
         case app
-//        case system
+        //        case system
     }
 
     var id: pid_t
@@ -52,7 +52,7 @@ extension AudioProcess.Kind {
         switch self {
         case .process: NSWorkspace.shared.icon(for: .unixExecutable)
         case .app: NSWorkspace.shared.icon(for: .applicationBundle)
-//        case .system: NSWorkspace.shared.icon(for: .systemPreferencesPane)
+        //        case .system: NSWorkspace.shared.icon(for: .systemPreferencesPane)
         }
     }
 
@@ -60,7 +60,7 @@ extension AudioProcess.Kind {
         switch self {
         case .process: "Processes"
         case .app: "Apps"
-//        case .system: "System"
+        //        case .system: "System"
         }
     }
 }

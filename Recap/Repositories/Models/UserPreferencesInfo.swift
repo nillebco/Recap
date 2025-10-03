@@ -1,5 +1,5 @@
-import Foundation
 import CoreData
+import Foundation
 
 struct UserPreferencesInfo: Identifiable {
     let id: String
@@ -22,7 +22,10 @@ struct UserPreferencesInfo: Identifiable {
     init(from managedObject: UserPreferences) {
         self.id = managedObject.id ?? UUID().uuidString
         self.selectedLLMModelID = managedObject.selectedLLMModelID
-        self.selectedProvider = LLMProvider(rawValue: managedObject.selectedProvider ?? LLMProvider.default.rawValue) ?? LLMProvider.default
+        self.selectedProvider =
+            LLMProvider(
+                rawValue: managedObject.selectedProvider ?? LLMProvider.default.rawValue
+            ) ?? LLMProvider.default
         self.autoSummarizeEnabled = managedObject.autoSummarizeEnabled
         self.autoTranscribeEnabled = managedObject.autoTranscribeEnabled
         self.autoDetectMeetings = managedObject.autoDetectMeetings
@@ -49,8 +52,8 @@ struct UserPreferencesInfo: Identifiable {
         onboarded: Bool = false,
         summaryPromptTemplate: String? = nil,
         microphoneEnabled: Bool = false,
-        globalShortcutKeyCode: Int32 = 15, // 'R' key
-        globalShortcutModifiers: Int32 = 1048840, // Cmd key
+        globalShortcutKeyCode: Int32 = 15,  // 'R' key
+        globalShortcutModifiers: Int32 = 1_048_840,  // Cmd key
         customTmpDirectoryPath: String? = nil,
         customTmpDirectoryBookmark: Data? = nil,
         createdAt: Date = Date(),

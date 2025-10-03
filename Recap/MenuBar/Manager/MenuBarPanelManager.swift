@@ -95,8 +95,8 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
 
     func positionPanel(_ panel: NSPanel, size: CGSize? = nil) {
         guard let statusButton = statusBarManager.statusButton,
-            let statusWindow = statusButton.window,
-            let screen = statusWindow.screen
+              let statusWindow = statusButton.window,
+              let screen = statusWindow.screen
         else { return }
 
         let panelSize = size ?? initialSize

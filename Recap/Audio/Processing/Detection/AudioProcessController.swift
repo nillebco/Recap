@@ -1,12 +1,15 @@
-import Foundation
 import AppKit
-import SwiftUI
-import OSLog
 import Combine
+import Foundation
+import OSLog
+import SwiftUI
 
 @MainActor
 final class AudioProcessController: @MainActor AudioProcessControllerType {
-    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: AudioProcessController.self))
+    private let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem,
+        category: String(describing: AudioProcessController.self)
+    )
 
     private let detectionService: AudioProcessDetectionServiceType
     private var cancellables = Set<AnyCancellable>()
@@ -31,7 +34,9 @@ final class AudioProcessController: @MainActor AudioProcessControllerType {
 
         NSWorkspace.shared
             .publisher(for: \.runningApplications, options: [.initial, .new])
-            .map { $0.filter({ $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }) }
+            .map {
+                $0.filter({ $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })
+            }
             .sink { [weak self] apps in
                 self?.reloadProcesses(from: apps)
             }
@@ -39,8 +44,8 @@ final class AudioProcessController: @MainActor AudioProcessControllerType {
     }
 }
 
-private extension AudioProcessController {
-    func reloadProcesses(from apps: [NSRunningApplication]) {
+extension AudioProcessController {
+    fileprivate func reloadProcesses(from apps: [NSRunningApplication]) {
         do {
             processes = try detectionService.detectActiveProcesses(from: apps)
         } catch {

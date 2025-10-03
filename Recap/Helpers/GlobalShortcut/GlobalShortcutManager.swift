@@ -1,5 +1,5 @@
-import Cocoa
 import Carbon
+import Cocoa
 import OSLog
 
 @MainActor
@@ -14,8 +14,14 @@ final class GlobalShortcutManager {
     private weak var delegate: GlobalShortcutDelegate?
 
     // Default shortcut: Cmd+R
-    private var currentShortcut: (keyCode: UInt32, modifiers: UInt32) = (keyCode: 15, modifiers: UInt32(cmdKey)) // 'R' key with Cmd
-    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: GlobalShortcutManager.self))
+    private var currentShortcut: (keyCode: UInt32, modifiers: UInt32) = (
+        keyCode: 15,
+        modifiers: UInt32(cmdKey)
+    )  // 'R' key with Cmd
+    private let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem,
+        category: String(describing: GlobalShortcutManager.self)
+    )
 
     init() {
         setupEventHandling()
@@ -37,17 +43,21 @@ final class GlobalShortcutManager {
     }
 
     func registerDefaultShortcut() {
-        registerShortcut(keyCode: 15, modifiers: UInt32(cmdKey)) // Cmd+R
+        registerShortcut(keyCode: 15, modifiers: UInt32(cmdKey))  // Cmd+R
     }
 
     private func registerShortcut() {
-        let eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: OSType(kEventHotKeyPressed))
+        let eventType = EventTypeSpec(
+            eventClass: OSType(kEventClassKeyboard), eventKind: OSType(kEventHotKeyPressed))
 
         let status = InstallEventHandler(
             GetApplicationEventTarget(),
             { (_, theEvent, userData) -> OSStatus in
-                guard let userData = userData, let theEvent = theEvent else { return OSStatus(eventNotHandledErr) }
-                let manager = Unmanaged<GlobalShortcutManager>.fromOpaque(userData).takeUnretainedValue()
+                guard let userData = userData, let theEvent = theEvent else {
+                    return OSStatus(eventNotHandledErr)
+                }
+                let manager = Unmanaged<GlobalShortcutManager>.fromOpaque(userData)
+                    .takeUnretainedValue()
                 return manager.handleHotKeyEvent(theEvent)
             },
             1,
@@ -61,7 +71,7 @@ final class GlobalShortcutManager {
             return
         }
 
-        let hotKeyID = EventHotKeyID(signature: OSType(0x4D4B4D4B), id: 1)
+        let hotKeyID = EventHotKeyID(signature: OSType(0x4D4B_4D4B), id: 1)
         let status2 = RegisterEventHotKey(
             currentShortcut.keyCode,
             currentShortcut.modifiers,

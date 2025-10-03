@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 @MainActor
 final class SummarizationService: SummarizationServiceType {
@@ -86,7 +86,7 @@ final class SummarizationService: SummarizationServiceType {
     }
 
     private func buildLLMOptions(
-        from options: SummarizationRequest.SummarizationOptions
+        from options: SummarizationOptions
     ) -> LLMOptions {
         let maxTokens = options.maxLength.map { $0 * 2 }
 

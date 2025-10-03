@@ -59,21 +59,21 @@ struct CustomSegmentedControl<T: Hashable>: View {
                         .overlay(
                             selection == option
                                 ? RoundedRectangle(cornerRadius: 6)
-                                    .stroke(
-                                        LinearGradient(
-                                            gradient: Gradient(stops: [
-                                                .init(
-                                                    color: Color(hex: "979797").opacity(0.3),
-                                                    location: 0),
-                                                .init(
-                                                    color: Color(hex: "979797").opacity(0.2),
-                                                    location: 1)
-                                            ]),
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        ),
-                                        lineWidth: 0.8
-                                    )
+                                .stroke(
+                                    LinearGradient(
+                                        gradient: Gradient(stops: [
+                                            .init(
+                                                color: Color(hex: "979797").opacity(0.3),
+                                                location: 0),
+                                            .init(
+                                                color: Color(hex: "979797").opacity(0.2),
+                                                location: 1)
+                                        ]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    ),
+                                    lineWidth: 0.8
+                                )
                                 : nil
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 6))

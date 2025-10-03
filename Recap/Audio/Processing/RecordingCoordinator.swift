@@ -1,9 +1,12 @@
-import Foundation
 import AVFoundation
+import Foundation
 import OSLog
 
 final class RecordingCoordinator: ObservableObject {
-    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: RecordingCoordinator.self))
+    private let logger = Logger(
+        subsystem: AppConstants.Logging.subsystem,
+        category: String(describing: RecordingCoordinator.self)
+    )
 
     private(set) var state: RecordingState = .idle
     private(set) var detectedMeetingApps: [AudioProcess] = []
@@ -15,10 +18,12 @@ final class RecordingCoordinator: ObservableObject {
 
     private var currentRecordingURL: URL?
 
-    init(appDetectionService: MeetingAppDetecting,
-         sessionManager: RecordingSessionManaging,
-         fileManager: RecordingFileManaging,
-         microphoneCapture: any MicrophoneCaptureType) {
+    init(
+        appDetectionService: MeetingAppDetecting,
+        sessionManager: RecordingSessionManaging,
+        fileManager: RecordingFileManaging,
+        microphoneCapture: any MicrophoneCaptureType
+    ) {
 
         self.appDetectionService = appDetectionService
         self.sessionManager = sessionManager
@@ -30,7 +35,8 @@ final class RecordingCoordinator: ObservableObject {
         Task { @MainActor in
             let processController = AudioProcessController()
             processController.activate()
-            (appDetectionService as? MeetingAppDetectionService)?.setProcessController(processController)
+            (appDetectionService as? MeetingAppDetectionService)?.setProcessController(
+                processController)
         }
     }
 
@@ -57,7 +63,11 @@ final class RecordingCoordinator: ObservableObject {
             state = .recording(coordinator)
             currentRecordingURL = configuration.baseURL
 
-            logger.info("Recording started successfully for \(configuration.audioProcess.name) with microphone: \(configuration.enableMicrophone)")
+            logger.info(
+                """
+                Recording started successfully for \(configuration.audioProcess.name) \
+                with microphone: \(configuration.enableMicrophone)
+                """)
 
             return configuration.expectedFiles
 

@@ -29,7 +29,9 @@ struct CenteredAlert<Content: View>: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: UIConstants.Sizing.cornerRadius)
-                        .stroke(UIConstants.Gradients.standardBorder, lineWidth: UIConstants.Sizing.strokeWidth)
+                        .stroke(
+                            UIConstants.Gradients.standardBorder,
+                            lineWidth: UIConstants.Sizing.strokeWidth)
                 )
         )
     }
@@ -73,16 +75,17 @@ struct CenteredAlert<Content: View>: View {
         CenteredAlert(
             isPresented: .constant(true),
             title: "Example Alert",
-            onDismiss: {}
-        ) {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("This is centered alert content")
-                    .foregroundColor(.white)
+            onDismiss: {},
+            content: {
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("This is centered alert content")
+                        .foregroundColor(.white)
 
-                Button("Example Button") {}
-                    .foregroundColor(.blue)
+                    Button("Example Button") {}
+                        .foregroundColor(.blue)
+                }
             }
-        }
+        )
     }
     .frame(width: 600, height: 400)
     .background(Color.black)

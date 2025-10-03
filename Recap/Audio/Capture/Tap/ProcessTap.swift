@@ -1,7 +1,7 @@
-import SwiftUI
+import AVFoundation
 import AudioToolbox
 import OSLog
-import AVFoundation
+import SwiftUI
 
 extension String: @retroactive LocalizedError {
     public var errorDescription: String? { self }
@@ -24,7 +24,9 @@ final class ProcessTap: ObservableObject, AudioTapType {
     init(process: AudioProcess, muteWhenRunning: Bool = false) {
         self.process = process
         self.muteWhenRunning = muteWhenRunning
-        self.logger = Logger(subsystem: AppConstants.Logging.subsystem, category: "\(String(describing: ProcessTap.self))(\(process.name))")
+        self.logger = Logger(
+            subsystem: AppConstants.Logging.subsystem,
+            category: "\(String(describing: ProcessTap.self))(\(process.name))")
     }
 
     @ObservationIgnored
@@ -70,16 +72,22 @@ final class ProcessTap: ObservableObject, AudioTapType {
         if aggregateDeviceID.isValid {
             if let deviceProcID = deviceProcID {
                 var stopErr = AudioDeviceStop(aggregateDeviceID, deviceProcID)
-                if stopErr != noErr { logger.warning("Failed to stop aggregate device: \(stopErr, privacy: .public)") }
+                if stopErr != noErr {
+                    logger.warning("Failed to stop aggregate device: \(stopErr, privacy: .public)")
+                }
 
                 stopErr = AudioDeviceDestroyIOProcID(aggregateDeviceID, deviceProcID)
-                if stopErr != noErr { logger.warning("Failed to destroy device I/O proc: \(stopErr, privacy: .public)") }
+                if stopErr != noErr {
+                    logger.warning(
+                        "Failed to destroy device I/O proc: \(stopErr, privacy: .public)")
+                }
                 self.deviceProcID = nil
             }
 
             let destroyErr = AudioHardwareDestroyAggregateDevice(aggregateDeviceID)
             if destroyErr != noErr {
-                logger.warning("Failed to destroy aggregate device: \(destroyErr, privacy: .public)")
+                logger.warning(
+                    "Failed to destroy aggregate device: \(destroyErr, privacy: .public)")
             }
             aggregateDeviceID = .unknown
         }
@@ -106,7 +114,8 @@ final class ProcessTap: ObservableObject, AudioTapType {
         var err = AudioHardwareCreateProcessTap(tapDescription, &tapID)
 
         guard err == noErr else {
-            let errorMsg = "Process tap creation failed with error \(err) (0x\(String(err, radix: 16, uppercase: true)))"
+            let errorMsg =
+                "Process tap creation failed with error \(err) (0x\(String(err, radix: 16, uppercase: true)))"
             logger.error("\(errorMsg, privacy: .public)")
             errorMessage = errorMsg
             return
@@ -135,18 +144,23 @@ final class ProcessTap: ObservableObject, AudioTapType {
             kAudioAggregateDeviceTapListKey: [
                 [
                     kAudioSubTapDriftCompensationKey: true,
-                    kAudioSubTapUIDKey: tapDescription.uuid.uuidString
+                    kAudioSubTapUIDKey: tapDescription.uuid.uuidString,
                 ]
-            ]
+            ],
         ]
 
         self.tapStreamDescription = try tapID.readAudioTapStreamBasicDescription()
-        logger.info("Tap stream description: \(self.tapStreamDescription?.mSampleRate ?? 0)Hz, \(self.tapStreamDescription?.mChannelsPerFrame ?? 0)ch")
+        logger.info(
+            """
+            Tap stream description: \(self.tapStreamDescription?.mSampleRate ?? 0)Hz, \
+            \(self.tapStreamDescription?.mChannelsPerFrame ?? 0)ch
+            """)
 
         aggregateDeviceID = AudioObjectID.unknown
         err = AudioHardwareCreateAggregateDevice(description as CFDictionary, &aggregateDeviceID)
         guard err == noErr else {
-            let errorMsg = "Failed to create aggregate device: \(err) (0x\(String(err, radix: 16, uppercase: true)))"
+            let errorMsg =
+                "Failed to create aggregate device: \(err) (0x\(String(err, radix: 16, uppercase: true)))"
             logger.error("\(errorMsg, privacy: .public)")
             throw errorMsg
         }
@@ -154,19 +168,26 @@ final class ProcessTap: ObservableObject, AudioTapType {
         logger.info("Created aggregate device #\(self.aggregateDeviceID, privacy: .public)")
     }
 
-    func run(on queue: DispatchQueue, ioBlock: @escaping AudioDeviceIOBlock, invalidationHandler: @escaping InvalidationHandler) throws {
+    func run(
+        on queue: DispatchQueue, ioBlock: @escaping AudioDeviceIOBlock,
+        invalidationHandler: @escaping InvalidationHandler
+    ) throws {
         assert(activated, "\(#function) called with inactive tap!")
         assert(self.invalidationHandler == nil, "\(#function) called with tap already active!")
 
         errorMessage = nil
 
-        logger.info("Starting audio device I/O proc for aggregate device #\(self.aggregateDeviceID, privacy: .public)")
+        logger.info(
+            "Starting audio device I/O proc for aggregate device #\(self.aggregateDeviceID, privacy: .public)"
+        )
 
         self.invalidationHandler = invalidationHandler
 
-        let createErr = AudioDeviceCreateIOProcIDWithBlock(&deviceProcID, aggregateDeviceID, queue, ioBlock)
+        let createErr = AudioDeviceCreateIOProcIDWithBlock(
+            &deviceProcID, aggregateDeviceID, queue, ioBlock)
         guard createErr == noErr else {
-            let errorMsg = "Failed to create device I/O proc: \(createErr) (0x\(String(createErr, radix: 16, uppercase: true)))"
+            let errorMsg =
+                "Failed to create device I/O proc: \(createErr) (0x\(String(createErr, radix: 16, uppercase: true)))"
             logger.error("\(errorMsg, privacy: .public)")
             throw errorMsg
         }
@@ -179,7 +200,8 @@ final class ProcessTap: ObservableObject, AudioTapType {
 
         let startErr = AudioDeviceStart(aggregateDeviceID, procID)
         guard startErr == noErr else {
-            let errorMsg = "Failed to start audio device: \(startErr) (0x\(String(startErr, radix: 16, uppercase: true)))"
+            let errorMsg =
+                "Failed to start audio device: \(startErr) (0x\(String(startErr, radix: 16, uppercase: true)))"
             logger.error("\(errorMsg, privacy: .public)")
             throw errorMsg
         }
@@ -199,23 +221,26 @@ final class ProcessTapRecorder: ObservableObject, AudioTapRecorderType {
     private let logger: Logger
 
     @ObservationIgnored
-    private weak var _tap: ProcessTap?
+    private weak var processTapInstance: ProcessTap?
 
     private(set) var isRecording = false
 
     init(fileURL: URL, tap: ProcessTap) {
         self.process = tap.process
         self.fileURL = fileURL
-        self._tap = tap
-        self.logger = Logger(subsystem: AppConstants.Logging.subsystem, category: "\(String(describing: ProcessTapRecorder.self))(\(fileURL.lastPathComponent))")
+        self.processTapInstance = tap
+        self.logger = Logger(
+            subsystem: AppConstants.Logging.subsystem,
+            category: "\(String(describing: ProcessTapRecorder.self))(\(fileURL.lastPathComponent))"
+        )
     }
 
     private var tap: ProcessTap {
         get throws {
-            guard let _tap = _tap else {
+            guard let processTapInstance = processTapInstance else {
                 throw AudioCaptureError.coreAudioError("Process tap unavailable")
             }
-            return _tap
+            return processTapInstance
         }
     }
 
@@ -250,23 +275,30 @@ final class ProcessTapRecorder: ObservableObject, AudioTapRecorderType {
         let settings: [String: Any] = [
             AVFormatIDKey: streamDescription.mFormatID,
             AVSampleRateKey: format.sampleRate,
-            AVNumberOfChannelsKey: format.channelCount
+            AVNumberOfChannelsKey: format.channelCount,
         ]
 
-        let file = try AVAudioFile(forWriting: fileURL, settings: settings, commonFormat: .pcmFormatFloat32, interleaved: format.isInterleaved)
+        let file = try AVAudioFile(
+            forWriting: fileURL, settings: settings, commonFormat: .pcmFormatFloat32,
+            interleaved: format.isInterleaved)
 
         self.currentFile = file
 
         try tap.run(on: queue) { [weak self] _, inInputData, _, _, _ in
             guard let self, let currentFile = self.currentFile else { return }
             do {
-                guard let buffer = AVAudioPCMBuffer(pcmFormat: format, bufferListNoCopy: inInputData, deallocator: nil) else {
+                guard
+                    let buffer = AVAudioPCMBuffer(
+                        pcmFormat: format, bufferListNoCopy: inInputData, deallocator: nil)
+                else {
                     throw "Failed to create PCM buffer"
                 }
 
                 // Log audio data reception for debugging
                 if buffer.frameLength > 0 {
-                    logger.debug("Received audio data: \(buffer.frameLength) frames, \(buffer.format.sampleRate)Hz")
+                    logger.debug(
+                        "Received audio data: \(buffer.frameLength) frames, \(buffer.format.sampleRate)Hz"
+                    )
                 }
 
                 try currentFile.write(from: buffer)
@@ -328,7 +360,7 @@ final class ProcessTapRecorder: ObservableObject, AudioTapRecorderType {
         let normalizedLevel = (decibels + 60) / 60
 
         Task { @MainActor in
-            self._tap?.setAudioLevel(min(max(normalizedLevel, 0), 1))
+            self.processTapInstance?.setAudioLevel(min(max(normalizedLevel, 0), 1))
         }
     }
 }

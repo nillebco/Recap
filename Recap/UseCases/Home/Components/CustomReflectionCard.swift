@@ -36,7 +36,9 @@ struct CustomReflectionCard: View {
             width: UIConstants.Layout.fullCardWidth(containerWidth: containerWidth),
             height: 60,
             backgroundColor: UIConstants.Colors.cardBackground2,
-            borderGradient: isRecording ? UIConstants.Gradients.reflectionBorderRecording : UIConstants.Gradients.reflectionBorder
+            borderGradient: isRecording
+                ? UIConstants.Gradients.reflectionBorderRecording
+                : UIConstants.Gradients.reflectionBorder
         )
         .overlay(
             HStack {

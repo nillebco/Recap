@@ -8,7 +8,12 @@ extension MicrophoneCapture {
 
         // Log audio data reception for debugging
         if buffer.frameLength > 0 {
-            logger.debug("Microphone received audio data: \(buffer.frameLength) frames, \(buffer.format.sampleRate)Hz, \(buffer.format.channelCount)ch")
+            logger.debug(
+                """
+                Microphone received audio data: \(buffer.frameLength) frames, \
+                \(buffer.format.sampleRate)Hz, \(buffer.format.channelCount)ch
+                """
+            )
         }
 
         calculateAndUpdateAudioLevel(from: buffer)
@@ -16,12 +21,13 @@ extension MicrophoneCapture {
         if let audioFile = audioFile {
             do {
                 if let targetFormat = targetFormat,
-                   buffer.format.sampleRate != targetFormat.sampleRate ||
-                   buffer.format.channelCount != targetFormat.channelCount {
-
+                    buffer.format.sampleRate != targetFormat.sampleRate
+                        || buffer.format.channelCount != targetFormat.channelCount
+                {
                     if let convertedBuffer = convertBuffer(buffer, to: targetFormat) {
                         try audioFile.write(from: convertedBuffer)
-                        logger.debug("Wrote converted audio buffer: \(convertedBuffer.frameLength) frames")
+                        logger.debug(
+                            "Wrote converted audio buffer: \(convertedBuffer.frameLength) frames")
                     } else {
                         logger.warning("Failed to convert buffer, writing original")
                         try audioFile.write(from: buffer)
@@ -38,14 +44,21 @@ extension MicrophoneCapture {
         }
     }
 
-    func convertBuffer(_ inputBuffer: AVAudioPCMBuffer, to targetFormat: AVAudioFormat) -> AVAudioPCMBuffer? {
+    func convertBuffer(_ inputBuffer: AVAudioPCMBuffer, to targetFormat: AVAudioFormat)
+        -> AVAudioPCMBuffer?
+    {
         guard let converter = AVAudioConverter(from: inputBuffer.format, to: targetFormat) else {
             return nil
         }
 
-        let frameCapacity = AVAudioFrameCount(Double(inputBuffer.frameLength) * (targetFormat.sampleRate / inputBuffer.format.sampleRate))
+        let frameCapacity = AVAudioFrameCount(
+            Double(inputBuffer.frameLength)
+                * (targetFormat.sampleRate / inputBuffer.format.sampleRate))
 
-        guard let outputBuffer = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: frameCapacity) else {
+        guard
+            let outputBuffer = AVAudioPCMBuffer(
+                pcmFormat: targetFormat, frameCapacity: frameCapacity)
+        else {
             return nil
         }
 
@@ -56,7 +69,8 @@ extension MicrophoneCapture {
         }
 
         if status == .error {
-            logger.error("Audio conversion failed: \(error?.localizedDescription ?? "Unknown error")")
+            logger.error(
+                "Audio conversion failed: \(error?.localizedDescription ?? "Unknown error")")
             return nil
         }
 
@@ -70,8 +84,8 @@ extension MicrophoneCapture {
         guard frameCount > 0 else { return }
 
         var sum: Float = 0
-        for i in 0..<frameCount {
-            sum += abs(channelData[i])
+        for frameIndex in 0..<frameCount {
+            sum += abs(channelData[frameIndex])
         }
 
         let average = sum / Float(frameCount)
