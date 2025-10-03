@@ -8,3 +8,4 @@ Function should have 5 parameters or less.
 Line should be 120 characters or less.
 Function parameters should be aligned vertically if they're in multiple lines in a declaration.
 Files should have less than 400 lines.
+Execute `swiftlint --strict` and fix the errors.
