@@ -103,7 +103,7 @@ extension WhisperKit {
             "medium": 2917,
             "large-v2": 7812,
             "large-v3": 16793,
-            "distil-whisper_distil-large-v3_turbo": 2035,
+            "distil-whisper_distil-large-v3_turbo": 2035
         ]
 
         static let defaultModelSizeMB: Double = 500.0

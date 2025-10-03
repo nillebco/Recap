@@ -35,8 +35,12 @@ struct CustomTextEditor: View {
                             .stroke(
                                 LinearGradient(
                                     gradient: Gradient(stops: [
-                                        .init(color: Color(hex: "979797").opacity(isFocused ? 0.4 : 0.2), location: 0),
-                                        .init(color: Color(hex: "979797").opacity(isFocused ? 0.3 : 0.1), location: 1)
+                                        .init(
+                                            color: Color(hex: "979797").opacity(
+                                                isFocused ? 0.4 : 0.2), location: 0),
+                                        .init(
+                                            color: Color(hex: "979797").opacity(
+                                                isFocused ? 0.3 : 0.1), location: 1),
                                     ]),
                                     startPoint: .top,
                                     endPoint: .bottom

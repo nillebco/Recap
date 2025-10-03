@@ -66,8 +66,7 @@ final class MeetingDetectionSettingsViewModel: MeetingDetectionSettingsViewModel
 
     func openScreenRecordingPreferences() {
         if let url = URL(
-            string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")
-        {
+            string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
             NSWorkspace.shared.open(url)
         }
     }

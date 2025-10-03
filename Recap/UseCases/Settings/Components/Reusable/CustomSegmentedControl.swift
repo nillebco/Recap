@@ -42,8 +42,10 @@ struct CustomSegmentedControl<T: Hashable>: View {
                             selection == option
                                 ? LinearGradient(
                                     gradient: Gradient(stops: [
-                                        .init(color: Color(hex: "4A4A4A").opacity(0.4), location: 0),
-                                        .init(color: Color(hex: "2A2A2A").opacity(0.6), location: 1)
+                                        .init(
+                                            color: Color(hex: "4A4A4A").opacity(0.4), location: 0),
+                                        .init(
+                                            color: Color(hex: "2A2A2A").opacity(0.6), location: 1)
                                     ]),
                                     startPoint: .top,
                                     endPoint: .bottom
@@ -60,8 +62,12 @@ struct CustomSegmentedControl<T: Hashable>: View {
                                     .stroke(
                                         LinearGradient(
                                             gradient: Gradient(stops: [
-                                                .init(color: Color(hex: "979797").opacity(0.3), location: 0),
-                                                .init(color: Color(hex: "979797").opacity(0.2), location: 1)
+                                                .init(
+                                                    color: Color(hex: "979797").opacity(0.3),
+                                                    location: 0),
+                                                .init(
+                                                    color: Color(hex: "979797").opacity(0.2),
+                                                    location: 1)
                                             ]),
                                             startPoint: .top,
                                             endPoint: .bottom

@@ -30,7 +30,7 @@ struct CustomTextField: View {
                             LinearGradient(
                                 gradient: Gradient(stops: [
                                     .init(color: Color(hex: "2A2A2A").opacity(0.3), location: 0),
-                                    .init(color: Color(hex: "1A1A1A").opacity(0.5), location: 1)
+                                    .init(color: Color(hex: "1A1A1A").opacity(0.5), location: 1),
                                 ]),
                                 startPoint: .top,
                                 endPoint: .bottom
@@ -42,16 +42,24 @@ struct CustomTextField: View {
                                     isFocused
                                         ? LinearGradient(
                                             gradient: Gradient(stops: [
-                                                .init(color: Color(hex: "979797").opacity(0.4), location: 0),
-                                                .init(color: Color(hex: "C4C4C4").opacity(0.3), location: 1)
+                                                .init(
+                                                    color: Color(hex: "979797").opacity(0.4),
+                                                    location: 0),
+                                                .init(
+                                                    color: Color(hex: "C4C4C4").opacity(0.3),
+                                                    location: 1),
                                             ]),
                                             startPoint: .top,
                                             endPoint: .bottom
                                         )
                                         : LinearGradient(
                                             gradient: Gradient(stops: [
-                                                .init(color: Color(hex: "979797").opacity(0.2), location: 0),
-                                                .init(color: Color(hex: "C4C4C4").opacity(0.15), location: 1)
+                                                .init(
+                                                    color: Color(hex: "979797").opacity(0.2),
+                                                    location: 0),
+                                                .init(
+                                                    color: Color(hex: "C4C4C4").opacity(0.15),
+                                                    location: 1),
                                             ]),
                                             startPoint: .top,
                                             endPoint: .bottom

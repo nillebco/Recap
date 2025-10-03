@@ -69,8 +69,7 @@ final class RecordingRepository: RecordingRepositoryType {
         }
     }
 
-    func fetchRecordings(withState state: RecordingProcessingState) async throws -> [RecordingInfo]
-    {
+    func fetchRecordings(withState state: RecordingProcessingState) async throws -> [RecordingInfo] {
         try await withCheckedThrowingContinuation { continuation in
             coreDataManager.performBackgroundTask { context in
                 let request = UserRecording.fetchRequest()
@@ -89,8 +88,7 @@ final class RecordingRepository: RecordingRepositoryType {
     }
 
     func updateRecordingState(id: String, state: RecordingProcessingState, errorMessage: String?)
-        async throws
-    {
+        async throws {
         try await withCheckedThrowingContinuation { continuation in
             coreDataManager.performBackgroundTask { context in
                 do {
@@ -237,8 +235,7 @@ final class RecordingRepository: RecordingRepositoryType {
     }
 
     private func fetchRecordingEntity(id: String, context: NSManagedObjectContext) throws
-        -> UserRecording
-    {
+        -> UserRecording {
         let request = UserRecording.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id)
         request.fetchLimit = 1

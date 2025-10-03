@@ -74,8 +74,10 @@ struct CustomDropdown<T: Hashable>: View {
                             .stroke(
                                 LinearGradient(
                                     gradient: Gradient(stops: [
-                                        .init(color: Color(hex: "979797").opacity(0.2), location: 0),
-                                        .init(color: Color(hex: "979797").opacity(0.1), location: 1)
+                                        .init(
+                                            color: Color(hex: "979797").opacity(0.2), location: 0),
+                                        .init(
+                                            color: Color(hex: "979797").opacity(0.1), location: 1),
                                     ]),
                                     startPoint: .top,
                                     endPoint: .bottom
@@ -121,7 +123,7 @@ struct CustomDropdown<T: Hashable>: View {
                             LinearGradient(
                                 gradient: Gradient(stops: [
                                     .init(color: Color(hex: "979797").opacity(0.3), location: 0),
-                                    .init(color: Color(hex: "979797").opacity(0.2), location: 1)
+                                    .init(color: Color(hex: "979797").opacity(0.2), location: 1),
                                 ]),
                                 startPoint: .top,
                                 endPoint: .bottom
@@ -140,52 +142,57 @@ struct CustomDropdown<T: Hashable>: View {
                 ScrollView(.vertical, showsIndicators: true) {
                     VStack(spacing: 0) {
                         ForEach(filteredOptions, id: \.self) { option in
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                selection = option
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                isExpanded = false
-                            }
-                        }) {
-                            HStack {
-                                Text(displayName(option))
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(selection == option ? UIConstants.Colors.textPrimary : UIConstants.Colors.textSecondary)
-                                    .lineLimit(1)
-
-                                Spacer()
-
-                                if selection == option {
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 9, weight: .bold))
-                                        .foregroundColor(UIConstants.Colors.textPrimary)
-                                        .transition(.scale.combined(with: .opacity))
+                            Button(action: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                    selection = option
                                 }
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 10)
-                            .frame(maxWidth: .infinity)
-                            .background(
-                                selection == option
-                                    ? Color.white.opacity(0.09)
-                                    : (hoveredOption == option ? Color.white.opacity(0.01) : Color.clear)
-                            )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .onHover { isHovered in
-                            hoveredOption = isHovered ? option : nil
-                        }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isExpanded = false
+                                }
+                            }) {
+                                HStack {
+                                    Text(displayName(option))
+                                        .font(.system(size: 11, weight: .medium))
+                                        .foregroundColor(
+                                            selection == option
+                                                ? UIConstants.Colors.textPrimary
+                                                : UIConstants.Colors.textSecondary
+                                        )
+                                        .lineLimit(1)
 
-                        if option != filteredOptions.last {
-                            Divider()
-                                .background(Color(hex: "979797").opacity(0.1))
+                                    Spacer()
+
+                                    if selection == option {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 9, weight: .bold))
+                                            .foregroundColor(UIConstants.Colors.textPrimary)
+                                            .transition(.scale.combined(with: .opacity))
+                                    }
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .frame(maxWidth: .infinity)
+                                .background(
+                                    selection == option
+                                        ? Color.white.opacity(0.09)
+                                        : (hoveredOption == option
+                                            ? Color.white.opacity(0.01) : Color.clear)
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .onHover { isHovered in
+                                hoveredOption = isHovered ? option : nil
+                            }
+
+                            if option != filteredOptions.last {
+                                Divider()
+                                    .background(Color(hex: "979797").opacity(0.1))
+                            }
                         }
                     }
+                    .padding(.vertical, 8)
+                    .cornerRadius(8)
                 }
-                .padding(.vertical, 8)
-                .cornerRadius(8)
-            }
             }
 
             // Gradient overlays
@@ -195,7 +202,7 @@ struct CustomDropdown<T: Hashable>: View {
                     gradient: Gradient(stops: [
                         .init(color: Color(hex: "1A1A1A"), location: 0),
                         .init(color: Color(hex: "1A1A1A").opacity(0.8), location: 0.3),
-                        .init(color: Color(hex: "1A1A1A").opacity(0), location: 1)
+                        .init(color: Color(hex: "1A1A1A").opacity(0), location: 1),
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -210,7 +217,7 @@ struct CustomDropdown<T: Hashable>: View {
                     gradient: Gradient(stops: [
                         .init(color: Color(hex: "1A1A1A").opacity(0), location: 0),
                         .init(color: Color(hex: "1A1A1A").opacity(0.8), location: 0.7),
-                        .init(color: Color(hex: "1A1A1A"), location: 1)
+                        .init(color: Color(hex: "1A1A1A"), location: 1),
                     ]),
                     startPoint: .top,
                     endPoint: .bottom

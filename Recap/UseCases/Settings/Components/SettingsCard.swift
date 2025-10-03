@@ -8,7 +8,7 @@ struct SettingsCard<Content: View>: View {
         let cardBackground = LinearGradient(
             gradient: Gradient(stops: [
                 .init(color: Color(hex: "232222").opacity(0.2), location: 0),
-                .init(color: Color(hex: "0F0F0F").opacity(0.3), location: 1),
+                .init(color: Color(hex: "0F0F0F").opacity(0.3), location: 1)
             ]),
             startPoint: .top,
             endPoint: .bottom
@@ -17,7 +17,7 @@ struct SettingsCard<Content: View>: View {
         let cardBorder = LinearGradient(
             gradient: Gradient(stops: [
                 .init(color: Color(hex: "979797").opacity(0.05), location: 0),
-                .init(color: Color(hex: "C4C4C4").opacity(0.1), location: 1),
+                .init(color: Color(hex: "C4C4C4").opacity(0.1), location: 1)
             ]),
             startPoint: .top,
             endPoint: .bottom

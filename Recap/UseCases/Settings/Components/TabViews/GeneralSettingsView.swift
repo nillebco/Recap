@@ -116,7 +116,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                                                     0.3), location: 0),
                                                             .init(
                                                                 color: Color(hex: "1A1A1A").opacity(
-                                                                    0.5), location: 1),
+                                                                    0.5), location: 1)
                                                         ]),
                                                         startPoint: .top,
                                                         endPoint: .bottom
@@ -134,7 +134,7 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
                                                                     .init(
                                                                         color: Color(hex: "C4C4C4")
                                                                             .opacity(0.15),
-                                                                        location: 1),
+                                                                        location: 1)
                                                                 ]),
                                                                 startPoint: .top,
                                                                 endPoint: .bottom
@@ -344,7 +344,7 @@ private final class PreviewGeneralSettingsViewModel: GeneralSettingsViewModelTyp
 
     @Published var availableModels: [LLMModelInfo] = [
         LLMModelInfo(name: "llama3.2", provider: "ollama"),
-        LLMModelInfo(name: "codellama", provider: "ollama"),
+        LLMModelInfo(name: "codellama", provider: "ollama")
     ]
     @Published var selectedModel: LLMModelInfo?
     @Published var selectedProvider: LLMProvider = .ollama
