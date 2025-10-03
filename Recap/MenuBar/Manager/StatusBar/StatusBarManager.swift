@@ -52,7 +52,7 @@ final class StatusBarManager: StatusBarManagerType {
             } else {
                 // Use original image
                 let workingImage = image.copy() as! NSImage
-                workingImage.isTemplate = false
+                workingImage.isTemplate = true
                 button.image = workingImage
                 button.contentTintColor = nil
                 print("🎨 Applied normal image")
@@ -67,7 +67,7 @@ final class StatusBarManager: StatusBarManagerType {
             } else {
                 // Use original image
                 let workingImage = fallback.copy() as! NSImage
-                workingImage.isTemplate = false
+                workingImage.isTemplate = true
                 button.image = workingImage
                 button.contentTintColor = nil
                 print("🎨 Applied normal fallback image")
