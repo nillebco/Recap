@@ -131,17 +131,17 @@ final class SummaryViewModel: SummaryViewModelType {
         guard let recording = currentRecording else { return }
 
         do {
-            // Fix stuck recording by transitioning to .recorded state
+            // Update to transcribing state to show processing feedback
             try await recordingRepository.updateRecordingState(
                 id: recording.id,
-                state: .recorded,
+                state: .transcribing,
                 errorMessage: nil
             )
 
             // Reload the recording to reflect the change
             loadRecording(withID: recording.id)
 
-            // Trigger processing
+            // Fetch the updated recording and trigger processing
             if let updatedRecording = try await recordingRepository.fetchRecording(id: recording.id) {
                 await processingCoordinator.startProcessing(recordingInfo: updatedRecording)
             }
