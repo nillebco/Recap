@@ -85,7 +85,8 @@ final class DependencyContainer {
     func createSummaryViewModel() -> SummaryViewModel {
         SummaryViewModel(
             recordingRepository: recordingRepository,
-            processingCoordinator: processingCoordinator
+            processingCoordinator: processingCoordinator,
+            userPreferencesRepository: userPreferencesRepository
         )
     }
 }

@@ -7,24 +7,41 @@ final class SummaryViewModel: SummaryViewModelType {
     @Published private(set) var isLoadingRecording = false
     @Published private(set) var errorMessage: String?
     @Published var showingCopiedToast = false
-    
+    @Published private(set) var userPreferences: UserPreferencesInfo?
+
     private let recordingRepository: RecordingRepositoryType
     private let processingCoordinator: ProcessingCoordinatorType
+    private let userPreferencesRepository: UserPreferencesRepositoryType
     private var cancellables = Set<AnyCancellable>()
     private var refreshTimer: Timer?
-    
+
     init(
         recordingRepository: RecordingRepositoryType,
-        processingCoordinator: ProcessingCoordinatorType
+        processingCoordinator: ProcessingCoordinatorType,
+        userPreferencesRepository: UserPreferencesRepositoryType
     ) {
         self.recordingRepository = recordingRepository
         self.processingCoordinator = processingCoordinator
+        self.userPreferencesRepository = userPreferencesRepository
+
+        Task {
+            await loadUserPreferences()
+        }
     }
     
+    func loadUserPreferences() async {
+        do {
+            userPreferences = try await userPreferencesRepository.getOrCreatePreferences()
+        } catch {
+            // If we can't load preferences, assume defaults (auto-summarize enabled)
+            userPreferences = nil
+        }
+    }
+
     func loadRecording(withID recordingID: String) {
         isLoadingRecording = true
         errorMessage = nil
-        
+
         Task {
             do {
                 let recording = try await recordingRepository.fetchRecording(id: recordingID)
@@ -74,6 +91,19 @@ final class SummaryViewModel: SummaryViewModelType {
     var hasSummary: Bool {
         guard let recording = currentRecording else { return false }
         return recording.state == .completed && recording.summaryText != nil
+    }
+
+    var isRecordingReady: Bool {
+        guard let recording = currentRecording else { return false }
+        guard recording.state == .completed else { return false }
+
+        // If auto-summarize is enabled, we need summary text
+        if userPreferences?.autoSummarizeEnabled == true {
+            return recording.summaryText != nil
+        }
+
+        // If auto-summarize is disabled, the recording is valid when completed
+        return true
     }
     
     func retryProcessing() async {

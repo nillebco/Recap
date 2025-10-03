@@ -33,7 +33,7 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
                         noRecordingView
                     } else if viewModel.isProcessing {
                         processingView(geometry: geometry)
-                    } else if viewModel.hasSummary {
+                    } else if viewModel.isRecordingReady {
                         summaryView
                     } else {
                         errorView(viewModel.currentRecording?.errorMessage ?? "Recording is in an unexpected state")
@@ -147,22 +147,21 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: UIConstants.Spacing.cardSpacing) {
-                    if let recording = viewModel.currentRecording,
-                       let summaryText = recording.summaryText,
-                       let transcriptionText = recording.transcriptionText {
-                        
+                    if let recording = viewModel.currentRecording {
+
                         VStack(alignment: .leading, spacing: UIConstants.Spacing.cardInternalSpacing) {
-                            if !transcriptionText.isEmpty {
+                            if let transcriptionText = recording.transcriptionText, !transcriptionText.isEmpty {
                                 TranscriptDropdownButton(
                                     transcriptText: transcriptionText
                                 )
                             }
-                            
-                            Text("Summary")
-                                .font(UIConstants.Typography.infoCardTitle)
-                                .foregroundColor(UIConstants.Colors.textPrimary)
-                            
-                            Markdown(summaryText)
+
+                            if let summaryText = recording.summaryText, !summaryText.isEmpty {
+                                Text("Summary")
+                                    .font(UIConstants.Typography.infoCardTitle)
+                                    .foregroundColor(UIConstants.Colors.textPrimary)
+
+                                Markdown(summaryText)
                                 .markdownTheme(.docC)
                                 .markdownTextStyle {
                                     ForegroundColor(UIConstants.Colors.textSecondary)
@@ -202,6 +201,14 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
                                         }
                                 }
                                 .textSelection(.enabled)
+                            }
+
+                            if recording.summaryText == nil && recording.transcriptionText == nil {
+                                Text("Recording completed without transcription or summary")
+                                    .font(UIConstants.Typography.bodyText)
+                                    .foregroundColor(UIConstants.Colors.textSecondary)
+                                    .padding(.vertical, 20)
+                            }
                         }
                         .padding(.horizontal, UIConstants.Spacing.contentPadding)
                         .padding(.vertical, UIConstants.Spacing.cardSpacing)
