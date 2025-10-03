@@ -15,19 +15,19 @@ final class StatusBarManager: StatusBarManagerType {
     weak var delegate: StatusBarDelegate?
     private var themeObserver: NSObjectProtocol?
     private var isRecording = false
-    
+
     init() {
         setupStatusItem()
         setupThemeObserver()
     }
-    
+
     var statusButton: NSStatusBarButton? {
         statusItem?.button
     }
-    
+
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        
+
         if let button = statusItem?.button {
             updateIconForCurrentTheme()
             button.target = self
@@ -35,11 +35,11 @@ final class StatusBarManager: StatusBarManagerType {
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
     }
-    
+
     private func setupThemeObserver() {
         themeObserver = nil
     }
-    
+
     private func updateIconForCurrentTheme() {
         guard let button = statusItem?.button else { return }
 
@@ -72,7 +72,7 @@ final class StatusBarManager: StatusBarManagerType {
             } else {
                 // Use original image
                 let workingImage = fallback.copy() as! NSImage
-                workingImage.isTemplate = false
+                workingImage.isTemplate = true
                 button.image = workingImage
                 button.contentTintColor = nil
                 print("🎨 Applied normal fallback image")
@@ -104,7 +104,7 @@ final class StatusBarManager: StatusBarManagerType {
         updateIconForCurrentTheme()
         print("🎯 Icon updated, isRecording = \(isRecording)")
     }
-    
+
     @objc private func handleButtonClick(_ sender: NSStatusBarButton) {
         let event = NSApp.currentEvent
         if event?.type == .rightMouseUp {
@@ -113,7 +113,7 @@ final class StatusBarManager: StatusBarManagerType {
             showMainMenu()
         }
     }
-    
+
     private func showMainMenu() {
         let mainMenu = NSMenu()
 
@@ -158,7 +158,7 @@ final class StatusBarManager: StatusBarManagerType {
             contextMenu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.maxY), in: button)
         }
     }
-    
+
     @objc private func recordingMenuItemClicked() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -187,7 +187,7 @@ final class StatusBarManager: StatusBarManagerType {
             self?.delegate?.quitRequested()
         }
     }
-    
+
     deinit {
         if let observer = themeObserver {
             DistributedNotificationCenter.default.removeObserver(observer)
