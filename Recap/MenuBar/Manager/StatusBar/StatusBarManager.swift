@@ -4,9 +4,6 @@ import AppKit
 protocol StatusBarDelegate: AnyObject {
     func statusItemClicked()
     func quitRequested()
-    func startRecordingRequested()
-    func stopRecordingRequested()
-    func settingsRequested()
 }
 
 final class StatusBarManager: StatusBarManagerType {
@@ -108,33 +105,9 @@ final class StatusBarManager: StatusBarManagerType {
         if event?.type == .rightMouseUp {
             showContextMenu()
         } else {
-            showMainMenu()
-        }
-    }
-
-    private func showMainMenu() {
-        let mainMenu = NSMenu()
-
-        // Recording menu item (toggles between Start/Stop)
-        let recordingTitle = isRecording ? "Stop recording" : "Start recording"
-        let recordingItem = NSMenuItem(title: recordingTitle, action: #selector(recordingMenuItemClicked), keyEquivalent: "")
-        recordingItem.target = self
-
-        // Settings menu item
-        let settingsItem = NSMenuItem(title: "Settings", action: #selector(settingsMenuItemClicked), keyEquivalent: "")
-        settingsItem.target = self
-
-        // Quit menu item
-        let quitItem = NSMenuItem(title: "Quit Recap", action: #selector(quitMenuItemClicked), keyEquivalent: "q")
-        quitItem.target = self
-
-        mainMenu.addItem(recordingItem)
-        mainMenu.addItem(settingsItem)
-        mainMenu.addItem(NSMenuItem.separator())
-        mainMenu.addItem(quitItem)
-
-        if let button = statusItem?.button {
-            mainMenu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.maxY), in: button)
+            DispatchQueue.main.async { [weak self] in
+                self?.delegate?.statusItemClicked()
+            }
         }
     }
 
@@ -148,23 +121,6 @@ final class StatusBarManager: StatusBarManagerType {
 
         if let button = statusItem?.button {
             contextMenu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.maxY), in: button)
-        }
-    }
-
-    @objc private func recordingMenuItemClicked() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            if self.isRecording {
-                self.delegate?.stopRecordingRequested()
-            } else {
-                self.delegate?.startRecordingRequested()
-            }
-        }
-    }
-
-    @objc private func settingsMenuItemClicked() {
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate?.settingsRequested()
         }
     }
 
