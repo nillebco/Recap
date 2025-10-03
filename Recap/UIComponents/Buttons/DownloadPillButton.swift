@@ -1,4 +1,7 @@
 import SwiftUI
+import OSLog
+
+private let downloadPillButtonPreviewLogger = Logger(subsystem: AppConstants.Logging.subsystem, category: "DownloadPillButtonPreview")
 
 struct DownloadPillButton: View {
     let text: String
@@ -78,7 +81,7 @@ struct DownloadPillButton: View {
             isDownloading: false,
             downloadProgress: 0.0
         ) {
-            print("Download started")
+            downloadPillButtonPreviewLogger.info("Download started")
         }
         
         DownloadPillButton(
@@ -86,7 +89,7 @@ struct DownloadPillButton: View {
             isDownloading: true,
             downloadProgress: 0.3
         ) {
-            print("Download in progress")
+            downloadPillButtonPreviewLogger.info("Download in progress (0.3)")
         }
         
         DownloadPillButton(
@@ -94,7 +97,7 @@ struct DownloadPillButton: View {
             isDownloading: true,
             downloadProgress: 0.7
         ) {
-            print("Download in progress")
+            downloadPillButtonPreviewLogger.info("Download in progress (0.7)")
         }
         
         DownloadPillButton(
@@ -102,7 +105,7 @@ struct DownloadPillButton: View {
             isDownloading: false,
             downloadProgress: 1.0
         ) {
-            print("Download complete")
+            downloadPillButtonPreviewLogger.info("Download complete")
         }
     }
     .padding()

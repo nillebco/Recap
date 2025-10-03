@@ -1,4 +1,5 @@
 import AppKit
+import OSLog
 
 @MainActor
 protocol StatusBarDelegate: AnyObject {
@@ -15,6 +16,7 @@ final class StatusBarManager: StatusBarManagerType {
     weak var delegate: StatusBarDelegate?
     private var themeObserver: NSObjectProtocol?
     private var isRecording = false
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: StatusBarManager.self))
 
     init() {
         setupStatusItem()
@@ -43,7 +45,7 @@ final class StatusBarManager: StatusBarManagerType {
     private func updateIconForCurrentTheme() {
         guard let button = statusItem?.button else { return }
 
-        print("🎨 updateIconForCurrentTheme called, isRecording: \(isRecording)")
+        logger.debug("🎨 updateIconForCurrentTheme called, isRecording: \(self.isRecording, privacy: .public)")
 
         // Always use the black icon, regardless of theme
         if let image = NSImage(named: "barIcon-dark") {
@@ -53,14 +55,14 @@ final class StatusBarManager: StatusBarManagerType {
                 tintedImage.isTemplate = false
                 button.image = tintedImage
                 button.contentTintColor = nil
-                print("🎨 Applied red tinted image")
+                logger.debug("🎨 Applied red tinted image")
             } else {
                 // Use original image
                 let workingImage = image.copy() as! NSImage
                 workingImage.isTemplate = true
                 button.image = workingImage
                 button.contentTintColor = nil
-                print("🎨 Applied normal image")
+                logger.debug("🎨 Applied normal image")
             }
         } else if let fallback = NSImage(named: "barIcon") {
             if isRecording {
@@ -68,14 +70,14 @@ final class StatusBarManager: StatusBarManagerType {
                 let tintedImage = createTintedImage(from: fallback, tint: .systemRed)
                 button.image = tintedImage
                 button.contentTintColor = nil
-                print("🎨 Applied red tinted fallback image")
+                logger.debug("🎨 Applied red tinted fallback image")
             } else {
                 // Use original image
                 let workingImage = fallback.copy() as! NSImage
                 workingImage.isTemplate = true
                 button.image = workingImage
                 button.contentTintColor = nil
-                print("🎨 Applied normal fallback image")
+                logger.debug("🎨 Applied normal fallback image")
             }
         }
     }
@@ -99,10 +101,10 @@ final class StatusBarManager: StatusBarManagerType {
     }
 
     func setRecordingState(_ recording: Bool) {
-        print("🎯 StatusBarManager.setRecordingState called with: \(recording)")
+        logger.info("🎯 StatusBarManager.setRecordingState called with: \(recording, privacy: .public)")
         isRecording = recording
         updateIconForCurrentTheme()
-        print("🎯 Icon updated, isRecording = \(isRecording)")
+        logger.info("🎯 Icon updated, isRecording = \(self.isRecording, privacy: .public)")
     }
 
     @objc private func handleButtonClick(_ sender: NSStatusBarButton) {

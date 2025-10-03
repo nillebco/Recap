@@ -1,4 +1,7 @@
 import SwiftUI
+import OSLog
+
+private let summaryActionButtonPreviewLogger = Logger(subsystem: AppConstants.Logging.subsystem, category: "SummaryActionButtonPreview")
 
 struct SummaryActionButton: View {
     let text: String
@@ -95,7 +98,7 @@ struct SummaryActionButton: View {
                 text: "Copy",
                 icon: "doc.on.doc"
             ) {
-                print("Copy tapped")
+                summaryActionButtonPreviewLogger.info("Copy tapped")
             }
             
             SummaryActionButton(
@@ -103,7 +106,7 @@ struct SummaryActionButton: View {
                 icon: "arrow.clockwise",
                 isSecondary: true
             ) {
-                print("Retry tapped")
+                summaryActionButtonPreviewLogger.info("Retry tapped")
             }
         }
         

@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import WhisperKit
 
 @MainActor
@@ -6,6 +7,7 @@ final class TranscriptionService: TranscriptionServiceType {
     private let whisperModelRepository: WhisperModelRepositoryType
     private var whisperKit: WhisperKit?
     private var loadedModelName: String?
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: TranscriptionService.self))
 
     init(whisperModelRepository: WhisperModelRepositoryType) {
         self.whisperModelRepository = whisperModelRepository
@@ -77,7 +79,7 @@ final class TranscriptionService: TranscriptionServiceType {
 
     private func loadModel(_ modelName: String, isDownloaded: Bool) async throws {
         do {
-            print("Loading WhisperKit model: \(modelName), isDownloaded: \(isDownloaded)")
+            logger.info("Loading WhisperKit model: \(modelName, privacy: .public), isDownloaded: \(isDownloaded, privacy: .public)")
 
             // Always try to download/load the model, as WhisperKit will handle caching
             // The isDownloaded flag is just for UI purposes, but WhisperKit manages its own cache
@@ -86,12 +88,12 @@ final class TranscriptionService: TranscriptionServiceType {
                 modelRepo: "argmaxinc/whisperkit-coreml",
                 modelFolder: nil,
                 download: true, // Always allow download, WhisperKit will use cache if available
-                progressCallback: { progress in
-                    print("WhisperKit download progress: \(progress.fractionCompleted)")
+                progressCallback: { [weak self] progress in
+                    self?.logger.info("WhisperKit download progress: \(progress.fractionCompleted, privacy: .public)")
                 }
             )
 
-            print("WhisperKit model loaded successfully: \(modelName)")
+            logger.info("WhisperKit model loaded successfully: \(modelName, privacy: .public)")
             self.whisperKit = newWhisperKit
             self.loadedModelName = modelName
 
@@ -99,11 +101,11 @@ final class TranscriptionService: TranscriptionServiceType {
             if !isDownloaded {
                 let modelInfo = await WhisperKit.getModelSizeInfo(for: modelName)
                 try await whisperModelRepository.markAsDownloaded(name: modelName, sizeInMB: Int64(modelInfo.totalSizeMB))
-                print("Model marked as downloaded: \(modelName), size: \(modelInfo.totalSizeMB) MB")
+                logger.info("Model marked as downloaded: \(modelName, privacy: .public), size: \(modelInfo.totalSizeMB, privacy: .public) MB")
             }
 
         } catch {
-            print("Failed to load WhisperKit model \(modelName): \(error)")
+            logger.error("Failed to load WhisperKit model \(modelName, privacy: .public): \(error.localizedDescription, privacy: .public)")
             throw TranscriptionError.modelLoadingFailed("Failed to load model \(modelName): \(error.localizedDescription)")
         }
     }

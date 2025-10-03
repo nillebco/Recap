@@ -1,4 +1,7 @@
 import SwiftUI
+import OSLog
+
+private let actionableWarningCardPreviewLogger = Logger(subsystem: AppConstants.Logging.subsystem, category: "ActionableWarningCardPreview")
 
 struct ActionableWarningCard: View {
     let warning: WarningItem
@@ -110,7 +113,7 @@ struct ActionableWarningCard: View {
                 containerWidth: geometry.size.width,
                 buttonText: "Open System Settings",
                 buttonAction: {
-                    print("Button tapped")
+                    actionableWarningCardPreviewLogger.info("Button tapped")
                 },
                 footerText: "This permission allows Recap to read window titles only. No screen content is captured or recorded."
             )

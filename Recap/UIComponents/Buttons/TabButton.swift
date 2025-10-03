@@ -1,4 +1,7 @@
 import SwiftUI
+import OSLog
+
+private let tabButtonPreviewLogger = Logger(subsystem: AppConstants.Logging.subsystem, category: "TabButtonPreview")
 
 struct TabButton: View {
     let text: String
@@ -41,11 +44,11 @@ struct TabButton: View {
 #Preview {
     HStack(spacing: 8) {
         TabButton(text: "General", isSelected: true) {
-            print("General selected")
+            tabButtonPreviewLogger.info("General selected")
         }
         
         TabButton(text: "Whisper Models", isSelected: false) {
-            print("Whisper Models selected")
+            tabButtonPreviewLogger.info("Whisper Models selected")
         }
     }
     .padding()

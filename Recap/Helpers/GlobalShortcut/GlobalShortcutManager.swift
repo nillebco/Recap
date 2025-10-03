@@ -1,5 +1,6 @@
 import Cocoa
 import Carbon
+import OSLog
 
 @MainActor
 protocol GlobalShortcutDelegate: AnyObject {
@@ -14,6 +15,7 @@ final class GlobalShortcutManager {
     
     // Default shortcut: Cmd+R
     private var currentShortcut: (keyCode: UInt32, modifiers: UInt32) = (keyCode: 15, modifiers: UInt32(cmdKey)) // 'R' key with Cmd
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: GlobalShortcutManager.self))
     
     init() {
         setupEventHandling()
@@ -55,7 +57,7 @@ final class GlobalShortcutManager {
         )
         
         guard status == noErr else {
-            print("Failed to install event handler: \(status)")
+            logger.error("Failed to install event handler: \(status, privacy: .public)")
             return
         }
         
@@ -70,11 +72,11 @@ final class GlobalShortcutManager {
         )
         
         guard status2 == noErr else {
-            print("Failed to register hot key: \(status2)")
+            logger.error("Failed to register hot key: \(status2, privacy: .public)")
             return
         }
-        
-        print("Global shortcut registered: Cmd+R")
+
+        logger.info("Global shortcut registered: Cmd+R")
     }
     
     private func unregisterShortcut() {

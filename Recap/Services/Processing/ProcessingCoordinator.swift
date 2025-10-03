@@ -278,7 +278,7 @@ final class ProcessingCoordinator: ProcessingCoordinatorType {
             )
             delegate?.processingStateDidChange(recordingID: recording.id, newState: failureState)
         } catch {
-            print("Failed to update recording state after error: \(error)")
+            logger.error("Failed to update recording state after error: \(error.localizedDescription, privacy: .public)")
         }
         
         delegate?.processingDidFail(recordingID: recording.id, error: error)

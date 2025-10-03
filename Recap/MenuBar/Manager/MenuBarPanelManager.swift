@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import Combine
+import OSLog
 
 @MainActor
 final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
@@ -35,6 +36,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     let generalSettingsViewModel: GeneralSettingsViewModel
     let userPreferencesRepository: UserPreferencesRepositoryType
     let meetingDetectionService: any MeetingDetectionServiceType
+    private let logger = Logger(subsystem: AppConstants.Logging.subsystem, category: String(describing: MenuBarPanelManager.self))
     
     init(
         statusBarManager: StatusBarManagerType,
@@ -71,7 +73,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
         recapViewModel.$isRecording
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isRecording in
-                print("🔴 Recording state changed to: \(isRecording)")
+                self?.logger.info("🔴 Recording state changed to: \(isRecording, privacy: .public)")
                 self?.statusBarManager.setRecordingState(isRecording)
             }
             .store(in: &cancellables)

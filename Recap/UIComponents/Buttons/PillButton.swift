@@ -1,4 +1,7 @@
 import SwiftUI
+import OSLog
+
+private let pillButtonPreviewLogger = Logger(subsystem: AppConstants.Logging.subsystem, category: "PillButtonPreview")
 
 struct PillButton: View {
     let text: String
@@ -54,11 +57,11 @@ struct PillButton: View {
 #Preview {
     VStack(spacing: 20) {
         PillButton(text: "Start Recording", icon: "mic.fill") {
-            print("Recording started")
+            pillButtonPreviewLogger.info("Recording started")
         }
         
         PillButton(text: "Button", icon: nil) {
-            print("Button tapped")
+            pillButtonPreviewLogger.info("Button tapped")
         }
     }
     .padding()
