@@ -86,8 +86,10 @@ final class TranscriptionService: TranscriptionServiceType {
     private func loadModel(_ modelName: String, isDownloaded: Bool) async throws {
         do {
             logger.info(
-                "Loading WhisperKit model: \(modelName, privacy: .public),"
-                    + " isDownloaded: \(isDownloaded, privacy: .public)"
+                """
+                Loading WhisperKit model: \(modelName, privacy: .public), \
+                isDownloaded: \(isDownloaded, privacy: .public)
+                """
             )
 
             // Always try to download/load the model, as WhisperKit will handle caching
@@ -114,15 +116,19 @@ final class TranscriptionService: TranscriptionServiceType {
                 try await whisperModelRepository.markAsDownloaded(
                     name: modelName, sizeInMB: Int64(modelInfo.totalSizeMB))
                 logger.info(
-                    "Model marked as downloaded: \(modelName, privacy: .public), "
-                        + "size: \(modelInfo.totalSizeMB, privacy: .public) MB"
+                    """
+                    Model marked as downloaded: \(modelName, privacy: .public), \
+                    size: \(modelInfo.totalSizeMB, privacy: .public) MB
+                    """
                 )
             }
 
         } catch {
             logger.error(
-                "Failed to load WhisperKit model \(modelName, privacy: .public): "
-                    + "\(error.localizedDescription, privacy: .public)"
+                """
+                Failed to load WhisperKit model \(modelName, privacy: .public): \
+                \(error.localizedDescription, privacy: .public)
+                """
             )
             throw TranscriptionError.modelLoadingFailed(
                 "Failed to load model \(modelName): \(error.localizedDescription)")

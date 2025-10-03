@@ -29,8 +29,10 @@ extension RecapViewModel {
             updateRecordingUIState(started: true)
 
             logger.info(
-                "Recording started successfully - System: \(recordedFiles.systemAudioURL?.path ?? "none"), "
-                    + "Microphone: \(recordedFiles.microphoneURL?.path ?? "none")"
+                """
+                Recording started successfully - System: \(recordedFiles.systemAudioURL?.path ?? "none"), \
+                Microphone: \(recordedFiles.microphoneURL?.path ?? "none")
+                """
             )
         } catch {
             handleRecordingStartError(error)
