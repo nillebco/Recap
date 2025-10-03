@@ -77,7 +77,7 @@ struct CustomDropdown<T: Hashable>: View {
                                         .init(
                                             color: Color(hex: "979797").opacity(0.2), location: 0),
                                         .init(
-                                            color: Color(hex: "979797").opacity(0.1), location: 1),
+                                            color: Color(hex: "979797").opacity(0.1), location: 1)
                                     ]),
                                     startPoint: .top,
                                     endPoint: .bottom
@@ -123,7 +123,7 @@ struct CustomDropdown<T: Hashable>: View {
                             LinearGradient(
                                 gradient: Gradient(stops: [
                                     .init(color: Color(hex: "979797").opacity(0.3), location: 0),
-                                    .init(color: Color(hex: "979797").opacity(0.2), location: 1),
+                                    .init(color: Color(hex: "979797").opacity(0.2), location: 1)
                                 ]),
                                 startPoint: .top,
                                 endPoint: .bottom
@@ -202,7 +202,7 @@ struct CustomDropdown<T: Hashable>: View {
                     gradient: Gradient(stops: [
                         .init(color: Color(hex: "1A1A1A"), location: 0),
                         .init(color: Color(hex: "1A1A1A").opacity(0.8), location: 0.3),
-                        .init(color: Color(hex: "1A1A1A").opacity(0), location: 1),
+                        .init(color: Color(hex: "1A1A1A").opacity(0), location: 1)
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -217,7 +217,7 @@ struct CustomDropdown<T: Hashable>: View {
                     gradient: Gradient(stops: [
                         .init(color: Color(hex: "1A1A1A").opacity(0), location: 0),
                         .init(color: Color(hex: "1A1A1A").opacity(0.8), location: 0.7),
-                        .init(color: Color(hex: "1A1A1A"), location: 1),
+                        .init(color: Color(hex: "1A1A1A"), location: 1)
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
