@@ -9,6 +9,7 @@ protocol StatusBarDelegate: AnyObject {
   func stopRecordingRequested()
   func settingsRequested()
   func recapsRequested()
+  func dragDropRequested()
 }
 
 final class StatusBarManager: StatusBarManagerType {
@@ -138,6 +139,11 @@ final class StatusBarManager: StatusBarManagerType {
       title: "Recaps", action: #selector(recapsMenuItemClicked), keyEquivalent: "")
     recapsItem.target = self
 
+    // Drag & Drop menu item
+    let dragDropItem = NSMenuItem(
+      title: "Drag & Drop", action: #selector(dragDropMenuItemClicked), keyEquivalent: "")
+    dragDropItem.target = self
+
     // Settings menu item
     let settingsItem = NSMenuItem(
       title: "Settings", action: #selector(settingsMenuItemClicked), keyEquivalent: "")
@@ -150,6 +156,7 @@ final class StatusBarManager: StatusBarManagerType {
 
     mainMenu.addItem(recordingItem)
     mainMenu.addItem(recapsItem)
+    mainMenu.addItem(dragDropItem)
     mainMenu.addItem(settingsItem)
     mainMenu.addItem(NSMenuItem.separator())
     mainMenu.addItem(quitItem)
@@ -194,6 +201,12 @@ final class StatusBarManager: StatusBarManagerType {
   @objc private func recapsMenuItemClicked() {
     DispatchQueue.main.async { [weak self] in
       self?.delegate?.recapsRequested()
+    }
+  }
+
+  @objc private func dragDropMenuItemClicked() {
+    DispatchQueue.main.async { [weak self] in
+      self?.delegate?.dragDropRequested()
     }
   }
 

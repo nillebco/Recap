@@ -36,6 +36,8 @@ import SwiftUI
     @Published var existingOpenAIEndpoint: String?
     @Published var globalShortcutKeyCode: Int32 = 15
     @Published var globalShortcutModifiers: Int32 = 1_048_840
+    @Published var isTestingProvider = false
+    @Published var testResult: String?
     @Published var activeWarnings: [WarningItem] = [
       WarningItem(
         id: "ollama",
@@ -93,6 +95,12 @@ import SwiftUI
     func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async {
       globalShortcutKeyCode = keyCode
       globalShortcutModifiers = modifiers
+    }
+    func testLLMProvider() async {
+      isTestingProvider = true
+      try? await Task.sleep(nanoseconds: 1_000_000_000)
+      testResult = "✓ Test successful!\n\nSummary:\nPreview mode - test functionality works!"
+      isTestingProvider = false
     }
   }
 
