@@ -8,8 +8,10 @@ protocol SlidingPanelDelegate: AnyObject {
 final class SlidingPanel: NSPanel, SlidingPanelType {
   weak var panelDelegate: SlidingPanelDelegate?
   private var eventMonitor: Any?
+  var shouldCloseOnOutsideClick: Bool = true
 
-  init(contentViewController: NSViewController) {
+  init(contentViewController: NSViewController, shouldCloseOnOutsideClick: Bool = true) {
+    self.shouldCloseOnOutsideClick = shouldCloseOnOutsideClick
     super.init(
       contentRect: .zero,
       styleMask: [.borderless, .nonactivatingPanel],
@@ -78,6 +80,7 @@ final class SlidingPanel: NSPanel, SlidingPanelType {
   }
 
   private func handleGlobalClick(_ event: NSEvent) {
+    guard shouldCloseOnOutsideClick else { return }
     let globalLocation = NSEvent.mouseLocation
     if !self.frame.contains(globalLocation) {
       panelDelegate?.panelDidReceiveClickOutside()
