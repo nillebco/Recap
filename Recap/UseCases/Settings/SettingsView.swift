@@ -146,20 +146,22 @@ struct SettingsView<GeneralViewModel: GeneralSettingsViewModelType>: View {
   }
 }
 
-#Preview {
-  let coreDataManager = CoreDataManager(inMemory: true)
-  let repository = WhisperModelRepository(coreDataManager: coreDataManager)
-  let whisperModelsViewModel = WhisperModelsViewModel(repository: repository)
-  let generalSettingsViewModel = PreviewGeneralSettingsViewModel()
+#if DEBUG
+  #Preview {
+    let coreDataManager = CoreDataManager(inMemory: true)
+    let repository = WhisperModelRepository(coreDataManager: coreDataManager)
+    let whisperModelsViewModel = WhisperModelsViewModel(repository: repository)
+    let generalSettingsViewModel = PreviewGeneralSettingsViewModel()
 
-  SettingsView(
-    whisperModelsViewModel: whisperModelsViewModel,
-    generalSettingsViewModel: generalSettingsViewModel,
-    meetingDetectionService: MeetingDetectionService(
-      audioProcessController: AudioProcessController(), permissionsHelper: PermissionsHelper()
-    ),
-    userPreferencesRepository: UserPreferencesRepository(coreDataManager: coreDataManager),
-    onClose: {}
-  )
-  .frame(width: 550, height: 500)
-}
+    SettingsView(
+      whisperModelsViewModel: whisperModelsViewModel,
+      generalSettingsViewModel: generalSettingsViewModel,
+      meetingDetectionService: MeetingDetectionService(
+        audioProcessController: AudioProcessController(), permissionsHelper: PermissionsHelper()
+      ),
+      userPreferencesRepository: UserPreferencesRepository(coreDataManager: coreDataManager),
+      onClose: {}
+    )
+    .frame(width: 550, height: 500)
+  }
+#endif

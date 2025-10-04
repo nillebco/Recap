@@ -141,8 +141,10 @@ final class AnyFolderSettingsViewModel: FolderSettingsViewModelType {
 
 // MARK: - Preview
 
-#Preview {
-  FolderSettingsView(viewModel: PreviewFolderSettingsViewModel())
-    .frame(width: 550, height: 200)
-    .background(Color.black)
-}
+#if DEBUG
+  #Preview {
+    FolderSettingsView(viewModel: PreviewFolderSettingsViewModel())
+      .frame(width: 550, height: 200)
+      .background(Color.black)
+  }
+#endif
