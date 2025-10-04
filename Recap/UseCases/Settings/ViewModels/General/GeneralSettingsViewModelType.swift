@@ -28,6 +28,8 @@ protocol GeneralSettingsViewModelType: ObservableObject {
   var globalShortcutModifiers: Int32 { get }
   var folderSettingsViewModel: FolderSettingsViewModelType { get }
   var manualModelName: Binding<String> { get }
+  var isTestingProvider: Bool { get }
+  var testResult: String? { get }
 
   func loadModels() async
   func selectModel(_ model: LLMModelInfo) async
@@ -44,4 +46,5 @@ protocol GeneralSettingsViewModelType: ObservableObject {
   func saveOpenAIConfiguration(apiKey: String, endpoint: String) async throws
   func dismissOpenAIAlert()
   func updateGlobalShortcut(keyCode: Int32, modifiers: Int32) async
+  func testLLMProvider() async
 }

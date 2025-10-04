@@ -32,12 +32,14 @@ final class LLMService: LLMServiceType {
 
   func initializeProviders() {
     let ollamaProvider = OllamaProvider()
-    let openRouterProvider = OpenRouterProvider()
 
-    // Get OpenAI credentials from keychain
+    // Get credentials from keychain
     let keychainService = KeychainService()
+    let openRouterApiKey = try? keychainService.retrieveOpenRouterAPIKey()
     let openAIApiKey = try? keychainService.retrieveOpenAIAPIKey()
     let openAIEndpoint = try? keychainService.retrieveOpenAIEndpoint()
+
+    let openRouterProvider = OpenRouterProvider(apiKey: openRouterApiKey)
     let openAIProvider = OpenAIProvider(
       apiKey: openAIApiKey,
       endpoint: openAIEndpoint ?? "https://api.openai.com/v1"
@@ -69,6 +71,56 @@ final class LLMService: LLMServiceType {
 
     Task {
       try? await Task.sleep(nanoseconds: 2_000_000_000)
+      try? await refreshModelsFromProviders()
+    }
+  }
+
+  func reinitializeProviders() {
+    // Cancel any existing subscriptions
+    cancellables.removeAll()
+
+    // Get fresh credentials from keychain
+    let keychainService = KeychainService()
+    let openRouterApiKey = try? keychainService.retrieveOpenRouterAPIKey()
+    let openAIApiKey = try? keychainService.retrieveOpenAIAPIKey()
+    let openAIEndpoint = try? keychainService.retrieveOpenAIEndpoint()
+
+    // Create new provider instances with updated credentials
+    let ollamaProvider = OllamaProvider()
+    let openRouterProvider = OpenRouterProvider(apiKey: openRouterApiKey)
+    let openAIProvider = OpenAIProvider(
+      apiKey: openAIApiKey,
+      endpoint: openAIEndpoint ?? "https://api.openai.com/v1"
+    )
+
+    availableProviders = [ollamaProvider, openRouterProvider, openAIProvider]
+
+    // Update current provider
+    Task {
+      do {
+        let preferences = try await userPreferencesRepository.getOrCreatePreferences()
+        setCurrentProvider(preferences.selectedProvider)
+      } catch {
+        setCurrentProvider(.default)
+      }
+    }
+
+    // Re-setup availability monitoring
+    Publishers.CombineLatest3(
+      ollamaProvider.availabilityPublisher,
+      openRouterProvider.availabilityPublisher,
+      openAIProvider.availabilityPublisher
+    )
+    .map { ollamaAvailable, openRouterAvailable, openAIAvailable in
+      ollamaAvailable || openRouterAvailable || openAIAvailable
+    }
+    .sink { [weak self] isAnyProviderAvailable in
+      self?.isProviderAvailable = isAnyProviderAvailable
+    }
+    .store(in: &cancellables)
+
+    // Refresh models from providers
+    Task {
       try? await refreshModelsFromProviders()
     }
   }

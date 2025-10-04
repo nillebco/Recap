@@ -63,6 +63,36 @@ struct GeneralSettingsView<ViewModel: GeneralSettingsViewModelType>: View {
 
               modelSelectionContent()
 
+              HStack {
+                Spacer()
+
+                PillButton(
+                  text: viewModel.isTestingProvider ? "Testing..." : "Test LLM Provider",
+                  icon: viewModel.isTestingProvider ? nil : "checkmark.circle"
+                ) {
+                  Task {
+                    await viewModel.testLLMProvider()
+                  }
+                }
+                .disabled(viewModel.isTestingProvider)
+              }
+
+              if let testResult = viewModel.testResult {
+                Text(testResult)
+                  .font(.system(size: 11, weight: .regular))
+                  .foregroundColor(UIConstants.Colors.textSecondary)
+                  .padding(12)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .background(
+                    RoundedRectangle(cornerRadius: 8)
+                      .fill(Color(hex: "1A1A1A"))
+                      .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                          .stroke(Color(hex: "2A2A2A"), lineWidth: 1)
+                      )
+                  )
+              }
+
               if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
                   .font(.system(size: 11, weight: .medium))

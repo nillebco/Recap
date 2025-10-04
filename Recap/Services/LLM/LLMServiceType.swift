@@ -16,6 +16,7 @@ protocol LLMServiceType: AnyObject {
   var providerAvailabilityPublisher: AnyPublisher<Bool, Never> { get }
 
   func initializeProviders()
+  func reinitializeProviders()
   func refreshModelsFromProviders() async throws
   func getAvailableModels() async throws -> [LLMModelInfo]
   func getSelectedModel() async throws -> LLMModelInfo?

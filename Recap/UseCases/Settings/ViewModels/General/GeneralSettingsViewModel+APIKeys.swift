@@ -8,6 +8,9 @@ extension GeneralSettingsViewModel {
     existingAPIKey = apiKey
     showAPIKeyAlert = false
 
+    // Reinitialize providers with new credentials
+    llmService.reinitializeProviders()
+
     await selectProvider(.openRouter)
   }
 
@@ -23,6 +26,9 @@ extension GeneralSettingsViewModel {
     existingOpenAIKey = apiKey
     existingOpenAIEndpoint = endpoint
     showOpenAIAlert = false
+
+    // Reinitialize providers with new credentials
+    llmService.reinitializeProviders()
 
     await selectProvider(.openAI)
   }
