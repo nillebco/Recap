@@ -90,6 +90,9 @@
 				Services/Processing/Models/ProcessingState.swift,
 				Services/Processing/Models/RecordingProcessingState.swift,
 				Services/Processing/ProcessingCoordinator.swift,
+				"Services/Processing/ProcessingCoordinator+Completion.swift",
+				"Services/Processing/ProcessingCoordinator+Helpers.swift",
+				"Services/Processing/ProcessingCoordinator+Transcription.swift",
 				Services/Processing/ProcessingCoordinatorType.swift,
 				Services/Processing/SystemLifecycle/SystemLifecycleManager.swift,
 				Services/Summarization/Models/SummarizationRequest.swift,
@@ -111,8 +114,12 @@
 				UseCases/Settings/Components/MeetingDetection/MeetingDetectionView.swift,
 				UseCases/Settings/Components/Reusable/CustomToggle.swift,
 				UseCases/Settings/Components/SettingsCard.swift,
+				"UseCases/Settings/Components/TabViews/GeneralSettingsView+Preview.swift",
 				UseCases/Settings/ViewModels/FolderSettingsViewModel.swift,
 				UseCases/Settings/ViewModels/General/GeneralSettingsViewModel.swift,
+				"UseCases/Settings/ViewModels/General/GeneralSettingsViewModel+APIKeys.swift",
+				"UseCases/Settings/ViewModels/General/GeneralSettingsViewModel+ModelManagement.swift",
+				"UseCases/Settings/ViewModels/General/GeneralSettingsViewModel+ProviderValidation.swift",
 				UseCases/Settings/ViewModels/General/GeneralSettingsViewModelType.swift,
 				UseCases/Settings/ViewModels/MeetingDetection/MeetingDetectionSettingsViewModel.swift,
 				UseCases/Settings/ViewModels/MeetingDetection/MeetingDetectionSettingsViewModelType.swift,
@@ -561,7 +568,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3KRL43SU3T;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
@@ -581,7 +588,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3KRL43SU3T;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
