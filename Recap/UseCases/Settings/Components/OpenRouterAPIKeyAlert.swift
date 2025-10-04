@@ -25,29 +25,30 @@ struct OpenRouterAPIKeyAlert: View {
         CenteredAlert(
             isPresented: $isPresented,
             title: title,
-            onDismiss: {}
-        ) {
-            VStack(alignment: .leading, spacing: 20) {
-                inputSection
+            onDismiss: {},
+            content: {
+                VStack(alignment: .leading, spacing: 20) {
+                    inputSection
 
-                if let errorMessage = errorMessage {
-                    errorSection(errorMessage)
-                }
+                    if let errorMessage = errorMessage {
+                        errorSection(errorMessage)
+                    }
 
-                HStack {
-                    Spacer()
+                    HStack {
+                        Spacer()
 
-                    PillButton(
-                        text: isLoading ? "Saving..." : buttonTitle,
-                        icon: isLoading ? nil : "checkmark"
-                    ) {
-                        Task {
-                            await saveAPIKey()
+                        PillButton(
+                            text: isLoading ? "Saving..." : buttonTitle,
+                            icon: isLoading ? nil : "checkmark"
+                        ) {
+                            Task {
+                                await saveAPIKey()
+                            }
                         }
                     }
                 }
             }
-        }
+        )
         .onAppear {
             if let existingKey = existingKey {
                 apiKey = existingKey

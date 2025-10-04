@@ -1,38 +1,38 @@
 import CoreData
 
 final class CoreDataManager: CoreDataManagerType {
-    private let persistentContainer: NSPersistentContainer
+  private let persistentContainer: NSPersistentContainer
 
-    var viewContext: NSManagedObjectContext {
-        persistentContainer.viewContext
+  var viewContext: NSManagedObjectContext {
+    persistentContainer.viewContext
+  }
+
+  init(modelName: String = "RecapDataModel", inMemory: Bool = false) {
+    persistentContainer = NSPersistentContainer(name: modelName)
+
+    if inMemory {
+      persistentContainer.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
     }
 
-    init(modelName: String = "RecapDataModel", inMemory: Bool = false) {
-        persistentContainer = NSPersistentContainer(name: modelName)
-
-        if inMemory {
-            persistentContainer.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
-        }
-
-        persistentContainer.loadPersistentStores { _, error in
-            if let error = error {
-                fatalError("Failed to load Core Data stack: \(error)")
-            }
-        }
-
-        viewContext.automaticallyMergesChangesFromParent = true
+    persistentContainer.loadPersistentStores { _, error in
+      if let error = error {
+        fatalError("Failed to load Core Data stack: \(error)")
+      }
     }
 
-    func save() throws {
-        guard viewContext.hasChanges else { return }
-        try viewContext.save()
-    }
+    viewContext.automaticallyMergesChangesFromParent = true
+  }
 
-    func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) -> Void) {
-        persistentContainer.performBackgroundTask(block)
-    }
+  func save() throws {
+    guard viewContext.hasChanges else { return }
+    try viewContext.save()
+  }
 
-    func newBackgroundContext() -> NSManagedObjectContext {
-        persistentContainer.newBackgroundContext()
-    }
+  func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) -> Void) {
+    persistentContainer.performBackgroundTask(block)
+  }
+
+  func newBackgroundContext() -> NSManagedObjectContext {
+    persistentContainer.newBackgroundContext()
+  }
 }

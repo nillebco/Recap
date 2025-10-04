@@ -2,8 +2,8 @@ import AppKit
 
 @MainActor
 protocol SlidingPanelType: AnyObject {
-    var panelDelegate: SlidingPanelDelegate? { get set }
-    var contentView: NSView? { get }
+  var panelDelegate: SlidingPanelDelegate? { get set }
+  var contentView: NSView? { get }
 
-    func setFrame(_ frameRect: NSRect, display flag: Bool)
+  func setFrame(_ frameRect: NSRect, display flag: Bool)
 }

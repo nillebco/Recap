@@ -1,12 +1,12 @@
 import Foundation
 
 enum RecordingError: LocalizedError {
-    case failedToStop
+  case failedToStop
 
-    var errorDescription: String? {
-        switch self {
-        case .failedToStop:
-            return "Failed to stop recording properly"
-        }
+  var errorDescription: String? {
+    switch self {
+    case .failedToStop:
+      return "Failed to stop recording properly"
     }
+  }
 }
