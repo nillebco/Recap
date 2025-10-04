@@ -120,6 +120,7 @@
 				"UseCases/Settings/ViewModels/General/GeneralSettingsViewModel+APIKeys.swift",
 				"UseCases/Settings/ViewModels/General/GeneralSettingsViewModel+ModelManagement.swift",
 				"UseCases/Settings/ViewModels/General/GeneralSettingsViewModel+ProviderValidation.swift",
+				"UseCases/Settings/ViewModels/General/GeneralSettingsViewModel+Testing.swift",
 				UseCases/Settings/ViewModels/General/GeneralSettingsViewModelType.swift,
 				UseCases/Settings/ViewModels/MeetingDetection/MeetingDetectionSettingsViewModel.swift,
 				UseCases/Settings/ViewModels/MeetingDetection/MeetingDetectionSettingsViewModelType.swift,

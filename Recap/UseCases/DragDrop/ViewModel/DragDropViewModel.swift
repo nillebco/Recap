@@ -49,79 +49,76 @@ final class DragDropViewModel: DragDropViewModelType {
     isProcessing = true
 
     do {
-      // Validate file format
-      let fileExtension = url.pathExtension.lowercased()
-      let supportedFormats = ["wav", "mp3", "m4a", "flac"]
-
-      guard supportedFormats.contains(fileExtension) else {
-        throw DragDropError.unsupportedFormat(fileExtension)
-      }
-
-      // Create unique identifier with timestamp
-      let timestamp = ISO8601DateFormatter().string(from: Date())
-        .replacingOccurrences(of: ":", with: "-")
-        .replacingOccurrences(of: ".", with: "-")
-      let recordingID = "drag_drop_\(timestamp)"
-
-      // Get storage directory using helper
-      let recordingDirectory = try recordingFileManagerHelper.createRecordingDirectory(
-        for: recordingID)
-
-      // Copy audio file to storage
-      let destinationURL = recordingDirectory.appendingPathComponent("system_recording.wav")
-      try FileManager.default.copyItem(at: url, to: destinationURL)
-
-      logger.info("Copied audio file to: \(destinationURL.path, privacy: .public)")
-
-      var transcriptionText: String?
-      var transcriptionResult: TranscriptionResult?
-
-      // Transcribe if enabled
-      if transcriptEnabled {
-        logger.info("Starting transcription for drag & drop file")
-        let result = try await transcriptionService.transcribe(
-          audioURL: destinationURL, microphoneURL: nil)
-        transcriptionText = result.combinedText
-        transcriptionResult = result
-
-        // Save transcript to markdown with proper formatting
-        let transcriptURL = try saveFormattedTranscript(
-          result: result,
-          recordingDirectory: recordingDirectory,
-          audioURL: destinationURL,
-          startDate: Date()
-        )
-        logger.info("Saved transcript to: \(transcriptURL.path, privacy: .public)")
-      }
-
-      // Summarize if enabled and we have a transcript
-      if summarizeEnabled, let text = transcriptionText {
-        logger.info("Starting summarization for drag & drop file")
-
-        let summary = try await llmService.generateSummarization(
-          text: text,
-          options: .defaultSummarization
-        )
-
-        // Save summary to markdown
-        let summaryURL = recordingDirectory.appendingPathComponent("summary.md")
-        try summary.write(to: summaryURL, atomically: true, encoding: String.Encoding.utf8)
-        logger.info("Saved summary to: \(summaryURL.path, privacy: .public)")
-      }
+      try validateFileFormat(url: url)
+      let recordingDirectory = try await prepareRecordingDirectory(url: url)
+      let transcriptionText = try await transcribeIfEnabled(recordingDirectory: recordingDirectory)
+      try await summarizeIfEnabled(text: transcriptionText, recordingDirectory: recordingDirectory)
 
       successMessage = "File processed successfully! Saved to: \(recordingDirectory.path)"
-      logger.info("✅ Drag & drop processing complete: \(recordingID, privacy: .public)")
+      logger.info("✅ Drag & drop processing complete")
 
     } catch let error as DragDropError {
       errorMessage = error.localizedDescription
-      logger.error("❌ Drag & drop error: \(error.localizedDescription, privacy: .public)")
+      logger.error("❌ Drag & drop error: \(error.localizedDescription)")
     } catch {
       errorMessage = "Failed to process file: \(error.localizedDescription)"
-      logger.error(
-        "❌ Unexpected error in drag & drop: \(error.localizedDescription, privacy: .public)")
+      logger.error("❌ Unexpected error in drag & drop: \(error.localizedDescription)")
     }
 
     isProcessing = false
+  }
+
+  private func validateFileFormat(url: URL) throws {
+    let fileExtension = url.pathExtension.lowercased()
+    let supportedFormats = ["wav", "mp3", "m4a", "flac"]
+    guard supportedFormats.contains(fileExtension) else {
+      throw DragDropError.unsupportedFormat(fileExtension)
+    }
+  }
+
+  private func prepareRecordingDirectory(url: URL) throws -> URL {
+    let timestamp = ISO8601DateFormatter().string(from: Date())
+      .replacingOccurrences(of: ":", with: "-")
+      .replacingOccurrences(of: ".", with: "-")
+    let recordingID = "drag_drop_\(timestamp)"
+
+    let recordingDirectory = try recordingFileManagerHelper.createRecordingDirectory(for: recordingID)
+    let destinationURL = recordingDirectory.appendingPathComponent("system_recording.wav")
+    try FileManager.default.copyItem(at: url, to: destinationURL)
+
+    logger.info("Copied audio file to: \(destinationURL.path)")
+    return recordingDirectory
+  }
+
+  private func transcribeIfEnabled(recordingDirectory: URL) async throws -> String? {
+    guard transcriptEnabled else { return nil }
+
+    logger.info("Starting transcription for drag & drop file")
+    let audioURL = recordingDirectory.appendingPathComponent("system_recording.wav")
+    let result = try await transcriptionService.transcribe(audioURL: audioURL, microphoneURL: nil)
+
+    let transcriptURL = try saveFormattedTranscript(
+      result: result,
+      recordingDirectory: recordingDirectory,
+      audioURL: audioURL,
+      startDate: Date()
+    )
+    logger.info("Saved transcript to: \(transcriptURL.path)")
+    return result.combinedText
+  }
+
+  private func summarizeIfEnabled(text: String?, recordingDirectory: URL) async throws {
+    guard summarizeEnabled, let text = text else { return }
+
+    logger.info("Starting summarization for drag & drop file")
+    let summary = try await llmService.generateSummarization(
+      text: text,
+      options: .defaultSummarization
+    )
+
+    let summaryURL = recordingDirectory.appendingPathComponent("summary.md")
+    try summary.write(to: summaryURL, atomically: true, encoding: String.Encoding.utf8)
+    logger.info("Saved summary to: \(summaryURL.path)")
   }
 
   private func saveFormattedTranscript(

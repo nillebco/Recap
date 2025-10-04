@@ -157,8 +157,7 @@ struct DragDropView<ViewModel: DragDropViewModelType>: View {
   private func handleDrop(providers: [NSItemProvider]) -> Bool {
     guard let provider = providers.first else { return false }
 
-    provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) {
-      item, _ in
+    provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
       guard let data = item as? Data,
         let url = URL(dataRepresentation: data, relativeTo: nil)
       else { return }
