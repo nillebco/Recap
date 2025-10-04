@@ -37,6 +37,7 @@ final class DependencyContainer {
   lazy var appSelectionCoordinator: AppSelectionCoordinatorType = makeAppSelectionCoordinator()
   lazy var keychainService: KeychainServiceType = makeKeychainService()
   lazy var keychainAPIValidator: KeychainAPIValidatorType = makeKeychainAPIValidator()
+  lazy var dragDropViewModel: DragDropViewModel = makeDragDropViewModel()
 
   init(inMemory: Bool = false) {
     self.inMemory = inMemory
@@ -57,6 +58,7 @@ final class DependencyContainer {
       onboardingViewModel: onboardingViewModel,
       summaryViewModel: summaryViewModel,
       generalSettingsViewModel: generalSettingsViewModel,
+      dragDropViewModel: dragDropViewModel,
       userPreferencesRepository: userPreferencesRepository,
       meetingDetectionService: meetingDetectionService
     )

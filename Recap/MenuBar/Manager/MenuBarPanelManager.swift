@@ -11,12 +11,14 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
   var settingsPanel: SlidingPanel?
   var summaryPanel: SlidingPanel?
   var recapsPanel: SlidingPanel?
+  var dragDropPanel: SlidingPanel?
   var previousRecapsWindowManager: RecapsWindowManager?
 
   var isVisible = false
   var isSettingsVisible = false
   var isSummaryVisible = false
   var isRecapsVisible = false
+  var isDragDropVisible = false
   var isPreviousRecapsVisible = false
 
   let initialSize = CGSize(width: 485, height: 500)
@@ -34,6 +36,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
   let onboardingViewModel: OnboardingViewModel
   let summaryViewModel: SummaryViewModel
   let generalSettingsViewModel: GeneralSettingsViewModel
+  let dragDropViewModel: DragDropViewModel
   let userPreferencesRepository: UserPreferencesRepositoryType
   let meetingDetectionService: any MeetingDetectionServiceType
   private let logger = Logger(
@@ -51,6 +54,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     onboardingViewModel: OnboardingViewModel,
     summaryViewModel: SummaryViewModel,
     generalSettingsViewModel: GeneralSettingsViewModel,
+    dragDropViewModel: DragDropViewModel,
     userPreferencesRepository: UserPreferencesRepositoryType,
     meetingDetectionService: any MeetingDetectionServiceType
   ) {
@@ -62,6 +66,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     self.onboardingViewModel = onboardingViewModel
     self.summaryViewModel = summaryViewModel
     self.generalSettingsViewModel = generalSettingsViewModel
+    self.dragDropViewModel = dragDropViewModel
     self.userPreferencesRepository = userPreferencesRepository
     self.meetingDetectionService = meetingDetectionService
     self.previousRecapsViewModel = previousRecapsViewModel
@@ -193,6 +198,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     if isSettingsVisible { hideSettingsPanel() }
     if isSummaryVisible { hideSummaryPanel() }
     if isRecapsVisible { hideRecapsPanel() }
+    if isDragDropVisible { hideDragDropPanel() }
     if isPreviousRecapsVisible { hidePreviousRecapsWindow() }
   }
 
@@ -210,6 +216,7 @@ final class MenuBarPanelManager: MenuBarPanelManagerType, ObservableObject {
     panel = nil
     settingsPanel = nil
     recapsPanel = nil
+    dragDropPanel = nil
   }
 }
 
@@ -256,6 +263,18 @@ extension MenuBarPanelManager: StatusBarDelegate {
       isVisible: isRecapsVisible,
       show: showRecapsPanel,
       hide: hideRecapsPanel
+    )
+  }
+
+  func dragDropRequested() {
+    // Hide main panel and show only drag & drop panel
+    if isVisible {
+      hidePanel()
+    }
+    toggleSidePanel(
+      isVisible: isDragDropVisible,
+      show: showDragDropPanel,
+      hide: hideDragDropPanel
     )
   }
 

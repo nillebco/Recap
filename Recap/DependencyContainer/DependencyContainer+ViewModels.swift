@@ -39,4 +39,13 @@ extension DependencyContainer {
       userPreferencesRepository: userPreferencesRepository
     )
   }
+
+  func makeDragDropViewModel() -> DragDropViewModel {
+    DragDropViewModel(
+      transcriptionService: transcriptionService,
+      llmService: llmService,
+      userPreferencesRepository: userPreferencesRepository,
+      recordingFileManagerHelper: recordingFileManagerHelper
+    )
+  }
 }
