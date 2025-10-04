@@ -13,6 +13,10 @@ extension GeneralSettingsViewModelSpec {
       .store(key: .value(KeychainKey.openRouterApiKey.key), value: .value("test-api-key"))
       .willReturn()
 
+    given(mockLLMService)
+      .reinitializeProviders()
+      .willReturn()
+
     given(mockKeychainAPIValidator)
       .validateOpenRouterAPI()
       .willReturn(.valid)
