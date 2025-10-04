@@ -74,6 +74,7 @@ final class DragDropViewModel: DragDropViewModelType {
       logger.info("Copied audio file to: \(destinationURL.path, privacy: .public)")
 
       var transcriptionText: String?
+      var transcriptionResult: TranscriptionResult?
 
       // Transcribe if enabled
       if transcriptEnabled {
@@ -81,10 +82,15 @@ final class DragDropViewModel: DragDropViewModelType {
         let result = try await transcriptionService.transcribe(
           audioURL: destinationURL, microphoneURL: nil)
         transcriptionText = result.combinedText
+        transcriptionResult = result
 
-        // Save transcript to markdown
-        let transcriptURL = recordingDirectory.appendingPathComponent("transcript.md")
-        try result.combinedText.write(to: transcriptURL, atomically: true, encoding: .utf8)
+        // Save transcript to markdown with proper formatting
+        let transcriptURL = try saveFormattedTranscript(
+          result: result,
+          recordingDirectory: recordingDirectory,
+          audioURL: destinationURL,
+          startDate: Date()
+        )
         logger.info("Saved transcript to: \(transcriptURL.path, privacy: .public)")
       }
 
@@ -116,6 +122,56 @@ final class DragDropViewModel: DragDropViewModelType {
     }
 
     isProcessing = false
+  }
+
+  private func saveFormattedTranscript(
+    result: TranscriptionResult,
+    recordingDirectory: URL,
+    audioURL: URL,
+    startDate: Date
+  ) throws -> URL {
+    var markdown = ""
+
+    // Title
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss-SSS"
+    let dateString = dateFormatter.string(from: startDate)
+    markdown += "# Transcription - \(dateString)\n\n"
+
+    // Metadata
+    let generatedFormatter = ISO8601DateFormatter()
+    generatedFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    markdown += "**Generated:** \(generatedFormatter.string(from: Date()))\n"
+
+    // Duration from transcription result
+    markdown += "**Duration:** \(String(format: "%.2f", result.transcriptionDuration))s\n"
+
+    // Model used
+    markdown += "**Model:** \(result.modelUsed)\n"
+
+    // Sources (for drag & drop, it's always system audio only)
+    markdown += "**Sources:** System Audio\n"
+
+    // Transcript section
+    markdown += "## Transcript\n\n"
+
+    // Format transcript using timestamped data if available, otherwise use combined text
+    if let timestampedTranscription = result.timestampedTranscription {
+      let formattedTranscript = TranscriptionMerger.getFormattedTranscript(timestampedTranscription)
+      markdown += formattedTranscript
+    } else {
+      // Fallback to combined text if no timestamped data
+      markdown += result.combinedText
+    }
+
+    markdown += "\n"
+
+    // Save to file
+    let filename = "transcription_\(dateString).md"
+    let fileURL = recordingDirectory.appendingPathComponent(filename)
+    try markdown.write(to: fileURL, atomically: true, encoding: .utf8)
+
+    return fileURL
   }
 }
 
