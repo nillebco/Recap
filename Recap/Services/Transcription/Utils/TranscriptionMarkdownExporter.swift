@@ -22,10 +22,50 @@ final class TranscriptionMarkdownExporter {
       timestampedTranscription: timestampedTranscription
     )
 
-    let filename = generateFilename(from: recording)
-    let fileURL = destinationDirectory.appendingPathComponent(filename)
+    let fileURL = makeMarkdownURL(
+      recording: recording,
+      destinationDirectory: destinationDirectory
+    )
 
     try markdown.write(to: fileURL, atomically: true, encoding: .utf8)
+
+    return fileURL
+  }
+
+  /// Compute the markdown file URL for a recording.
+  static func makeMarkdownURL(
+    recording: RecordingInfo,
+    destinationDirectory: URL
+  ) -> URL {
+    let filename = generateFilename(from: recording)
+    return destinationDirectory.appendingPathComponent(filename)
+  }
+
+  /// Create a placeholder markdown file if one does not already exist.
+  /// - Parameters:
+  ///   - recording: The recording information used to name the file.
+  ///   - destinationDirectory: The directory where the markdown file should live.
+  /// - Returns: The URL of the placeholder (existing or newly created).
+  static func preparePlaceholder(
+    recording: RecordingInfo,
+    destinationDirectory: URL
+  ) throws -> URL {
+    try FileManager.default.createDirectory(
+      at: destinationDirectory,
+      withIntermediateDirectories: true
+    )
+
+    let fileURL = makeMarkdownURL(
+      recording: recording,
+      destinationDirectory: destinationDirectory
+    )
+
+    guard !FileManager.default.fileExists(atPath: fileURL.path) else {
+      return fileURL
+    }
+
+    let placeholder = placeholderMarkdown(for: recording)
+    try placeholder.write(to: fileURL, atomically: true, encoding: .utf8)
 
     return fileURL
   }
@@ -83,6 +123,32 @@ final class TranscriptionMarkdownExporter {
     dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss-SSS"
     let dateString = dateFormatter.string(from: recording.startDate)
     return "transcription_\(dateString).md"
+  }
+
+  /// Generate placeholder markdown content while transcription is in progress.
+  private static func placeholderMarkdown(for recording: RecordingInfo) -> String {
+    var markdown = ""
+
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss-SSS"
+    let dateString = dateFormatter.string(from: recording.startDate)
+    markdown += "# Transcription - \(dateString)\n\n"
+
+    let generatedFormatter = ISO8601DateFormatter()
+    generatedFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    markdown += "**Generated:** \(generatedFormatter.string(from: Date()))\n"
+
+    if let duration = recording.duration {
+      markdown += "**Duration:** \(String(format: "%.2f", duration))s\n"
+    }
+
+    if let applicationName = recording.applicationName {
+      markdown += "**Source Application:** \(applicationName)\n"
+    }
+
+    markdown += "\n_Transcription in progress..._\n"
+
+    return markdown
   }
 }
 

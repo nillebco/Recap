@@ -21,8 +21,13 @@ extension RecapViewModel {
       let recordedFiles = try await recordingCoordinator.startRecording(
         configuration: configuration)
 
-      try await createRecordingEntity(
+      let recordingInfo = try await createRecordingEntity(
         recordingID: recordingID,
+        recordedFiles: recordedFiles
+      )
+
+      await prepareTranscriptionPlaceholderIfNeeded(
+        recording: recordingInfo,
         recordedFiles: recordedFiles
       )
 
@@ -65,7 +70,7 @@ extension RecapViewModel {
   private func createRecordingEntity(
     recordingID: String,
     recordedFiles: RecordedFiles
-  ) async throws {
+  ) async throws -> RecordingInfo {
     let parameters = RecordingCreationParameters(
       id: recordingID,
       startDate: Date(),
@@ -77,6 +82,7 @@ extension RecapViewModel {
     )
     let recordingInfo = try await recordingRepository.createRecording(parameters)
     currentRecordings.insert(recordingInfo, at: 0)
+    return recordingInfo
   }
 
   private func handleRecordingStartError(_ error: Error) {
@@ -85,5 +91,42 @@ extension RecapViewModel {
     currentRecordingID = nil
     updateRecordingUIState(started: false)
     showErrorToast = true
+  }
+
+  private func prepareTranscriptionPlaceholderIfNeeded(
+    recording: RecordingInfo,
+    recordedFiles: RecordedFiles
+  ) async {
+    let autoTranscribeEnabled = await isAutoTranscribeEnabled()
+    guard autoTranscribeEnabled else { return }
+
+    let recordingDirectory: URL
+    if let systemAudioURL = recordedFiles.systemAudioURL {
+      recordingDirectory = systemAudioURL.deletingLastPathComponent()
+    } else {
+      recordingDirectory = fileManager.createRecordingBaseURL(for: recording.id)
+    }
+
+    do {
+      let placeholderURL = try TranscriptionMarkdownExporter.preparePlaceholder(
+        recording: recording,
+        destinationDirectory: recordingDirectory
+      )
+
+      logger.info("Prepared transcription placeholder at \(placeholderURL.path)")
+    } catch {
+      logger.error(
+        "Failed to prepare transcription placeholder: \(error.localizedDescription)")
+    }
+  }
+
+  private func isAutoTranscribeEnabled() async -> Bool {
+    do {
+      let preferences = try await userPreferencesRepository.getOrCreatePreferences()
+      return preferences.autoTranscribeEnabled
+    } catch {
+      logger.error("Failed to fetch transcription preference: \(error.localizedDescription)")
+      return true
+    }
   }
 }
