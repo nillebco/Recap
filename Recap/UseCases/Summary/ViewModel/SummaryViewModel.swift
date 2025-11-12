@@ -127,6 +127,35 @@ final class SummaryViewModel: SummaryViewModelType {
     loadRecording(withID: recording.id)
   }
 
+  func retryTranscription() async {
+    guard let recording = currentRecording else { return }
+
+    defer {
+      loadRecording(withID: recording.id)
+    }
+
+    if recording.state == .transcriptionFailed {
+      await processingCoordinator.retryProcessing(recordingID: recording.id)
+      return
+    }
+
+    do {
+      try await recordingRepository.updateRecordingState(
+        id: recording.id,
+        state: .transcribing,
+        errorMessage: nil
+      )
+
+      guard let updatedRecording = try await recordingRepository.fetchRecording(id: recording.id) else {
+        return
+      }
+
+      await processingCoordinator.startProcessing(recordingInfo: updatedRecording)
+    } catch {
+      errorMessage = "Failed to retry transcription: \(error.localizedDescription)"
+    }
+  }
+
   func fixStuckRecording() async {
     guard let recording = currentRecording else { return }
 

@@ -139,6 +139,66 @@ final class SummaryViewModelSpec: XCTestCase {
       .called(1)
   }
 
+  func testRetryTranscriptionFromCompletedRecordingRestartsProcessing() async throws {
+    let recording = createTestRecording(id: "test-id", state: .completed)
+    sut.currentRecording = recording
+
+    given(mockRecordingRepository)
+      .updateRecordingState(
+        id: .value(recording.id),
+        state: .value(.transcribing),
+        errorMessage: .value(nil)
+      )
+      .willReturn()
+
+    let updatedRecording = createTestRecording(id: recording.id, state: .transcribing)
+
+    given(mockRecordingRepository)
+      .fetchRecording(id: .value(recording.id))
+      .willReturn(updatedRecording)
+
+    given(mockProcessingCoordinator)
+      .startProcessing(recordingInfo: .value(updatedRecording))
+      .willReturn()
+
+    await sut.retryTranscription()
+
+    verify(mockRecordingRepository)
+      .updateRecordingState(
+        id: .value(recording.id),
+        state: .value(.transcribing),
+        errorMessage: .value(nil)
+      )
+      .called(1)
+
+    verify(mockProcessingCoordinator)
+      .startProcessing(recordingInfo: .value(updatedRecording))
+      .called(1)
+  }
+
+  func testRetryTranscriptionWhenTranscriptionFailedUsesCoordinatorRetry() async throws {
+    let recording = createTestRecording(id: "test-id", state: .transcriptionFailed)
+    sut.currentRecording = recording
+
+    given(mockProcessingCoordinator)
+      .retryProcessing(recordingID: .value(recording.id))
+      .willReturn()
+
+    given(mockRecordingRepository)
+      .fetchRecording(id: .value(recording.id))
+      .willReturn(recording)
+
+    await sut.retryTranscription()
+
+    verify(mockProcessingCoordinator)
+      .retryProcessing(recordingID: .value(recording.id))
+      .called(1)
+
+    verify(mockRecordingRepository)
+      .updateRecordingState(id: .value(recording.id), state: .any, errorMessage: .any)
+      .called(0)
+  }
+
   func testCopySummaryShowsToast() async throws {
     let recording = createTestRecording(
       state: .completed,

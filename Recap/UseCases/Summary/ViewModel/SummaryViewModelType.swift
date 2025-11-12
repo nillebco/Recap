@@ -14,6 +14,7 @@ protocol SummaryViewModelType: ObservableObject {
   func loadRecording(withID recordingID: String)
   func loadLatestRecording()
   func retryProcessing() async
+  func retryTranscription() async
   func fixStuckRecording() async
   func markAsCompleted() async
   func startAutoRefresh()

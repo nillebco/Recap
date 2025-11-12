@@ -229,6 +229,15 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
         }
 
         SummaryActionButton(
+          text: "Retry Transcription",
+          icon: "waveform"
+        ) {
+          Task {
+            await viewModel.retryTranscription()
+          }
+        }
+
+        SummaryActionButton(
           text: retryButtonText,
           icon: "arrow.clockwise"
         ) {
@@ -248,12 +257,11 @@ struct SummaryView<ViewModel: SummaryViewModelType>: View {
   private var retryButtonText: String {
     guard let recording = viewModel.currentRecording else { return "Retry Summarization" }
 
-    switch recording.state {
-    case .transcriptionFailed:
-      return "Retry"
-    default:
-      return "Retry Summarization"
+    if recording.summaryText?.isEmpty ?? true {
+      return "Summarize"
     }
+
+    return "Retry Summarization"
   }
 
 }
